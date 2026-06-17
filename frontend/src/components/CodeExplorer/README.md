@@ -8,7 +8,7 @@ Exposes the compiled folder trees and files.
 Arranges folder nodes in standard collapsible tree hierarchies.
 
 ### 2. Syntax Editor (`SyntaxEditor.tsx`)
-Shows generated Flutter source listings inside read-only/writable layouts.
+Shows generated React Native source listings inside read-only/writable layouts.
 
 ### 3. Download ZIP (`DownloadZIP.tsx`)
 Downloads the completed workspace as an archive.

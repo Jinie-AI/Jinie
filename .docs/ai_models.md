@@ -10,7 +10,7 @@ This document outlines the machine learning models utilized by **Jinie**, their 
 | :--- | :--- | :--- | :--- | :--- |
 | **NLP Intake Recommender** | Extracts page requirements, styling choices, features, and target business domains from natural language prompts. | Fine-tuned `DistilBERT` | 500–800 descriptions | 80% Train / 10% Val / 10% Test |
 | **Layout Recommender** | Selects and structures component configurations matching the target business domains. | `Random Forest` | 300–500 layout logs | 80% Train / 10% Val / 10% Test |
-| **Component Code Generator** | Outputs structured Flutter widget code matching visual token patterns. | Fine-tuned `CodeT5-small` | 100–200 curated component-code pairs | Custom curation |
+| **Component Code Generator** | Outputs structured React Native component code matching visual token patterns. | Fine-tuned `CodeT5-small` | 100–200 curated component-code pairs | Custom curation |
 
 ---
 
@@ -28,15 +28,15 @@ This document outlines the machine learning models utilized by **Jinie**, their 
 * **Tuning**: K-Fold cross-validation is used to optimize hyperparameter ranges.
 
 ### 3. Component Code Generator (CodeT5-small)
-* **Dataset Composition**: 100–200 manual pairs consisting of a natural language description of a UI component and its corresponding Flutter/Dart widget code block.
-* **Core Components Covered**: 15–20 e-commerce widgets (product card, hero banner, cart item, category chip, checkout buttons, search bar, discount badges, and image galleries).
-* **Variability**: 5–10 phrasing descriptions are mapped to each widget to improve training generalization limits.
+* **Dataset Composition**: 100–200 manual pairs consisting of a natural language description of a UI component and its corresponding React Native (with Expo) TSX component code block.
+* **Core Components Covered**: 15–20 e-commerce components (product card, hero banner, cart item, category chip, checkout buttons, search bar, discount badges, and image galleries).
+* **Variability**: 5–10 phrasing descriptions are mapped to each component to improve training generalization limits.
 
 ---
 
 ## 📚 References
 
-- **Flutter Documentation**: [docs.flutter.dev](https://docs.flutter.dev) (Used for widget trees, state management, and project configurations).
+- **React Native & Expo Documentation**: [reactnative.dev](https://reactnative.dev) & [docs.expo.dev](https://docs.expo.dev) (Used for component trees, state management, and Expo configuration files).
 - **DistilBERT Base**: Sanh, V. et al. (2019). *DistilBERT, a distilled version of BERT: smaller, faster, cheaper and lighter*. arXiv:1910.01108.
 - **CodeT5 Base**: Wang, Y. et al. (2021). *CodeT5: Identifier-aware Unified Pre-trained Encoder-Decoder Models for Code Understanding and Generation*. EMNLP 2021.
 - **Random Forest Foundations**: Breiman, L. (2001). *Random Forests*. Machine Learning, 45(1), 5–32.
