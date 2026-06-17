@@ -68,7 +68,7 @@ graph TD
 * **Traceability Manager (Module 03)**: Encodes hierarchy linkages between sitemaps, components, code lines, and specifications using trace matrix indices.
 * **SRS Generator (Module 04)**: NLP engine breaking prompt parameters into functional specifications and stack requirements.
 * **Component Generator (Module 05)**: Synthesizes design tokens and layouts into code files.
-* **Compiler (Module 06)**: Glues widgets, state, assets, and configs together into a standard Flutter codebase structure.
+* **Compiler (Module 06)**: Glues components, state, assets, and configurations together into a standard React Native (with Expo) codebase structure.
 * **Tester (Module 07)**: Checks logic endpoints against requirement behaviors.
 * **Logger (Module 08)**: Publishes activity logs and performs safety checks (boot validation, login checks) prior to release.
 * **Deployment Manager (Module 09)**: Compiles production bundles and posts assets live to Firebase Hosting.

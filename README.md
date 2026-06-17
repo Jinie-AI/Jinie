@@ -1,6 +1,6 @@
 # <div align="center">🧞 Jinie</div>
 
-## <div align="center">AI-Driven UI to Flutter Application Generation</div>
+## <div align="center">AI-Driven UI to React Native Application Generation</div>
 
 <div align="center">
 
@@ -8,7 +8,7 @@
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](#)
 [![Node Version](https://img.shields.io/badge/node-18%2B-green.svg)](#)
 [![Vite](https://img.shields.io/badge/vite-8.x-indigo.svg)](#)
-[![Flutter Compatibility](https://img.shields.io/badge/flutter-3.x-cyan.svg)](#)
+[![React Native Compatibility](https://img.shields.io/badge/react--native-Expo%20CLI-cyan.svg)](#)
 [![Developers](https://img.shields.io/badge/Developers-Team%20Jinie-orange.svg)](#)
 
 </div>
@@ -17,9 +17,9 @@
 
 ### <div align="center">"Bridging the space between imagination and production-ready mobile code."</div>
 
-Jinie is an intelligent, localized desktop pipeline engineered by **Ahmad Hassan (B-Ted)**, **Ansa Anwaar**, **Kaneez Zehra**, and **Chaudry Ali Sher**. It transforms plain text descriptions-supporting English, Urdu, and code-mixed Urdu-English (Roman Urdu)-into complete, runnable, and Firebase-hosted Flutter applications.
+Jinie is an intelligent, localized desktop pipeline engineered by **Ahmad Hassan (B-Ted)**, **Ansa Anwaar**, **Kaneez Zehra**, and **Chaudry Ali Sher**. It transforms plain text descriptions-supporting English, Urdu, and code-mixed Urdu-English (Roman Urdu)-into complete, runnable, and Firebase-hosted React Native (with Expo) applications.
 
-Rather than wrapping public third-party APIs, Jinie utilizes self-trained, specialized machine learning models to classify requirements, recommend screen layouts, and generate widget hierarchies. This architectural choice secures speed, reproducibility, and full local execution capability.
+Rather than wrapping public third-party APIs, Jinie utilizes self-trained, specialized machine learning models to classify requirements, recommend screen layouts, and generate component hierarchies. This architectural choice secures speed, reproducibility, and full local execution capability.
 
 ---
 
@@ -83,7 +83,7 @@ stateDiagram-v2
     Prompt_Intake --> SRS_Generation : 2. DistilBERT extracts requirements & sitemap
     SRS_Generation --> Design_Tokens : 3. User chooses colors, fonts, and layouts
     Design_Tokens --> User_Approval : 4. User reviews and approves functional specs
-    User_Approval --> Compilation : 5. CodeT5-small generates Flutter widget files
+    User_Approval --> Compilation : 5. CodeT5-small generates React Native component files
     Compilation --> Verification_Testing : 6. Simulator boot checks & integration tests
     Verification_Testing --> Live_Deployment : 7. Firebase helper publishes app
     Live_Deployment --> [*]
@@ -101,8 +101,8 @@ stateDiagram-v2
 | **02. Engine**              | `reframer`, `feedback`, `state`                                                 | Maintains state snapshots, rewrites inputs, routes user reviews.                          |
 | **03. Traceability**        | `id_assigner`                                                                   | Allocates unique hierarchical trace identifiers to elements.                              |
 | **04. SRS Generator**       | `requirement`, `sitemap`, `functional`, `non_functional`, `stack_identifier`    | Requirement classifiers, sitemap builders, stack identifiers.                             |
-| **05. Component Generator** | `generator`                                                                     | Selects layouts using design tokens; curates widget code.                                 |
-| **06. Compiler**            | `compiler`                                                                      | Links widget routes, styles, and scaffold configs.                                        |
+| **05. Component Generator** | `generator`                                                                     | Selects layouts using design tokens; curates React Native component code.                 |
+| **06. Compiler**            | `compiler`                                                                      | Links components, styles, and scaffold configs.                                           |
 | **07. Tester**              | `tester`                                                                        | Generates and executes test suites on compiled code.                                      |
 | **08. Logger**              | `logger`                                                                        | Tracks operations; performs preflight checks and login validation.                        |
 | **09. Deployment**          | `firebase_helper`                                                               | Configures and deploys build assets to Firebase Hosting.                                  |
@@ -115,7 +115,7 @@ stateDiagram-v2
 | **DesignPreferences** | Module 11 | `ColorPalette`, `Typography`, `LayoutMode`, `ThemeToggle`                 | Dynamic styling configuration swatches.                        |
 | **ProgressStatus**    | Module 12 | `StageTracker`, `LiveLogStream`, `ErrorAlerts`, `Controls`                | Progress monitor, real-time log terminal, build controls.      |
 | **SRSViewer**         | Module 13 | `RequirementListView`, `InlineEditor`, `ApprovalToggle`, `IDBadgeDisplay` | Requirement verification grid, inline editors, and check-offs. |
-| **LiveReview**        | Module 14 | `ComponentPreview`, `FullAppPreview`, `DeviceToggle`, `FeedbackCapture`   | Sandboxed simulator displaying preview widgets.                |
+| **LiveReview**        | Module 14 | `ComponentPreview`, `FullAppPreview`, `DeviceToggle`, `FeedbackCapture`   | Sandboxed simulator displaying preview components.             |
 | **CodeExplorer**      | Module 15 | `FileTreeView`, `SyntaxEditor`, `DownloadZIP`, `TraceabilityLink`         | File browser and ZIP packaging bundle triggers.                |
 
 ---
@@ -129,9 +129,9 @@ flowchart LR
     UserInput([Raw Text / Attachments]) -->|Engine Reframer| ProblemSpec[Structured Goal Object]
     ProblemSpec -->|DistilBERT NLP Intake| SRS[SRS Document & Sitemap]
     SRS -->|Random Forest Layout Recommender| ScreenTemplates[Component Layout Mapping]
-    ScreenTemplates -->|CodeT5-small Generator| DartCode[Individual Flutter Widget Code]
-    DartCode -->|Compiler Assembly| FlutterApp[Executable Project Bundle]
-    FlutterApp -->|Preflight Diagnostics| TestedApp[Verified Flutter Package]
+    ScreenTemplates -->|CodeT5-small Generator| TSXCode[React Native Component TSX Code]
+    TSXCode -->|Compiler Assembly| RNApp[Executable Project Bundle]
+    RNApp -->|Preflight Diagnostics| TestedApp[Verified React Native Package]
     TestedApp -->|Firebase Hosting Deploy| ProductionURL([Active Web Preview URL])
 ```
 
@@ -147,9 +147,9 @@ flowchart LR
 3. **Extraction**: `RequirementGenerator` triggers the local `DistilBERT` classifier to list required categories and screens.
 4. **Site Scaffolding**: `SitemapGenerator` configures navigation paths.
 5. **Interactive Checkpoint**: The client app renders the specification list. Execution pauses until requirements are checked and approved.
-6. **Widget Compilation**: Once approved, the `ComponentGenerator` reads styling tokens and triggers `CodeT5-small` iterations, building Dart UI widgets.
-7. **Scaffolding Integration**: The `Compiler` packages the code, inserting imports and configuration files.
-8. **Automated Verification**: `Tester` triggers Dart integration check suites.
+6. **Component Compilation**: Once approved, the `ComponentGenerator` reads styling tokens and triggers `CodeT5-small` iterations, building React Native component TSX code.
+7. **Scaffolding Integration**: The `Compiler` packages the code, inserting imports, package.json dependencies, and Expo configurations.
+8. **Automated Verification**: `Tester` triggers Jest/Expo component check suites.
 9. **Boot Safety Check**: The `Logger` verifies the application boots cleanly, executing authentication endpoints.
 10. **Cloud Deploy**: `FirebaseHelper` packages the assets and pushes them live.
 </details>
@@ -195,7 +195,7 @@ jinie-desktop/
 
 - **Node.js** (v18.0.0 or higher)
 - **Python** (v3.10 or higher)
-- **Flutter SDK** (for pipeline compilation output testing)
+- **Expo CLI** (for testing compiled React Native output)
 
 ### Setup & Local Development
 

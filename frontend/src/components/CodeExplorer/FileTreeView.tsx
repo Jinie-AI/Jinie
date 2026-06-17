@@ -5,9 +5,10 @@ export const FileTreeView: React.FC = () => {
     <div className="file-tree-view">
       <h3>Project File Structure</h3>
       <ul>
-        <li>📁 lib/</li>
-        <li>  📄 main.dart</li>
-        <li>📄 pubspec.yaml</li>
+        <li>📁 src/</li>
+        <li>  📄 App.tsx</li>
+        <li>📄 package.json</li>
+        <li>📄 app.json</li>
       </ul>
     </div>
   );

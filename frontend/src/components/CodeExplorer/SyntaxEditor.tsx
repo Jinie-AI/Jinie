@@ -5,8 +5,15 @@ export const SyntaxEditor: React.FC = () => {
     <div className="syntax-editor">
       <h3>File Source Viewer</h3>
       <pre style={{ border: '1px solid #ccc', padding: '10px' }}>
-        {`void main() {
-  runApp(const MyApp());
+        {`import React from 'react';
+import { View, Text } from 'react-native';
+
+export default function App() {
+  return (
+    <View>
+      <Text>Hello Jinie App</Text>
+    </View>
+  );
 }`}
       </pre>
     </div>
