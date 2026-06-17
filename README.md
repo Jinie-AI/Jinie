@@ -1,5 +1,9 @@
 # <div align="center">🧞 Jinie</div>
 
+<p align="center">
+  <img src=".docs/assets/logo-banner.png" alt="Jinie Logo Banner" width="100%" />
+</p>
+
 ## <div align="center">AI-Driven UI to React Native Application Generation</div>
 
 <div align="center">
