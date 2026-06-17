@@ -17,7 +17,7 @@
 
 ### <div align="center">"Bridging the space between imagination and production-ready mobile code."</div>
 
-Jinie is an intelligent, localized desktop pipeline engineered by **Ahmad Hassan (B-Ted)**, **Ansa Anwaar**, **Kaneez Zehra**, and **Chaudry Ali Sher**. It transforms plain text descriptions—supporting English, Urdu, and code-mixed Urdu-English (Roman Urdu)—into complete, runnable, and Firebase-hosted Flutter applications.
+Jinie is an intelligent, localized desktop pipeline engineered by **Ahmad Hassan (B-Ted)**, **Ansa Anwaar**, **Kaneez Zehra**, and **Chaudry Ali Sher**. It transforms plain text descriptions-supporting English, Urdu, and code-mixed Urdu-English (Roman Urdu)-into complete, runnable, and Firebase-hosted Flutter applications.
 
 Rather than wrapping public third-party APIs, Jinie utilizes self-trained, specialized machine learning models to classify requirements, recommend screen layouts, and generate widget hierarchies. This architectural choice secures speed, reproducibility, and full local execution capability.
 
