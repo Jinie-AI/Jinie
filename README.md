@@ -27,7 +27,7 @@ Rather than wrapping public third-party APIs, Jinie utilizes self-trained, speci
 
 ---
 
-## 🧭 Architecture Overview
+## Architecture Overview
 
 Jinie relies on a decoupled, client-server desktop model. The frontend desktop client hosts the interface controls, and the Python service layer handles NLP requirement processing, code compilation, and preflight testing.
 
@@ -77,7 +77,7 @@ graph TB
 
 ---
 
-## ⚡ System Workflow
+## System Workflow
 
 The generation pipeline moves through seven distinct checkpoints:
 
@@ -95,7 +95,7 @@ stateDiagram-v2
 
 ---
 
-## 📦 Internal Module Structure
+## Internal Module Structure
 
 ### Backend Modules (`backend/`)
 
@@ -124,7 +124,7 @@ stateDiagram-v2
 
 ---
 
-## 🔄 Data Flow
+## Data Flow
 
 The flow of inputs and outputs through the self-trained ML model endpoints is structured as follows:
 
@@ -141,10 +141,10 @@ flowchart LR
 
 ---
 
-## 🛠️ Request Lifecycle & Build Pipeline
+## Request Lifecycle & Build Pipeline
 
 <details>
-<summary>🔍 View Detailed Request Lifecycle</summary>
+<summary> View Detailed Request Lifecycle</summary>
 
 1. **Intake**: A text prompt (e.g. Roman Urdu text outlining product pages) is submitted through the `PromptInputBox`.
 2. **Reframing**: The `EngineReframer` translates colloquialisms and prepares a standardized problem target.
@@ -160,7 +160,7 @@ flowchart LR
 
 ---
 
-## 📂 Repository Structure
+## Repository Structure
 
 ```text
 jinie-desktop/
@@ -193,7 +193,7 @@ jinie-desktop/
 
 ---
 
-## 💻 Development Workflow
+## Development Workflow
 
 ### Prerequisites
 
