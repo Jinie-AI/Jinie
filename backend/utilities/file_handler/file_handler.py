@@ -1,378 +1,150 @@
 """
-backend/utilities/file_handler/file_handler.py
-===============================================
-Concrete implementation of IFileHandler for the Jinie project.
+file_handler.py
 
-Sprint 1  :  read, write, append, delete, move, copy, exists, list_dir
-Sprint 2  :  binary support for uploaded images/PDFs, richer mime detection
-
-Where this sits in the Jinie pipeline
---------------------------------------
-  [User uploads wireframe / Compiler saves Dart file]
-                    │
-                    ▼
-          FileHandler.read(path)
-                    │
-                    ▼   FilePayload
-          CodeEditor.load_file(payload)   ← next submodule
+Concrete implementation of IFileHandler using the local filesystem
+(pathlib + shutil). This is the default handler used by Jinie's backend
+for all local, on-disk operations: writing generated React Native
+component files, scaffolding Expo projects, managing SRS documents, etc.
 """
 
-import os
-import uuid
 import shutil
-import mimetypes
-from datetime import datetime, timezone
 from pathlib import Path
+from typing import List, Dict, Union
 
-from backend.utilities.file_handler.file_handler_contract import (
-    IFileHandler,
-    FilePayload,
-    WriteReceipt,
-    FileInfo,
-    FileHandlerError,
-)
+from file_handler_contract import IFileHandler
 
-
-# ── private helpers ───────────────────────────────────────────────────────────
-
-def _make_trace_id() -> str:
-    """Every operation gets a unique ID registered in Traceability Matrix."""
-    return f"FH-{uuid.uuid4()}"
-
-
-def _resolve(path: str) -> str:
-    """Return absolute, normalised path string."""
-    return str(Path(path).resolve())
-
-
-def _validate(path: str) -> None:
-    """Raise INVALID_PATH if path is empty or blank."""
-    if not path or not path.strip():
-        raise FileHandlerError(
-            "INVALID_PATH",
-            "path must be a non-empty string.",
-            path,
-        )
-
-
-def _log_entry(op: str, path: str, tid: str,
-               extra: dict | None = None) -> dict:
-    entry = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "operation": op,
-        "path":      path,
-        "trace_id":  tid,
-    }
-    if extra:
-        entry.update(extra)
-    return entry
-
-
-# ── implementation ────────────────────────────────────────────────────────────
 
 class FileHandler(IFileHandler):
-    """
-    The only class in Jinie that is allowed to touch the filesystem.
+    """Local-disk implementation of the file handler contract."""
 
-    Quick usage
-    -----------
-        fh = FileHandler()
+    def __init__(self, base_path: str = "."):
+        self.base_path = Path(base_path).resolve()
 
-        # Engine reads a user-uploaded reference file
-        payload = fh.read("/uploads/wireframe.txt")
+    def _resolve(self, path: str) -> Path:
+        p = Path(path)
+        return p if p.is_absolute() else (self.base_path / p)
 
-        # Compiler saves a generated Dart widget
-        fh.write("/project/lib/widgets/product_card.dart", dart_code)
+    # ---------------------------------------------------------------
+    # File-level operations
+    # ---------------------------------------------------------------
 
-        # Hand payload to CodeEditor for edits
-        code_payload = CodeEditor().load_file(payload).get_payload()
-    """
-
-    def __init__(self) -> None:
-        # Logger (Module 08) reads this via get_log()
-        self._log: list[dict] = []
-
-    # ── read ──────────────────────────────────────────────────────────────────
-
-    def read(self, path: str) -> FilePayload:
-        """
-        Read a UTF-8 text file and return a FilePayload.
-
-        In Jinie this is called for:
-          • User-uploaded reference files (text/wireframe descriptions)
-          • Generated Dart files from the Compiler before CodeEditor edits
-          • pubspec.yaml, firebase.json, .env config files
-
-        OUTPUT → FilePayload → CodeEditor.load_file(payload)
-        """
-        _validate(path)
-        absp = _resolve(path)
-        tid  = _make_trace_id()
-
-        # file must exist
-        if not os.path.isfile(absp):
-            raise FileHandlerError("FILE_NOT_FOUND",
-                                   "File does not exist.", absp)
-
-        # read raw bytes
+    def read_file(self, path: str) -> str:
+        target = self._resolve(path)
         try:
-            raw_bytes = Path(absp).read_bytes()
-        except PermissionError:
-            raise FileHandlerError("PERMISSION_ERROR",
-                                   "Read permission denied.", absp)
+            return target.read_text(encoding="utf-8")
+        except FileNotFoundError:
+            raise FileNotFoundError(f"File not found: {target}")
+        except UnicodeDecodeError as exc:
+            raise ValueError(f"Could not decode file as UTF-8: {target}") from exc
 
-        # decode — Jinie works only with UTF-8 text files
+    def write_file(self, path: str, content: str, overwrite: bool = True) -> bool:
+        target = self._resolve(path)
         try:
-            raw_content = raw_bytes.decode("utf-8")
-        except UnicodeDecodeError:
-            raise FileHandlerError(
-                "ENCODING_ERROR",
-                "File is not valid UTF-8. "
-                "Binary files (images, compiled PDFs) are Sprint 2.",
-                absp,
-            )
-
-        ext       = Path(absp).suffix.lower()
-        mime, _   = mimetypes.guess_type(absp)
-        size      = len(raw_bytes)
-
-        payload = FilePayload(
-            path        = absp,
-            raw_content = raw_content,
-            encoding    = "utf-8",
-            size_bytes  = size,
-            extension   = ext,
-            trace_id    = tid,
-            mime_type   = mime or "",
-        )
-
-        self._log.append(_log_entry("READ", absp, tid,
-                                    {"size_bytes": size,
-                                     "extension":  ext}))
-        return payload
-
-    # ── write ─────────────────────────────────────────────────────────────────
-
-    def write(self, path: str, content: str,
-              overwrite: bool = True) -> WriteReceipt:
-        """
-        Write content to path. Creates parent directories automatically.
-
-        In Jinie this is called for:
-          • Saving CodeT5-generated Dart widget code
-          • Writing main.dart, pubspec.yaml, firebase.json
-          • Saving the SRS document as a .md file
-        """
-        _validate(path)
-        absp = _resolve(path)
-        tid  = _make_trace_id()
-
-        if not overwrite and os.path.exists(absp):
-            raise FileHandlerError(
-                "DESTINATION_EXISTS",
-                "File already exists. Pass overwrite=True to replace it.",
-                absp,
-            )
-
-        overwritten = os.path.exists(absp)
-        Path(absp).parent.mkdir(parents=True, exist_ok=True)
-
-        try:
-            encoded = content.encode("utf-8")
-            Path(absp).write_bytes(encoded)
-        except PermissionError:
-            raise FileHandlerError("PERMISSION_ERROR",
-                                   "Write permission denied.", absp)
-        except OSError as exc:
-            if "No space left" in str(exc):
-                raise FileHandlerError("DISK_FULL",
-                                       "No space left on device.", absp)
-            raise FileHandlerError("PERMISSION_ERROR", str(exc), absp)
-
-        receipt = WriteReceipt(
-            success       = True,
-            path          = absp,
-            bytes_written = len(encoded),
-            trace_id      = tid,
-            overwritten   = overwritten,
-        )
-        self._log.append(_log_entry("WRITE", absp, tid, {
-            "bytes_written": len(encoded),
-            "overwritten":   overwritten,
-        }))
-        return receipt
-
-    # ── append ────────────────────────────────────────────────────────────────
-
-    def append(self, path: str, content: str) -> WriteReceipt:
-        """
-        Append content to path. Creates the file if it does not exist.
-
-        In Jinie this is called for:
-          • Adding new widget blocks to an existing Dart file
-          • Logger appending audit events to a log file
-        """
-        _validate(path)
-        absp = _resolve(path)
-        tid  = _make_trace_id()
-
-        Path(absp).parent.mkdir(parents=True, exist_ok=True)
-
-        try:
-            encoded = content.encode("utf-8")
-            with open(absp, "ab") as f:
-                f.write(encoded)
-        except PermissionError:
-            raise FileHandlerError("PERMISSION_ERROR",
-                                   "Append permission denied.", absp)
-
-        receipt = WriteReceipt(
-            success       = True,
-            path          = absp,
-            bytes_written = len(encoded),
-            trace_id      = tid,
-            overwritten   = False,
-        )
-        self._log.append(_log_entry("APPEND", absp, tid,
-                                    {"bytes_written": len(encoded)}))
-        return receipt
-
-    # ── delete ────────────────────────────────────────────────────────────────
-
-    def delete(self, path: str) -> bool:
-        """
-        Delete a file.
-        Returns True if deleted, False if it was already gone.
-
-        In Jinie this is called for:
-          • Cleaning up temp build files after compilation
-          • Removing failed Dart files before regeneration
-        """
-        _validate(path)
-        absp = _resolve(path)
-        tid  = _make_trace_id()
-
-        if not os.path.exists(absp):
-            self._log.append(_log_entry("DELETE_SKIP", absp, tid,
-                                        {"reason": "file not found"}))
+            if target.exists() and not overwrite:
+                return False
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(content, encoding="utf-8")
+            return True
+        except OSError:
             return False
 
+    def append_file(self, path: str, content: str) -> bool:
+        target = self._resolve(path)
         try:
-            os.remove(absp)
-        except PermissionError:
-            raise FileHandlerError("PERMISSION_ERROR",
-                                   "Delete permission denied.", absp)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with target.open("a", encoding="utf-8") as f:
+                f.write(content)
+            return True
+        except OSError:
+            return False
 
-        self._log.append(_log_entry("DELETE", absp, tid))
-        return True
-
-    # ── move ──────────────────────────────────────────────────────────────────
-
-    def move(self, src: str, dst: str,
-             create_parents: bool = False) -> str:
-        """
-        Move src to dst. Returns absolute dst path.
-
-        In Jinie this is called for:
-          • Moving compiled files into the final Flutter project folder
-        """
-        _validate(src)
-        _validate(dst)
-        abs_src = _resolve(src)
-        abs_dst = _resolve(dst)
-        tid     = _make_trace_id()
-
-        if not os.path.exists(abs_src):
-            raise FileHandlerError("FILE_NOT_FOUND",
-                                   "Source does not exist.", abs_src)
-
-        if create_parents:
-            Path(abs_dst).parent.mkdir(parents=True, exist_ok=True)
-
+    def delete_file(self, path: str) -> bool:
+        target = self._resolve(path)
         try:
-            shutil.move(abs_src, abs_dst)
-        except PermissionError:
-            raise FileHandlerError("PERMISSION_ERROR",
-                                   "Move permission denied.", abs_src)
+            target.unlink(missing_ok=True)
+            return True
+        except OSError:
+            return False
 
-        self._log.append(_log_entry("MOVE", abs_src, tid,
-                                    {"destination": abs_dst}))
-        return abs_dst
-
-    # ── copy ──────────────────────────────────────────────────────────────────
-
-    def copy(self, src: str, dst: str,
-             create_parents: bool = False) -> str:
-        """
-        Copy src to dst. Returns absolute dst path.
-
-        In Jinie this is called for:
-          • Copying template Dart files before CodeEditor applies edits
-        """
-        _validate(src)
-        _validate(dst)
-        abs_src = _resolve(src)
-        abs_dst = _resolve(dst)
-        tid     = _make_trace_id()
-
-        if not os.path.exists(abs_src):
-            raise FileHandlerError("FILE_NOT_FOUND",
-                                   "Source does not exist.", abs_src)
-
-        if create_parents:
-            Path(abs_dst).parent.mkdir(parents=True, exist_ok=True)
-
+    def copy_file(self, source: str, destination: str) -> bool:
+        src, dest = self._resolve(source), self._resolve(destination)
         try:
-            shutil.copy2(abs_src, abs_dst)
-        except PermissionError:
-            raise FileHandlerError("PERMISSION_ERROR",
-                                   "Copy permission denied.", abs_src)
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, dest)
+            return True
+        except OSError:
+            return False
 
-        self._log.append(_log_entry("COPY", abs_src, tid,
-                                    {"destination": abs_dst}))
-        return abs_dst
+    def move_file(self, source: str, destination: str) -> bool:
+        src, dest = self._resolve(source), self._resolve(destination)
+        try:
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(src), str(dest))
+            return True
+        except OSError:
+            return False
 
-    # ── exists ────────────────────────────────────────────────────────────────
+    def file_exists(self, path: str) -> bool:
+        return self._resolve(path).is_file()
 
-    def exists(self, path: str) -> bool:
-        """Return True if path exists (file or directory)."""
-        _validate(path)
-        return os.path.exists(_resolve(path))
+    def get_file_size(self, path: str) -> int:
+        target = self._resolve(path)
+        if not target.is_file():
+            raise FileNotFoundError(f"File not found: {target}")
+        return target.stat().st_size
 
-    # ── list_dir ──────────────────────────────────────────────────────────────
+    # ---------------------------------------------------------------
+    # Directory-level operations
+    # ---------------------------------------------------------------
 
-    def list_dir(self, path: str) -> list[FileInfo]:
-        """
-        List directory contents sorted A→Z by name.
+    def create_directory(self, path: str) -> bool:
+        target = self._resolve(path)
+        try:
+            target.mkdir(parents=True, exist_ok=True)
+            return True
+        except OSError:
+            return False
 
-        In Jinie this is called for:
-          • Code Explorer (Module 15) building the file tree view
-          • Deployment Manager packaging all files for Firebase
-        """
-        _validate(path)
-        absp = _resolve(path)
+    def delete_directory(self, path: str, recursive: bool = True) -> bool:
+        target = self._resolve(path)
+        try:
+            if recursive:
+                shutil.rmtree(target, ignore_errors=True)
+            else:
+                target.rmdir()
+            return True
+        except OSError:
+            return False
 
-        if not os.path.isdir(absp):
-            raise FileHandlerError("DIRECTORY_NOT_FOUND",
-                                   "Path is not a directory.", absp)
+    def directory_exists(self, path: str) -> bool:
+        return self._resolve(path).is_dir()
 
-        entries: list[FileInfo] = []
-        for e in sorted(os.scandir(absp), key=lambda x: x.name.lower()):
-            st = e.stat()
-            entries.append(FileInfo(
-                name         = e.name,
-                path         = str(Path(e.path).resolve()),
-                size_bytes   = st.st_size if e.is_file() else 0,
-                extension    = Path(e.name).suffix.lower() if e.is_file() else "",
-                is_directory = e.is_dir(),
-            ))
-        return entries
+    def list_directory(self, path: str) -> List[str]:
+        target = self._resolve(path)
+        if not target.is_dir():
+            raise NotADirectoryError(f"Not a directory: {target}")
+        return sorted(entry.name for entry in target.iterdir())
 
-    # ── log ───────────────────────────────────────────────────────────────────
+    # ---------------------------------------------------------------
+    # Project scaffolding
+    # ---------------------------------------------------------------
 
-    def get_log(self) -> list[dict]:
-        """
-        Return snapshot of the internal log.
-        Module 08 (Logger) reads this for audit and preflight checks.
-        """
-        return list(self._log)
+    def create_project_scaffold(
+        self, root_path: str, structure: Dict[str, Union[dict, str, None]]
+    ) -> bool:
+        root = self._resolve(root_path)
+        try:
+            self._build_tree(root, structure)
+            return True
+        except OSError:
+            return False
+
+    def _build_tree(self, current_path: Path, node: Dict[str, Union[dict, str, None]]) -> None:
+        current_path.mkdir(parents=True, exist_ok=True)
+        for name, value in node.items():
+            entry_path = current_path / name
+            if isinstance(value, dict):
+                self._build_tree(entry_path, value)
+            else:
+                entry_path.parent.mkdir(parents=True, exist_ok=True)
+                entry_path.write_text(value or "", encoding="utf-8")
