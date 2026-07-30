@@ -16,10 +16,10 @@ from __future__ import annotations
 
 import json
 import logging
-import re
 from typing import Optional, TypedDict, List
 
-from models.llm_client import LLMClient, LLMAPIError
+from common.llm_client import LLMClient, LLMAPIError
+from common.json_utils import strip_markdown_fences
 
 logger = logging.getLogger(__name__)
 
@@ -65,13 +65,8 @@ def _build_user_prompt(normalized_text: str) -> str:
     return f"App description:\n\"\"\"\n{normalized_text}\n\"\"\""
 
 
-def _strip_markdown_fences(raw: str) -> str:
-    # Defensive cleanup in case the model wraps the JSON in ```json fences
-    # despite instructions not to.
-    cleaned = raw.strip()
-    cleaned = re.sub(r"^```(?:json)?", "", cleaned).strip()
-    cleaned = re.sub(r"```$", "", cleaned).strip()
-    return cleaned
+# Backwards-compatible alias (existing tests import this private name directly)
+_strip_markdown_fences = strip_markdown_fences
 
 
 def extract_with_llm(normalized_text: str, trace_id: str) -> Optional[ExtractedFeatures]:
