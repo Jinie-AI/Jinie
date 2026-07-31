@@ -1,10 +1,13 @@
 """
-Logger Module for Jinie Backend.
-Provides pipeline execution tracking and application health diagnostics.
+backend/srs/logger/__init__.py
+
+Public interface for the logger/ package. Lets other modules do:
+
+    from logger import Logger
+
+instead of reaching into logger.logger directly.
 """
 
-from .logger import Logger
+from logger.logger import Logger
 
-__all__ = [
-    "Logger",
-]
+__all__ = ["Logger"]

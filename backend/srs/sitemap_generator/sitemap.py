@@ -29,6 +29,7 @@ from common.schemas import (
     ScreenType,
 )
 from sitemap_generator.sitemap_model import generate_sitemap_with_llm
+from logger import Logger
 
 logger = logging.getLogger(__name__)
 
@@ -148,6 +149,8 @@ def generate_sitemap(functional_set: FunctionalRequirementSet, trace_id: str) ->
     nothing usable.
     """
     start_time = time.perf_counter()
+    logger_instance = Logger(trace_id=trace_id)
+    logger_instance.log_event("sitemap.py", f"Starting sitemap generation | fr_count={len(functional_set.requirements)}")
     logger.info(
         "trace_id=%s | sitemap.py | stage=start | fr_count=%d",
         trace_id, len(functional_set.requirements),
@@ -160,6 +163,7 @@ def generate_sitemap(functional_set: FunctionalRequirementSet, trace_id: str) ->
     edges: List[NavigationEdge] = []
 
     if llm_result is not None:
+        logger_instance.log_event("sitemap.py", "Using LLM-generated sitemap (model path)")
         logger.info("trace_id=%s | sitemap.py | using LLM-generated sitemap (model path)", trace_id)
         screen_name_to_id: Dict[str, str] = {}
         for index, screen in enumerate(llm_result["screens"], start=1):
@@ -176,6 +180,7 @@ def generate_sitemap(functional_set: FunctionalRequirementSet, trace_id: str) ->
                 nodes.append(node)
                 screen_name_to_id[screen["screen_name"]] = screen_id
             except Exception as exc:  # noqa: BLE001
+                logger_instance.log_event("sitemap.py", f"Failed to build screen node from LLM item at index={index} | error={str(exc)}", level="CRITICAL")
                 logger.critical(
                     "trace_id=%s | sitemap.py | failed to build screen node from LLM item at index=%d | error=%s",
                     trace_id, index, str(exc), exc_info=True,
@@ -195,6 +200,7 @@ def generate_sitemap(functional_set: FunctionalRequirementSet, trace_id: str) ->
                     )
                 )
             except Exception as exc:  # noqa: BLE001
+                logger_instance.log_event("sitemap.py", f"Failed to build edge from LLM item | error={str(exc)}", level="CRITICAL")
                 logger.critical(
                     "trace_id=%s | sitemap.py | failed to build edge from LLM item | error=%s",
                     trace_id, str(exc), exc_info=True,
@@ -202,6 +208,7 @@ def generate_sitemap(functional_set: FunctionalRequirementSet, trace_id: str) ->
                 continue
 
     if not nodes:
+        logger_instance.log_event("sitemap.py", "LLM path unavailable/empty, falling back to keyword-lookup rules", level="WARNING")
         logger.warning(
             "trace_id=%s | sitemap.py | LLM path unavailable/empty, falling back to keyword-lookup rules",
             trace_id,
@@ -209,6 +216,7 @@ def generate_sitemap(functional_set: FunctionalRequirementSet, trace_id: str) ->
         return _generate_via_rules(functional_set, trace_id)
 
     elapsed_ms = (time.perf_counter() - start_time) * 1000
+    logger_instance.log_event("sitemap.py", f"Stage complete | screen_count={len(nodes)} edge_count={len(edges)} duration_ms={elapsed_ms:.2f}")
     logger.info(
         "trace_id=%s | sitemap.py | stage=complete | screen_count=%d edge_count=%d duration_ms=%.2f",
         trace_id, len(nodes), len(edges), elapsed_ms,

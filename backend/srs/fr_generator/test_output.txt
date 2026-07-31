@@ -1,0 +1,17 @@
+============================= test session starts ==============================
+collecting ... collected 12 items
+
+fr_generator/tests.py::test_valid_fr_list_parses_correctly PASSED        [  8%]
+fr_generator/tests.py::test_markdown_fenced_response_still_parses PASSED [ 16%]
+fr_generator/tests.py::test_llm_api_error_returns_none PASSED            [ 25%]
+fr_generator/tests.py::test_non_array_response_returns_none PASSED       [ 33%]
+fr_generator/tests.py::test_invalid_json_returns_none PASSED             [ 41%]
+fr_generator/tests.py::test_malformed_item_in_array_is_skipped_not_fatal PASSED [ 50%]
+fr_generator/tests.py::test_empty_array_returns_none PASSED              [ 58%]
+fr_generator/tests.py::test_uses_llm_result_when_available PASSED        [ 66%]
+fr_generator/tests.py::test_falls_back_to_templates_when_llm_unavailable PASSED [ 75%]
+fr_generator/tests.py::test_unknown_intent_falls_back_to_default_template PASSED [ 83%]
+fr_generator/tests.py::test_invalid_priority_from_llm_defaults_to_medium PASSED [ 91%]
+fr_generator/tests.py::test_trace_id_propagated PASSED                   [100%]
+
+============================== 12 passed in 0.53s ==============================

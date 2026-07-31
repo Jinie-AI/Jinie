@@ -1,0 +1,19 @@
+============================= test session starts ==============================
+collecting ... collected 14 items
+
+sitemap_generator/tests.py::test_valid_sitemap_parses_correctly PASSED   [  7%]
+sitemap_generator/tests.py::test_markdown_fenced_response_still_parses PASSED [ 14%]
+sitemap_generator/tests.py::test_llm_api_error_returns_none PASSED       [ 21%]
+sitemap_generator/tests.py::test_empty_fr_summaries_skips_llm_call PASSED [ 28%]
+sitemap_generator/tests.py::test_missing_screens_key_returns_none PASSED [ 35%]
+sitemap_generator/tests.py::test_invalid_screen_type_falls_back_to_generic PASSED [ 42%]
+sitemap_generator/tests.py::test_edge_referencing_unknown_screen_is_dropped PASSED [ 50%]
+sitemap_generator/tests.py::test_unknown_fr_id_in_linked_ids_is_filtered PASSED [ 57%]
+sitemap_generator/tests.py::test_invalid_json_returns_none PASSED        [ 64%]
+sitemap_generator/tests.py::test_uses_llm_result_when_available PASSED   [ 71%]
+sitemap_generator/tests.py::test_falls_back_to_rules_when_llm_unavailable PASSED [ 78%]
+sitemap_generator/tests.py::test_llm_result_with_no_entry_point_gets_one_assigned PASSED [ 85%]
+sitemap_generator/tests.py::test_empty_fr_list_returns_empty_sitemap PASSED [ 92%]
+sitemap_generator/tests.py::test_trace_id_propagated PASSED              [100%]
+
+============================== 14 passed in 0.51s ==============================

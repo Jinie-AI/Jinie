@@ -30,6 +30,7 @@ from common.schemas import (
     RelationshipType,
 )
 from entities_generator.entities_model import generate_entities_with_llm
+from logger import Logger
 
 logger = logging.getLogger(__name__)
 
@@ -214,6 +215,8 @@ def generate_entities(
     the LLM call fails or returns nothing usable.
     """
     start_time = time.perf_counter()
+    logger_instance = Logger(trace_id=trace_id)
+    logger_instance.log_event("entities.py", f"Starting entity generation | candidate_entities={raw_features.candidate_entities}")
     logger.info(
         "trace_id=%s | entities.py | stage=start | candidate_entities=%s",
         trace_id, raw_features.candidate_entities,
@@ -225,6 +228,7 @@ def generate_entities(
     llm_entities = generate_entities_with_llm(raw_features.normalized_text, fr_summaries, trace_id)
 
     if llm_entities is not None:
+        logger_instance.log_event("entities.py", "Using LLM-generated entities (model path)")
         logger.info("trace_id=%s | entities.py | using LLM-generated entities (model path)", trace_id)
         name_to_index = {item["name"]: i for i, item in enumerate(llm_entities)}
         for index, item in enumerate(llm_entities, start=1):
@@ -255,6 +259,7 @@ def generate_entities(
                 )
                 entities.append(entity)
             except Exception as exc:  # noqa: BLE001
+                logger_instance.log_event("entities.py", f"Failed to build entity from LLM item at index={index} | error={str(exc)}", level="CRITICAL")
                 logger.critical(
                     "trace_id=%s | entities.py | failed to build entity from LLM item at index=%d | error=%s",
                     trace_id, index, str(exc), exc_info=True,
@@ -262,6 +267,7 @@ def generate_entities(
                 continue
 
     if not entities:
+        logger_instance.log_event("entities.py", "LLM path unavailable/empty, falling back to archetype dictionary", level="WARNING")
         logger.warning(
             "trace_id=%s | entities.py | LLM path unavailable/empty, falling back to archetype dictionary",
             trace_id,
@@ -269,6 +275,7 @@ def generate_entities(
         entities = _generate_via_rules(raw_features, functional_set, trace_id)
 
     elapsed_ms = (time.perf_counter() - start_time) * 1000
+    logger_instance.log_event("entities.py", f"Stage complete | entity_count={len(entities)} duration_ms={elapsed_ms:.2f}")
     logger.info(
         "trace_id=%s | entities.py | stage=complete | entity_count=%d duration_ms=%.2f",
         trace_id, len(entities), elapsed_ms,

@@ -18,8 +18,8 @@ import json
 import logging
 from typing import Optional, TypedDict, List
 
-from common.llm_client import LLMClient, LLMAPIError
-from common.json_utils import strip_markdown_fences
+from shared.llm_client import LLMClient, LLMAPIError
+from shared.json_utils import strip_markdown_fences
 
 logger = logging.getLogger(__name__)
 

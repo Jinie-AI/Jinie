@@ -1,0 +1,16 @@
+============================= test session starts ==============================
+collecting ... collected 11 items
+
+stack_identifier_generator/tests.py::test_valid_stack_parses_correctly PASSED [  9%]
+stack_identifier_generator/tests.py::test_markdown_fenced_response_still_parses PASSED [ 18%]
+stack_identifier_generator/tests.py::test_llm_api_error_returns_none PASSED [ 27%]
+stack_identifier_generator/tests.py::test_empty_fr_summaries_skips_llm_call PASSED [ 36%]
+stack_identifier_generator/tests.py::test_missing_required_key_returns_none PASSED [ 45%]
+stack_identifier_generator/tests.py::test_invalid_json_returns_none PASSED [ 54%]
+stack_identifier_generator/tests.py::test_missing_reasoning_key_defaults_to_empty_list PASSED [ 63%]
+stack_identifier_generator/tests.py::test_uses_llm_result_when_available PASSED [ 72%]
+stack_identifier_generator/tests.py::test_falls_back_to_rules_when_llm_unavailable PASSED [ 81%]
+stack_identifier_generator/tests.py::test_empty_fr_list_falls_back_since_llm_skips PASSED [ 90%]
+stack_identifier_generator/tests.py::test_trace_id_does_not_affect_output_shape PASSED [100%]
+
+============================== 11 passed in 0.49s ==============================

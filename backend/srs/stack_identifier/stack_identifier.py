@@ -29,6 +29,7 @@ from common.schemas import (
     NFRCategory,
 )
 from stack_identifier_generator.stack_identifier_model import identify_stack_with_llm
+from logger import Logger
 
 logger = logging.getLogger(__name__)
 
@@ -130,6 +131,12 @@ def identify_tech_stack(
     nothing usable.
     """
     start_time = time.perf_counter()
+    logger_instance = Logger(trace_id=trace_id)
+    logger_instance.log_event(
+        "stack_identifier.py",
+        f"Starting stack identification | fr_count={len(functional_set.requirements)} "
+        f"nfr_count={len(non_functional_set.requirements)} entity_count={len(entity_set.entities)}",
+    )
     logger.info(
         "trace_id=%s | stack_identifier.py | stage=start | fr_count=%d nfr_count=%d entity_count=%d",
         trace_id, len(functional_set.requirements), len(non_functional_set.requirements), len(entity_set.entities),
@@ -141,6 +148,7 @@ def identify_tech_stack(
     llm_result = identify_stack_with_llm(fr_summaries, nfr_summaries, len(entity_set.entities), trace_id)
 
     if llm_result is not None:
+        logger_instance.log_event("stack_identifier.py", "Using LLM-selected stack (model path)")
         logger.info("trace_id=%s | stack_identifier.py | using LLM-selected stack (model path)", trace_id)
         try:
             selection = TechStackSelection(
@@ -152,18 +160,25 @@ def identify_tech_stack(
                 reasoning=llm_result["reasoning"],
             )
             elapsed_ms = (time.perf_counter() - start_time) * 1000
+            logger_instance.log_event(
+                "stack_identifier.py",
+                f"Stage complete | state={selection.state_management} ui={selection.ui_library} "
+                f"backend={selection.backend_service} duration_ms={elapsed_ms:.2f}",
+            )
             logger.info(
                 "trace_id=%s | stack_identifier.py | stage=complete | state=%s ui=%s backend=%s duration_ms=%.2f",
                 trace_id, selection.state_management, selection.ui_library, selection.backend_service, elapsed_ms,
             )
             return selection
         except Exception as exc:  # noqa: BLE001
+            logger_instance.log_event("stack_identifier.py", f"Failed to build TechStackSelection from LLM result | error={str(exc)}", level="CRITICAL")
             logger.critical(
                 "trace_id=%s | stack_identifier.py | failed to build TechStackSelection from LLM result | error=%s",
                 trace_id, str(exc), exc_info=True,
             )
             # fall through to rules below
 
+    logger_instance.log_event("stack_identifier.py", "LLM path unavailable/failed, falling back to rule-based selection", level="WARNING")
     logger.warning(
         "trace_id=%s | stack_identifier.py | LLM path unavailable/failed, falling back to rule-based selection",
         trace_id,
@@ -171,6 +186,11 @@ def identify_tech_stack(
     selection = _identify_via_rules(functional_set, non_functional_set, entity_set, trace_id)
 
     elapsed_ms = (time.perf_counter() - start_time) * 1000
+    logger_instance.log_event(
+        "stack_identifier.py",
+        f"Stage complete | state={selection.state_management} ui={selection.ui_library} "
+        f"backend={selection.backend_service} duration_ms={elapsed_ms:.2f}",
+    )
     logger.info(
         "trace_id=%s | stack_identifier.py | stage=complete | state=%s ui=%s backend=%s duration_ms=%.2f",
         trace_id, selection.state_management, selection.ui_library, selection.backend_service, elapsed_ms,

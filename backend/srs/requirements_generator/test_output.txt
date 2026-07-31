@@ -1,0 +1,23 @@
+============================= test session starts ==============================
+collecting ... collected 18 items
+
+requirements_generator/tests.py::test_valid_response_parses_correctly PASSED [  5%]
+requirements_generator/tests.py::test_response_wrapped_in_markdown_fences_still_parses PASSED [ 11%]
+requirements_generator/tests.py::test_llm_api_error_returns_none_not_raise PASSED [ 16%]
+requirements_generator/tests.py::test_invalid_json_returns_none PASSED   [ 22%]
+requirements_generator/tests.py::test_missing_keys_get_safe_defaults PASSED [ 27%]
+requirements_generator/tests.py::test_wrong_types_in_json_returns_none PASSED [ 33%]
+requirements_generator/tests.py::test_uses_llm_result_when_available PASSED [ 38%]
+requirements_generator/tests.py::test_falls_back_to_heuristic_when_llm_unavailable PASSED [ 44%]
+requirements_generator/tests.py::test_empty_prompt_returns_empty_features_without_calling_llm PASSED [ 50%]
+requirements_generator/tests.py::test_trace_id_is_propagated_into_output PASSED [ 55%]
+requirements_generator/tests.py::test_detect_language_english PASSED     [ 61%]
+requirements_generator/tests.py::test_detect_language_urdu_script PASSED [ 66%]
+requirements_generator/tests.py::test_detect_language_roman_urdu PASSED  [ 72%]
+requirements_generator/tests.py::test_detect_language_empty_string PASSED [ 77%]
+requirements_generator/tests.py::test_extract_keywords_filters_stopwords PASSED [ 83%]
+requirements_generator/tests.py::test_extract_keywords_deduplicates PASSED [ 88%]
+requirements_generator/tests.py::test_extract_intent_tags_matches_known_markers PASSED [ 94%]
+requirements_generator/tests.py::test_extract_intent_tags_empty_when_no_match PASSED [100%]
+
+============================== 18 passed in 0.54s ==============================

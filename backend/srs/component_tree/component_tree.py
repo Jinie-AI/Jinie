@@ -30,6 +30,7 @@ from common.schemas import (
     ComponentTreeSet,
 )
 from component_tree_generator.component_tree_model import generate_component_tree_with_llm
+from logger import Logger
 
 logger = logging.getLogger(__name__)
 
@@ -244,6 +245,8 @@ def generate_component_trees(sitemap: Sitemap, trace_id: str) -> ComponentTreeSe
     template builder for any screen where the LLM call fails.
     """
     start_time = time.perf_counter()
+    logger_instance = Logger(trace_id=trace_id)
+    logger_instance.log_event("component_tree.py", f"Starting component tree generation | screen_count={len(sitemap.nodes)}")
     logger.info(
         "trace_id=%s | component_tree.py | stage=start | screen_count=%d",
         trace_id, len(sitemap.nodes),
@@ -259,18 +262,21 @@ def generate_component_trees(sitemap: Sitemap, trace_id: str) -> ComponentTreeSe
                 counter = [0]
                 root = _convert_llm_node_to_component_node(llm_root, node.screen_id, counter)
                 trees.append(ComponentTree(screen_id=node.screen_id, screen_name=node.screen_name, root=root))
+                logger_instance.log_event("component_tree.py", f"Using LLM-generated tree for screen={node.screen_name} (model path)")
                 logger.info(
                     "trace_id=%s | component_tree.py | using LLM-generated tree for screen=%s (model path)",
                     trace_id, node.screen_name,
                 )
                 continue
             except Exception as exc:  # noqa: BLE001
+                logger_instance.log_event("component_tree.py", f"Failed to convert LLM tree for screen={node.screen_name} | error={str(exc)}", level="CRITICAL")
                 logger.critical(
                     "trace_id=%s | component_tree.py | failed to convert LLM tree for screen=%s | error=%s",
                     trace_id, node.screen_name, str(exc), exc_info=True,
                 )
                 # fall through to template path below
 
+        logger_instance.log_event("component_tree.py", f"LLM path unavailable/failed for screen={node.screen_name}, falling back to template", level="WARNING")
         logger.warning(
             "trace_id=%s | component_tree.py | LLM path unavailable/failed for screen=%s, falling back to template",
             trace_id, node.screen_name,
@@ -284,6 +290,7 @@ def generate_component_trees(sitemap: Sitemap, trace_id: str) -> ComponentTreeSe
                 trace_id, node.screen_name, builder.__name__,
             )
         except Exception as exc:  # noqa: BLE001
+            logger_instance.log_event("component_tree.py", f"Failed to build template tree for screen={node.screen_name} | error={str(exc)}", level="CRITICAL")
             logger.critical(
                 "trace_id=%s | component_tree.py | failed to build template tree for screen=%s | error=%s",
                 trace_id, node.screen_name, str(exc), exc_info=True,
@@ -296,6 +303,7 @@ def generate_component_trees(sitemap: Sitemap, trace_id: str) -> ComponentTreeSe
                     trace_id, node.screen_name,
                 )
             except Exception as fallback_exc:  # noqa: BLE001
+                logger_instance.log_event("component_tree.py", f"Fallback tree construction also failed for screen={node.screen_name} | error={str(fallback_exc)}", level="CRITICAL")
                 logger.critical(
                     "trace_id=%s | component_tree.py | fallback tree construction also failed for screen=%s | error=%s",
                     trace_id, node.screen_name, str(fallback_exc), exc_info=True,
@@ -303,6 +311,7 @@ def generate_component_trees(sitemap: Sitemap, trace_id: str) -> ComponentTreeSe
                 continue
 
     elapsed_ms = (time.perf_counter() - start_time) * 1000
+    logger_instance.log_event("component_tree.py", f"Stage complete | tree_count={len(trees)} duration_ms={elapsed_ms:.2f}")
     logger.info(
         "trace_id=%s | component_tree.py | stage=complete | tree_count=%d duration_ms=%.2f",
         trace_id, len(trees), elapsed_ms,

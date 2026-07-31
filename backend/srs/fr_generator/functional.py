@@ -29,6 +29,7 @@ from common.schemas import (
     Priority,
 )
 from fr_generator.functional_model import generate_frs_with_llm
+from logger import Logger
 
 logger = logging.getLogger(__name__)
 
@@ -198,6 +199,8 @@ def generate_functional_requirements(
     LLM call fails or returns nothing usable.
     """
     start_time = time.perf_counter()
+    logger_instance = Logger(trace_id=trace_id)
+    logger_instance.log_event("functional.py", f"Starting FR generation | intents={raw_features.intent_tags}")
     logger.info(
         "trace_id=%s | functional.py | stage=start | intents=%s",
         trace_id, raw_features.intent_tags,
@@ -210,6 +213,7 @@ def generate_functional_requirements(
     )
 
     if llm_frs is not None:
+        logger_instance.log_event("functional.py", "Using LLM-generated FRs (model path)")
         logger.info("trace_id=%s | functional.py | using LLM-generated FRs (model path)", trace_id)
         for index, item in enumerate(llm_frs, start=1):
             try:
@@ -225,6 +229,7 @@ def generate_functional_requirements(
                 )
                 requirements.append(fr)
             except Exception as exc:  # noqa: BLE001
+                logger_instance.log_event("functional.py", f"Failed to build FR from LLM item at index={index} | error={str(exc)}", level="CRITICAL")
                 logger.critical(
                     "trace_id=%s | functional.py | failed to build FR object from LLM item at index=%d | error=%s",
                     trace_id, index, str(exc), exc_info=True,
@@ -232,6 +237,7 @@ def generate_functional_requirements(
                 continue  # isolated failure, skip just this one FR
 
     if not requirements:
+        logger_instance.log_event("functional.py", "LLM path unavailable/empty, falling back to template archetypes", level="WARNING")
         logger.warning(
             "trace_id=%s | functional.py | LLM path unavailable/empty, falling back to template archetypes",
             trace_id,
@@ -239,6 +245,7 @@ def generate_functional_requirements(
         requirements = _generate_via_templates(raw_features, trace_id)
 
     elapsed_ms = (time.perf_counter() - start_time) * 1000
+    logger_instance.log_event("functional.py", f"Stage complete | fr_count={len(requirements)} duration_ms={elapsed_ms:.2f}")
     logger.info(
         "trace_id=%s | functional.py | stage=complete | fr_count=%d duration_ms=%.2f",
         trace_id, len(requirements), elapsed_ms,

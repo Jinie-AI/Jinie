@@ -1,0 +1,22 @@
+============================= test session starts ==============================
+collecting ... collected 17 items
+
+logger/tests_logger.py::test_log_event_runs_without_error PASSED         [  5%]
+logger/tests_logger.py::test_log_event_includes_level PASSED             [ 11%]
+logger/tests_logger.py::test_log_event_invalid_level_defaults_to_info PASSED [ 17%]
+logger/tests_logger.py::test_log_event_uses_instance_trace_id_by_default PASSED [ 23%]
+logger/tests_logger.py::test_log_event_call_level_trace_id_overrides_instance PASSED [ 29%]
+logger/tests_logger.py::test_log_event_no_trace_id_anywhere_uses_placeholder PASSED [ 35%]
+logger/tests_logger.py::test_log_event_includes_iso_timestamp PASSED     [ 41%]
+logger/tests_logger.py::test_log_event_default_level_is_info PASSED      [ 47%]
+logger/tests_logger.py::test_log_event_debug_level_reaches_output PASSED [ 52%]
+logger/tests_logger.py::test_log_event_critical_level_reaches_output PASSED [ 58%]
+logger/tests_logger.py::test_preflight_fails_on_nonexistent_path PASSED  [ 64%]
+logger/tests_logger.py::test_preflight_fails_on_file_instead_of_directory PASSED [ 70%]
+logger/tests_logger.py::test_preflight_fails_when_api_key_missing PASSED [ 76%]
+logger/tests_logger.py::test_preflight_passes_with_valid_directory_and_key PASSED [ 82%]
+logger/tests_logger.py::test_preflight_warns_but_does_not_fail_on_unusual_key_format PASSED [ 88%]
+logger/tests_logger.py::test_preflight_logs_each_check PASSED            [ 94%]
+logger/tests_logger.py::test_preflight_logs_failure_summary_when_checks_fail PASSED [100%]
+
+============================== 17 passed in 0.93s ==============================

@@ -28,6 +28,7 @@ from common.schemas import (
     Priority,
 )
 from nfr_generator.non_functional_model import generate_nfrs_with_llm
+from logger import Logger
 
 logger = logging.getLogger(__name__)
 
@@ -159,6 +160,8 @@ def generate_non_functional_requirements(
     constraints if the LLM call fails or returns nothing usable.
     """
     start_time = time.perf_counter()
+    logger_instance = Logger(trace_id=trace_id)
+    logger_instance.log_event("non_functional.py", f"Starting NFR generation | fr_count={len(functional_set.requirements)}")
     logger.info(
         "trace_id=%s | non_functional.py | stage=start | fr_count=%d",
         trace_id, len(functional_set.requirements),
@@ -173,6 +176,7 @@ def generate_non_functional_requirements(
     llm_nfrs = generate_nfrs_with_llm(fr_summaries, trace_id)
 
     if llm_nfrs is not None:
+        logger_instance.log_event("non_functional.py", "Using LLM-generated NFRs (model path)")
         logger.info("trace_id=%s | non_functional.py | using LLM-generated NFRs (model path)", trace_id)
         for index, item in enumerate(llm_nfrs, start=1):
             try:
@@ -186,6 +190,7 @@ def generate_non_functional_requirements(
                 )
                 nfrs.append(nfr)
             except Exception as exc:  # noqa: BLE001
+                logger_instance.log_event("non_functional.py", f"Failed to build NFR from LLM item at index={index} | error={str(exc)}", level="CRITICAL")
                 logger.critical(
                     "trace_id=%s | non_functional.py | failed to build NFR object from LLM item at index=%d | error=%s",
                     trace_id, index, str(exc), exc_info=True,
@@ -193,6 +198,7 @@ def generate_non_functional_requirements(
                 continue  # isolated failure, skip just this one NFR
 
     if not nfrs:
+        logger_instance.log_event("non_functional.py", "LLM path unavailable/empty, falling back to rule-based constraints", level="WARNING")
         logger.warning(
             "trace_id=%s | non_functional.py | LLM path unavailable/empty, falling back to rule-based constraints",
             trace_id,
@@ -200,6 +206,7 @@ def generate_non_functional_requirements(
         nfrs = _generate_via_rules(functional_set, trace_id)
 
     elapsed_ms = (time.perf_counter() - start_time) * 1000
+    logger_instance.log_event("non_functional.py", f"Stage complete | nfr_count={len(nfrs)} duration_ms={elapsed_ms:.2f}")
     logger.info(
         "trace_id=%s | non_functional.py | stage=complete | nfr_count=%d duration_ms=%.2f",
         trace_id, len(nfrs), elapsed_ms,

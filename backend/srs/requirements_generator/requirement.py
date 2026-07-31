@@ -24,6 +24,7 @@ from typing import List, Tuple
 
 from common.schemas import RawRequirementFeatures, SupportedLanguage
 from requirements_generator.requirement_model import extract_with_llm
+from logger import Logger
 
 logger = logging.getLogger(__name__)
 
@@ -143,10 +144,13 @@ def extract_raw_features(prompt: str, trace_id: str) -> RawRequirementFeatures:
     returns a fully populated RawRequirementFeatures object.
     """
     start_time = time.perf_counter()
+    logger_instance = Logger(trace_id=trace_id)
+    logger_instance.log_event("requirement.py", f"Starting requirement extraction | prompt_length={len(prompt)}")
     logger.info("trace_id=%s | requirement.py | stage=start | prompt_length=%d", trace_id, len(prompt))
 
     try:
         if not prompt or not prompt.strip():
+            logger_instance.log_event("requirement.py", "Empty prompt received, returning empty feature set", level="WARNING")
             logger.warning("trace_id=%s | requirement.py | empty prompt received, returning empty feature set", trace_id)
             return RawRequirementFeatures(
                 trace_id=trace_id,
@@ -177,6 +181,10 @@ def extract_raw_features(prompt: str, trace_id: str) -> RawRequirementFeatures:
         )
 
         elapsed_ms = (time.perf_counter() - start_time) * 1000
+        logger_instance.log_event(
+            "requirement.py",
+            f"Stage complete | keywords={len(keywords)} intents={len(intents)} entities={len(entities)} duration_ms={elapsed_ms:.2f}",
+        )
         logger.info(
             "trace_id=%s | requirement.py | stage=complete | keywords=%d intents=%d entities=%d duration_ms=%.2f",
             trace_id, len(keywords), len(intents), len(entities), elapsed_ms,
@@ -184,6 +192,7 @@ def extract_raw_features(prompt: str, trace_id: str) -> RawRequirementFeatures:
         return result
 
     except Exception as exc:  # noqa: BLE001
+        logger_instance.log_event("requirement.py", f"Stage failed | error={str(exc)}", level="CRITICAL")
         logger.critical(
             "trace_id=%s | requirement.py | stage=failed | error=%s", trace_id, str(exc), exc_info=True
         )
