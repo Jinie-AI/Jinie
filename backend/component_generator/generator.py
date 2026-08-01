@@ -1,9 +1,25 @@
+"""
+generator.py
+
+Stage 5 entry point. Tries the LLM first (generator_model.py) to
+render an already-built Component Tree into real React Native code,
+so components are tailored per-tree rather than assembled from fixed
+Python rendering rules. Falls back to the deterministic rule-based
+renderer below if the LLM call fails or its output doesn't pass
+validation (generator_validator.py) — no single AI failure crashes
+component generation.
+"""
+
 from __future__ import annotations
 
 import hashlib
 import json
+import logging
+import time
 import uuid
 from typing import Callable, Optional
+
+from logger import Logger
 
 from .exceptions import (
     MissingComponentNameError,
@@ -11,18 +27,29 @@ from .exceptions import (
     InvalidLayoutSpecificationError,
     UnsupportedComponentTypeError,
     MalformedHierarchyError,
+    ComponentValidationError,
     ComponentGenerationError,
 )
+from .generator_model import generate_component_with_llm
+from .generator_validator import validate_generated_code
+
+logger = logging.getLogger(__name__)
 
 _TRACEABILITY_NAMESPACE = uuid.UUID("6f6e1e2a-7b3d-4c9a-9e3f-2b6d4c1a9f00")
+
+
+def _new_trace_id() -> str:
+    return f"trc-{uuid.uuid4().hex[:12]}"
 
 
 class _ReactNativeRenderer:
     """Generates React Native JSX and StyleSheet fragments for a layout node.
 
-    Isolated from `ComponentGenerator` so that additional target-framework
-    renderers (Flutter, React, Vue, Angular) can be introduced as siblings
-    later without altering the public component-generation contract.
+    This is the deterministic FALLBACK path, only used when the AI
+    generation step (generator_model.py) fails or its output fails
+    validation (generator_validator.py). Isolated from
+    `ComponentGenerator` so additional target-framework fallback
+    renderers could be introduced as siblings later.
     """
 
     _CONTAINER_ELEMENTS: dict[str, str] = {
@@ -58,11 +85,7 @@ class _ReactNativeRenderer:
         style_key: str,
         children_jsx: str,
     ) -> str:
-        """Render a single layout node into a JSX fragment.
-
-        `children_jsx` is pre-rendered by the caller for container types;
-        leaf types ignore it since they do not accept nested children.
-        """
+        """Render a single layout node into a JSX fragment."""
         component_type = node["type"]
 
         if component_type in self._leaf_builders:
@@ -108,12 +131,15 @@ class _ReactNativeRenderer:
 
 
 class ComponentGenerator:
-    """Generates reusable React Native component source code from design
-    tokens and layout specifications.
+    """Generates reusable React Native component source code from an
+    already-built Component Tree and design tokens.
 
-    The public contract (`generate_component`) is fixed; internal rendering
-    is delegated to a swappable renderer so that additional target
-    frameworks can be supported later without changing this interface.
+    Primary path: sends the Component Tree + design tokens to an LLM
+    (via generator_model.py) and validates the result
+    (via generator_validator.py). Fallback path: if the AI call fails
+    or its output doesn't pass validation, deterministically renders
+    the tree using fixed Python rules instead — component generation
+    never fails outright just because the AI is unavailable.
     """
 
     _SUPPORTED_ALIGNMENTS = {"start", "center", "end", "space-between", "space-around"}
@@ -126,42 +152,127 @@ class ComponentGenerator:
         component_name: str,
         design_tokens: dict,
         layout_spec: dict,
+        tech_stack: Optional[dict] = None,
+        trace_id: Optional[str] = None,
     ) -> str:
-        """Generate a complete, deterministic React Native component as source code.
+        """Generate production-ready React Native component source code.
 
         Args:
             component_name: The name to assign to the generated component.
             design_tokens: Design token values (colors, typography, spacing, etc.).
-            layout_spec: The component's layout/hierarchy specification.
+            layout_spec: The component tree (already built by the SRS module) —
+                a node dict with `type`, `props`, `children`, etc.
+            tech_stack: Optional tech-stack context (framework, state
+                management, UI library) forwarded to the AI prompt.
+            trace_id: Optional pipeline-wide trace ID for log correlation.
+                Auto-generated if not provided.
 
         Returns:
             A formatted React Native component source string, tagged with a
             deterministic Traceability ID comment.
         """
+        trace_id = trace_id or _new_trace_id()
+        logger_instance = Logger(trace_id=trace_id)
+        start_time = time.perf_counter()
+
         self._validate_inputs(component_name, design_tokens, layout_spec)
 
         traceability_id = self._generate_traceability_id(
             component_name, design_tokens, layout_spec
         )
 
-        style_registry: dict[str, dict] = {}
+        code = self._generate_with_ai_or_fallback(
+            component_name, design_tokens, layout_spec, tech_stack, trace_id, logger_instance
+        )
+
+        final_code = self._attach_traceability_comment(code, traceability_id)
+
+        elapsed_ms = (time.perf_counter() - start_time) * 1000
+        logger_instance.log_event(
+            "generator.py",
+            f"Component generation complete | component={component_name} duration_ms={elapsed_ms:.2f}",
+        )
+        logger.info(
+            "trace_id=%s | generator.py | stage=complete | component=%s duration_ms=%.2f",
+            trace_id, component_name, elapsed_ms,
+        )
+        return final_code
+
+    # ------------------------------------------------------------------
+    # AI-first generation with deterministic fallback
+    # ------------------------------------------------------------------
+
+    def _generate_with_ai_or_fallback(
+        self,
+        component_name: str,
+        design_tokens: dict,
+        layout_spec: dict,
+        tech_stack: Optional[dict],
+        trace_id: str,
+        logger_instance: Logger,
+    ) -> str:
+        """Try the AI generation path; fall back to rule-based rendering on failure."""
+        ai_code = generate_component_with_llm(
+            component_name, layout_spec, design_tokens, trace_id, tech_stack
+        )
+
+        if ai_code is not None:
+            try:
+                validate_generated_code(ai_code, component_name, trace_id)
+                logger_instance.log_event(
+                    "generator.py",
+                    f"Using AI-generated code for component={component_name} (model path)",
+                )
+                logger.info(
+                    "trace_id=%s | generator.py | using AI-generated code for component=%s (model path)",
+                    trace_id, component_name,
+                )
+                return ai_code
+            except ComponentValidationError as exc:
+                logger_instance.log_event(
+                    "generator.py",
+                    f"AI output failed validation for component={component_name} | error={exc}",
+                    level="WARNING",
+                )
+                logger.warning(
+                    "trace_id=%s | generator.py | AI output failed validation for component=%s | error=%s",
+                    trace_id, component_name, str(exc),
+                )
+                # fall through to rule-based path below
+
+        logger_instance.log_event(
+            "generator.py",
+            f"AI path unavailable/failed for component={component_name}, falling back to rule-based renderer",
+            level="WARNING",
+        )
+        logger.warning(
+            "trace_id=%s | generator.py | AI path unavailable/failed for component=%s, falling back to rule-based renderer",
+            trace_id, component_name,
+        )
+
         try:
-            jsx_body = self._build_element(
-                layout_spec, design_tokens, style_registry, style_key="root"
-            )
+            fallback_code = self._render_with_rules(component_name, design_tokens, layout_spec)
+            validate_generated_code(fallback_code, component_name, trace_id)
+            return fallback_code
         except (UnsupportedComponentTypeError, MalformedHierarchyError):
             raise
+        except ComponentValidationError as exc:
+            logger_instance.log_event(
+                "generator.py",
+                f"Fallback rule-based output also failed validation for component={component_name} | error={exc}",
+                level="CRITICAL",
+            )
+            logger.critical(
+                "trace_id=%s | generator.py | fallback rule-based output also failed validation for component=%s | error=%s",
+                trace_id, component_name, str(exc),
+            )
+            raise ComponentGenerationError(
+                f"Both AI and rule-based fallback failed for component '{component_name}': {exc}"
+            ) from exc
         except Exception as exc:
             raise ComponentGenerationError(
                 f"Failed to generate component '{component_name}': {exc}"
             ) from exc
-
-        return self._render_component_source(
-            component_name=component_name,
-            traceability_id=traceability_id,
-            jsx_body=jsx_body,
-            style_registry=style_registry,
-        )
 
     # ------------------------------------------------------------------
     # Validation
@@ -198,7 +309,7 @@ class ComponentGenerator:
                 "Layout specification must be provided as a dictionary."
             )
 
-        component_type = layout_spec.get("type")
+        component_type = layout_spec.get("type") or layout_spec.get("component_type")
         if not component_type:
             raise InvalidLayoutSpecificationError(
                 "Layout specification must include a 'type' field."
@@ -251,9 +362,31 @@ class ComponentGenerator:
         digest = hashlib.sha256(canonical_payload.encode("utf-8")).hexdigest()
         return str(uuid.uuid5(_TRACEABILITY_NAMESPACE, digest))
 
+    @staticmethod
+    def _attach_traceability_comment(code: str, traceability_id: str) -> str:
+        """Prefix generated code with a Traceability-ID comment, if not already present."""
+        marker = f"// Traceability-ID: {traceability_id}"
+        if traceability_id in code:
+            return code
+        return f"{marker}\n{code}"
+
     # ------------------------------------------------------------------
-    # Style & JSX generation
+    # Rule-based fallback rendering (unchanged deterministic path)
     # ------------------------------------------------------------------
+
+    def _render_with_rules(
+        self, component_name: str, design_tokens: dict, layout_spec: dict
+    ) -> str:
+        """Deterministically render the component tree using fixed Python rules."""
+        style_registry: dict[str, dict] = {}
+        jsx_body = self._build_element(
+            layout_spec, design_tokens, style_registry, style_key="root"
+        )
+        return self._render_component_source(
+            component_name=component_name,
+            jsx_body=jsx_body,
+            style_registry=style_registry,
+        )
 
     def _build_element(
         self,
@@ -286,13 +419,13 @@ class ComponentGenerator:
         style: dict = {}
 
         spacing = design_tokens.get("spacing", {})
-        style["padding"] = node.get("padding", spacing.get("default", 8))
+        style["padding"] = node.get("padding", spacing.get("default", 8) if isinstance(spacing, dict) else 8)
         if "margin" in node or "margin" in design_tokens:
             style["margin"] = node.get("margin", design_tokens.get("margin", 0))
 
         colors = design_tokens.get("colors", {})
         style["backgroundColor"] = node.get(
-            "backgroundColor", colors.get("surface", "#FFFFFF")
+            "backgroundColor", colors.get("surface", "#FFFFFF") if isinstance(colors, dict) else "#FFFFFF"
         )
 
         if "borderRadius" in design_tokens or node.get("type") == "Avatar":
@@ -325,16 +458,16 @@ class ComponentGenerator:
     def _build_label_style(self, design_tokens: dict) -> dict:
         """Build a text-label style dictionary from typography design tokens."""
         typography = design_tokens.get("typography", {})
+        colors = design_tokens.get("colors", {})
         return {
-            "fontSize": typography.get("fontSize", 14),
-            "fontWeight": typography.get("fontWeight", "500"),
-            "color": design_tokens.get("colors", {}).get("onPrimary", "#FFFFFF"),
+            "fontSize": typography.get("fontSize", 14) if isinstance(typography, dict) else 14,
+            "fontWeight": typography.get("fontWeight", "500") if isinstance(typography, dict) else "500",
+            "color": colors.get("onPrimary", "#FFFFFF") if isinstance(colors, dict) else "#FFFFFF",
         }
 
     def _render_component_source(
         self,
         component_name: str,
-        traceability_id: str,
         jsx_body: str,
         style_registry: dict[str, dict],
     ) -> str:
@@ -343,7 +476,6 @@ class ComponentGenerator:
         styles_block = self._render_stylesheet(style_registry)
 
         return (
-            f"// Traceability-ID: {traceability_id}\n"
             f"import React from 'react';\n"
             f"import {{ View, Text, TouchableOpacity, TextInput, Image, ScrollView, StyleSheet }} "
             f"from 'react-native';\n\n"
@@ -374,4 +506,4 @@ class ComponentGenerator:
     def _indent(text: str, levels: int = 1, spaces_per_level: int = 2) -> str:
         """Indent every line of the given text by the specified number of levels."""
         prefix = " " * (spaces_per_level * levels)
-        return "\n".join(f"{prefix}{line}" for line in text.splitlines())
+        return "\n".join(f"{prefix}{line}" for line in text.splitlines())6
