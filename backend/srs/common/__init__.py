@@ -1,22 +1,15 @@
 """
 backend/srs/common/__init__.py
 
-Public interface for the shared foundation used by every generator
-(requirements_generator, fr_generator, nfr_generator, sitemap_generator,
-entities_generator, component_tree_generator, stack_identifier_generator).
+Public interface for the SRS-specific shared foundation. Unlike
+backend/shared/ (generic infra reused by every top-level module), this
+common/ only holds schemas.py — the Pydantic data contracts specific
+to the 7 SRS pipeline stages (FRs, NFRs, Sitemap, Entities, etc).
 
-Exposes:
-    - LLMClient            : Groq (free-tier) chat completion client
-    - LLMAPIError           : raised when the Groq API call fails
-    - strip_markdown_fences : JSON-cleanup helper for LLM responses
-    - all Pydantic schemas  : the shared data contracts (see schemas.py)
-
-Logger lives in its own logger/ folder, not here — import it via
-`from logger import Logger` instead.
+For generic infra (LLMClient, Logger, JSON helpers), import from
+backend/shared/ instead — every generator here already does.
 """
 
-from common.llm_client import LLMClient, LLMAPIError
-from common.json_utils import strip_markdown_fences
 from common.schemas import (
     FullSRSOutput,
     RawRequirementFeatures,
@@ -45,9 +38,6 @@ from common.schemas import (
 )
 
 __all__ = [
-    "LLMClient",
-    "LLMAPIError",
-    "strip_markdown_fences",
     "FullSRSOutput",
     "RawRequirementFeatures",
     "FunctionalRequirement",
