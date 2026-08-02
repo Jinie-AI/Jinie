@@ -1,0 +1,27 @@
+============================= test session starts ==============================
+collected 22 items
+
+tests.py::test_llm_returns_cleaned_code_on_success PASSED                [  4%]
+tests.py::test_llm_response_wrapped_in_markdown_fences_still_parses PASSED [  9%]
+tests.py::test_llm_api_error_returns_none_not_raise PASSED               [ 13%]
+tests.py::test_llm_empty_response_returns_none PASSED                    [ 18%]
+tests.py::test_valid_code_passes_validation PASSED                       [ 22%]
+tests.py::test_empty_code_fails_validation PASSED                        [ 27%]
+tests.py::test_code_missing_import_fails_validation PASSED               [ 31%]
+tests.py::test_code_missing_default_export_fails_validation PASSED       [ 36%]
+tests.py::test_code_referencing_wrong_component_name_fails_validation PASSED [ 40%]
+tests.py::test_code_with_unbalanced_brackets_fails_validation PASSED     [ 45%]
+tests.py::test_uses_ai_result_when_available_and_valid PASSED            [ 50%]
+tests.py::test_falls_back_to_rule_based_renderer_when_llm_unavailable PASSED [ 54%]
+tests.py::test_falls_back_to_rule_based_renderer_when_ai_output_fails_validation PASSED [ 59%]
+tests.py::test_trace_id_is_auto_generated_when_not_provided PASSED       [ 63%]
+tests.py::test_traceability_id_is_deterministic_for_same_inputs PASSED   [ 68%]
+tests.py::test_raises_on_empty_component_name PASSED                     [ 72%]
+tests.py::test_raises_on_component_name_not_starting_with_letter PASSED  [ 77%]
+tests.py::test_raises_on_non_dict_design_tokens PASSED                   [ 81%]
+tests.py::test_raises_on_missing_layout_type PASSED                      [ 86%]
+tests.py::test_raises_on_unsupported_component_type PASSED               [ 90%]
+tests.py::test_raises_on_malformed_children PASSED                       [ 95%]
+tests.py::test_raises_on_excessive_nesting_depth PASSED                  [100%]
+
+============================== 22 passed in 0.34s ==============================
