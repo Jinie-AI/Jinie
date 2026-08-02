@@ -1,6 +1,6 @@
 import pytest
 
-from .reformatter_impl import Reformatter
+from .reformatter_code import Reformatter
 from .exceptions import (
     EmptyContentError,
     InvalidFormattingOptionsError,

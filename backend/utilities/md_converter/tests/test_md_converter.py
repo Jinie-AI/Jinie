@@ -3,7 +3,7 @@ import sys
 
 import pytest
 
-from utilities.md_converter.md_converter import MarkdownConverter
+from .markdown_converter_impl import MarkdownConverter
 from .exceptions import (
     MarkdownFileNotFoundError,
     InvalidPathError,
