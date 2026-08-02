@@ -21,7 +21,7 @@ from typing import Callable, Optional
 
 from logger import Logger
 
-from .exceptions import (
+from exceptions import (
     MissingComponentNameError,
     InvalidDesignTokensError,
     InvalidLayoutSpecificationError,
@@ -30,8 +30,8 @@ from .exceptions import (
     ComponentValidationError,
     ComponentGenerationError,
 )
-from .generator_model import generate_component_with_llm
-from .generator_validator import validate_generated_code
+from generator_model import generate_component_with_llm
+from generator_validator import validate_generated_code
 
 logger = logging.getLogger(__name__)
 
@@ -506,4 +506,4 @@ class ComponentGenerator:
     def _indent(text: str, levels: int = 1, spaces_per_level: int = 2) -> str:
         """Indent every line of the given text by the specified number of levels."""
         prefix = " " * (spaces_per_level * levels)
-        return "\n".join(f"{prefix}{line}" for line in text.splitlines())6
+        return "\n".join(f"{prefix}{line}" for line in text.splitlines())
