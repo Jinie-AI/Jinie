@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import logging
 
-from .exceptions import ComponentValidationError
+from exceptions import ComponentValidationError
 
 logger = logging.getLogger(__name__)
 
