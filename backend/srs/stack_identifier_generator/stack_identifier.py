@@ -28,7 +28,7 @@ from common.schemas import (
     TechStackSelection,
     NFRCategory,
 )
-from stack_identifier_generator.stack_identifier_model import identify_stack_with_llm
+from .stack_identifier_model import identify_stack_with_llm
 from logger import Logger
 
 logger = logging.getLogger(__name__)

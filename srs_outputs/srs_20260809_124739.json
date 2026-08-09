@@ -1,0 +1,1004 @@
+{
+  "trace_id": "trc-25a6aabb6903",
+  "generated_at": "2026-08-09T07:47:39.979994",
+  "raw_features": {
+    "trace_id": "trc-25a6aabb6903",
+    "original_prompt": "Build me a food delivery app where users can browse restaurants, order food, and track delivery",
+    "detected_language": "roman_urdu",
+    "normalized_text": "Build me a food delivery app where users can browse restaurants, order food, and track delivery",
+    "extracted_keywords": [
+      "food",
+      "delivery",
+      "restaurants",
+      "order",
+      "track"
+    ],
+    "intent_tags": [
+      "ecommerce",
+      "dashboard"
+    ],
+    "candidate_entities": [
+      "user",
+      "restaurant",
+      "order",
+      "food",
+      "delivery"
+    ],
+    "confidence_score": 0.9
+  },
+  "functional_requirements": {
+    "trace_id": "trc-25a6aabb6903",
+    "requirements": [
+      {
+        "fr_id": "FR-001",
+        "description": "The user can browse a list of available restaurants",
+        "actors": [
+          "AuthenticatedUser",
+          "Guest"
+        ],
+        "inputs": [
+          "location"
+        ],
+        "outputs": [
+          "restaurant_list"
+        ],
+        "priority": "high",
+        "source_keywords": [
+          "restaurants"
+        ]
+      },
+      {
+        "fr_id": "FR-002",
+        "description": "The user can view the menu of a selected restaurant",
+        "actors": [
+          "AuthenticatedUser",
+          "Guest"
+        ],
+        "inputs": [
+          "restaurant_id"
+        ],
+        "outputs": [
+          "menu_items"
+        ],
+        "priority": "high",
+        "source_keywords": []
+      },
+      {
+        "fr_id": "FR-003",
+        "description": "The user can place a food order from a selected restaurant",
+        "actors": [
+          "AuthenticatedUser"
+        ],
+        "inputs": [
+          "restaurant_id",
+          "order_items"
+        ],
+        "outputs": [
+          "order_id",
+          "order_total"
+        ],
+        "priority": "critical",
+        "source_keywords": [
+          "food",
+          "order"
+        ]
+      },
+      {
+        "fr_id": "FR-004",
+        "description": "The user can track the status of their food delivery",
+        "actors": [
+          "AuthenticatedUser"
+        ],
+        "inputs": [
+          "order_id"
+        ],
+        "outputs": [
+          "delivery_status"
+        ],
+        "priority": "high",
+        "source_keywords": [
+          "food",
+          "delivery",
+          "track"
+        ]
+      }
+    ]
+  },
+  "non_functional_requirements": {
+    "trace_id": "trc-25a6aabb6903",
+    "requirements": [
+      {
+        "nfr_id": "NFR-001",
+        "category": "performance",
+        "constraint": "The list of available restaurants must load within 500ms",
+        "linked_fr_id": "FR-001",
+        "threshold_value": 500.0,
+        "threshold_unit": "ms"
+      },
+      {
+        "nfr_id": "NFR-002",
+        "category": "usability",
+        "constraint": "The menu of a selected restaurant must be displayed in a user-friendly format",
+        "linked_fr_id": "FR-002",
+        "threshold_value": null,
+        "threshold_unit": null
+      },
+      {
+        "nfr_id": "NFR-003",
+        "category": "security",
+        "constraint": "All food orders must be transmitted securely over HTTPS",
+        "linked_fr_id": "FR-003",
+        "threshold_value": null,
+        "threshold_unit": null
+      },
+      {
+        "nfr_id": "NFR-004",
+        "category": "reliability",
+        "constraint": "The food order status must be updated in real-time",
+        "linked_fr_id": "FR-003",
+        "threshold_value": null,
+        "threshold_unit": null
+      },
+      {
+        "nfr_id": "NFR-005",
+        "category": "performance",
+        "constraint": "The food order status must refresh within 200ms",
+        "linked_fr_id": "FR-004",
+        "threshold_value": 200.0,
+        "threshold_unit": "ms"
+      },
+      {
+        "nfr_id": "NFR-006",
+        "category": "scalability",
+        "constraint": "The system must support at least 1000 concurrent users",
+        "linked_fr_id": null,
+        "threshold_value": 1000.0,
+        "threshold_unit": null
+      },
+      {
+        "nfr_id": "NFR-007",
+        "category": "accessibility",
+        "constraint": "The app must be accessible on devices with screen readers",
+        "linked_fr_id": null,
+        "threshold_value": null,
+        "threshold_unit": null
+      },
+      {
+        "nfr_id": "NFR-008",
+        "category": "security",
+        "constraint": "All user data must be stored securely and in compliance with GDPR",
+        "linked_fr_id": null,
+        "threshold_value": null,
+        "threshold_unit": null
+      }
+    ]
+  },
+  "sitemap": {
+    "trace_id": "trc-25a6aabb6903",
+    "nodes": [
+      {
+        "screen_id": "SCR-001",
+        "screen_name": "RestaurantListScreen",
+        "route": "/restaurants",
+        "screen_type": "list",
+        "linked_fr_ids": [
+          "FR-001"
+        ],
+        "is_entry_point": true
+      },
+      {
+        "screen_id": "SCR-002",
+        "screen_name": "RestaurantDetailScreen",
+        "route": "/restaurants/:id",
+        "screen_type": "detail",
+        "linked_fr_ids": [
+          "FR-002"
+        ],
+        "is_entry_point": false
+      },
+      {
+        "screen_id": "SCR-003",
+        "screen_name": "OrderFormScreen",
+        "route": "/orders",
+        "screen_type": "form",
+        "linked_fr_ids": [
+          "FR-003"
+        ],
+        "is_entry_point": false
+      },
+      {
+        "screen_id": "SCR-004",
+        "screen_name": "OrderTrackingScreen",
+        "route": "/orders/:id",
+        "screen_type": "detail",
+        "linked_fr_ids": [
+          "FR-004"
+        ],
+        "is_entry_point": false
+      }
+    ],
+    "edges": [
+      {
+        "from_screen_id": "SCR-001",
+        "to_screen_id": "SCR-002",
+        "trigger": "on_restaurant_selected"
+      },
+      {
+        "from_screen_id": "SCR-002",
+        "to_screen_id": "SCR-003",
+        "trigger": "on_place_order"
+      },
+      {
+        "from_screen_id": "SCR-003",
+        "to_screen_id": "SCR-004",
+        "trigger": "on_order_placed"
+      }
+    ]
+  },
+  "entities": {
+    "trace_id": "trc-25a6aabb6903",
+    "entities": [
+      {
+        "entity_id": "ENT-001",
+        "name": "user",
+        "attributes": [
+          {
+            "name": "id",
+            "type": "number",
+            "required": true,
+            "constraints": {}
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "required": true,
+            "constraints": {}
+          },
+          {
+            "name": "password",
+            "type": "string",
+            "required": true,
+            "constraints": {}
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "required": true,
+            "constraints": {}
+          }
+        ],
+        "relationships": [
+          {
+            "from_entity": "user",
+            "to_entity": "order",
+            "relationship_type": "one_to_many"
+          }
+        ],
+        "source_fr_ids": [
+          "FR-001",
+          "FR-002",
+          "FR-003",
+          "FR-004"
+        ]
+      },
+      {
+        "entity_id": "ENT-002",
+        "name": "restaurant",
+        "attributes": [
+          {
+            "name": "id",
+            "type": "number",
+            "required": true,
+            "constraints": {}
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "required": true,
+            "constraints": {}
+          },
+          {
+            "name": "address",
+            "type": "string",
+            "required": true,
+            "constraints": {}
+          }
+        ],
+        "relationships": [
+          {
+            "from_entity": "restaurant",
+            "to_entity": "menu_item",
+            "relationship_type": "one_to_many"
+          },
+          {
+            "from_entity": "restaurant",
+            "to_entity": "order",
+            "relationship_type": "one_to_many"
+          }
+        ],
+        "source_fr_ids": [
+          "FR-001",
+          "FR-002",
+          "FR-003"
+        ]
+      },
+      {
+        "entity_id": "ENT-003",
+        "name": "menu_item",
+        "attributes": [
+          {
+            "name": "id",
+            "type": "number",
+            "required": true,
+            "constraints": {}
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "required": true,
+            "constraints": {}
+          },
+          {
+            "name": "price",
+            "type": "number",
+            "required": true,
+            "constraints": {}
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "required": false,
+            "constraints": {}
+          }
+        ],
+        "relationships": [
+          {
+            "from_entity": "menu_item",
+            "to_entity": "order_item",
+            "relationship_type": "one_to_many"
+          }
+        ],
+        "source_fr_ids": [
+          "FR-002"
+        ]
+      },
+      {
+        "entity_id": "ENT-004",
+        "name": "order",
+        "attributes": [
+          {
+            "name": "id",
+            "type": "number",
+            "required": true,
+            "constraints": {}
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "required": true,
+            "constraints": {}
+          },
+          {
+            "name": "total_cost",
+            "type": "number",
+            "required": true,
+            "constraints": {}
+          },
+          {
+            "name": "order_time",
+            "type": "timestamp",
+            "required": true,
+            "constraints": {}
+          }
+        ],
+        "relationships": [
+          {
+            "from_entity": "order",
+            "to_entity": "order_item",
+            "relationship_type": "one_to_many"
+          }
+        ],
+        "source_fr_ids": [
+          "FR-003",
+          "FR-004"
+        ]
+      },
+      {
+        "entity_id": "ENT-005",
+        "name": "order_item",
+        "attributes": [
+          {
+            "name": "id",
+            "type": "number",
+            "required": true,
+            "constraints": {}
+          },
+          {
+            "name": "quantity",
+            "type": "number",
+            "required": true,
+            "constraints": {}
+          }
+        ],
+        "relationships": [],
+        "source_fr_ids": [
+          "FR-003"
+        ]
+      }
+    ]
+  },
+  "component_trees": {
+    "trace_id": "trc-25a6aabb6903",
+    "trees": [
+      {
+        "screen_id": "SCR-001",
+        "screen_name": "RestaurantListScreen",
+        "root": {
+          "component_id": "SCR-001-CMP-001",
+          "component_type": "SafeAreaView",
+          "props": {
+            "style": "flex:1"
+          },
+          "design_tokens": {
+            "spacing": "md",
+            "background": "surface.primary",
+            "radius": "none"
+          },
+          "children": [
+            {
+              "component_id": "SCR-001-CMP-002",
+              "component_type": "View",
+              "props": {
+                "style": "flex:1, paddingHorizontal:20"
+              },
+              "design_tokens": {
+                "spacing": "md",
+                "background": "surface.primary",
+                "radius": "none"
+              },
+              "children": [
+                {
+                  "component_id": "SCR-001-CMP-003",
+                  "component_type": "Text",
+                  "props": {
+                    "style": "fontSize:24, fontWeight:bold",
+                    "children": "Restaurant List"
+                  },
+                  "design_tokens": {
+                    "spacing": "sm",
+                    "background": "none",
+                    "radius": "none"
+                  },
+                  "children": []
+                },
+                {
+                  "component_id": "SCR-001-CMP-004",
+                  "component_type": "FlatList",
+                  "props": {
+                    "data": "[]",
+                    "renderItem": "() => {}",
+                    "keyExtractor": "() => {}"
+                  },
+                  "design_tokens": {
+                    "spacing": "md",
+                    "background": "surface.primary",
+                    "radius": "none"
+                  },
+                  "children": [
+                    {
+                      "component_id": "SCR-001-CMP-005",
+                      "component_type": "TouchableOpacity",
+                      "props": {
+                        "style": "paddingVertical:10, paddingHorizontal:20",
+                        "onPress": "() => {}"
+                      },
+                      "design_tokens": {
+                        "spacing": "sm",
+                        "background": "surface.secondary",
+                        "radius": "sm"
+                      },
+                      "children": [
+                        {
+                          "component_id": "SCR-001-CMP-006",
+                          "component_type": "View",
+                          "props": {
+                            "style": "flexDirection:row, justifyContent:space-between"
+                          },
+                          "design_tokens": {
+                            "spacing": "sm",
+                            "background": "none",
+                            "radius": "none"
+                          },
+                          "children": [
+                            {
+                              "component_id": "SCR-001-CMP-007",
+                              "component_type": "Text",
+                              "props": {
+                                "style": "fontSize:18",
+                                "children": "Restaurant Name"
+                              },
+                              "design_tokens": {
+                                "spacing": "sm",
+                                "background": "none",
+                                "radius": "none"
+                              },
+                              "children": []
+                            },
+                            {
+                              "component_id": "SCR-001-CMP-008",
+                              "component_type": "Text",
+                              "props": {
+                                "style": "fontSize:18, color:gray",
+                                "children": "Distance"
+                              },
+                              "design_tokens": {
+                                "spacing": "sm",
+                                "background": "none",
+                                "radius": "none"
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "screen_id": "SCR-002",
+        "screen_name": "RestaurantDetailScreen",
+        "root": {
+          "component_id": "SCR-002-CMP-001",
+          "component_type": "SafeAreaView",
+          "props": {
+            "style": "flex:1"
+          },
+          "design_tokens": {
+            "spacing": "md",
+            "background": "surface.primary",
+            "radius": "none"
+          },
+          "children": [
+            {
+              "component_id": "SCR-002-CMP-002",
+              "component_type": "ScrollView",
+              "props": {
+                "showsVerticalScrollIndicator": "false"
+              },
+              "design_tokens": {
+                "spacing": "md",
+                "background": "surface.primary",
+                "radius": "none"
+              },
+              "children": [
+                {
+                  "component_id": "SCR-002-CMP-003",
+                  "component_type": "View",
+                  "props": {
+                    "style": "padding:20"
+                  },
+                  "design_tokens": {
+                    "spacing": "md",
+                    "background": "surface.primary",
+                    "radius": "none"
+                  },
+                  "children": [
+                    {
+                      "component_id": "SCR-002-CMP-004",
+                      "component_type": "Image",
+                      "props": {
+                        "source": "restaurant_image",
+                        "style": "width:100%;height:200;resizeMode:'cover'"
+                      },
+                      "design_tokens": {
+                        "spacing": "none",
+                        "background": "none",
+                        "radius": "md"
+                      },
+                      "children": []
+                    },
+                    {
+                      "component_id": "SCR-002-CMP-005",
+                      "component_type": "Text",
+                      "props": {
+                        "style": "fontSize:24;fontWeight:'bold';marginTop:10"
+                      },
+                      "design_tokens": {
+                        "spacing": "none",
+                        "background": "none",
+                        "radius": "none"
+                      },
+                      "children": []
+                    },
+                    {
+                      "component_id": "SCR-002-CMP-006",
+                      "component_type": "Text",
+                      "props": {
+                        "style": "fontSize:16;color:'gray';marginTop:5"
+                      },
+                      "design_tokens": {
+                        "spacing": "none",
+                        "background": "none",
+                        "radius": "none"
+                      },
+                      "children": []
+                    },
+                    {
+                      "component_id": "SCR-002-CMP-007",
+                      "component_type": "View",
+                      "props": {
+                        "style": "flexDirection:'row';justifyContent:'space-between';marginTop:20"
+                      },
+                      "design_tokens": {
+                        "spacing": "md",
+                        "background": "none",
+                        "radius": "none"
+                      },
+                      "children": [
+                        {
+                          "component_id": "SCR-002-CMP-008",
+                          "component_type": "Text",
+                          "props": {
+                            "style": "fontSize:18"
+                          },
+                          "design_tokens": {
+                            "spacing": "none",
+                            "background": "none",
+                            "radius": "none"
+                          },
+                          "children": []
+                        },
+                        {
+                          "component_id": "SCR-002-CMP-009",
+                          "component_type": "Text",
+                          "props": {
+                            "style": "fontSize:18"
+                          },
+                          "design_tokens": {
+                            "spacing": "none",
+                            "background": "none",
+                            "radius": "none"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "component_id": "SCR-002-CMP-010",
+                      "component_type": "View",
+                      "props": {
+                        "style": "marginTop:20"
+                      },
+                      "design_tokens": {
+                        "spacing": "md",
+                        "background": "none",
+                        "radius": "none"
+                      },
+                      "children": [
+                        {
+                          "component_id": "SCR-002-CMP-011",
+                          "component_type": "Text",
+                          "props": {
+                            "style": "fontSize:18;fontWeight:'bold'"
+                          },
+                          "design_tokens": {
+                            "spacing": "none",
+                            "background": "none",
+                            "radius": "none"
+                          },
+                          "children": []
+                        },
+                        {
+                          "component_id": "SCR-002-CMP-012",
+                          "component_type": "FlatList",
+                          "props": {
+                            "data": "menu_items",
+                            "renderItem": "renderMenuItem",
+                            "keyExtractor": "item.id"
+                          },
+                          "design_tokens": {
+                            "spacing": "md",
+                            "background": "none",
+                            "radius": "none"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "component_id": "SCR-002-CMP-013",
+              "component_type": "View",
+              "props": {
+                "style": "padding:20;backgroundColor:'white';borderTopWidth:1;borderTopColor:'gray'"
+              },
+              "design_tokens": {
+                "spacing": "md",
+                "background": "surface.primary",
+                "radius": "none"
+              },
+              "children": [
+                {
+                  "component_id": "SCR-002-CMP-014",
+                  "component_type": "TouchableOpacity",
+                  "props": {
+                    "style": "backgroundColor:'primary';padding:10;borderRadius:5"
+                  },
+                  "design_tokens": {
+                    "spacing": "none",
+                    "background": "primary",
+                    "radius": "md"
+                  },
+                  "children": [
+                    {
+                      "component_id": "SCR-002-CMP-015",
+                      "component_type": "Text",
+                      "props": {
+                        "style": "fontSize:18;color:'white';textAlign:'center'"
+                      },
+                      "design_tokens": {
+                        "spacing": "none",
+                        "background": "none",
+                        "radius": "none"
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "screen_id": "SCR-003",
+        "screen_name": "OrderFormScreen",
+        "root": {
+          "component_id": "SCR-003-CMP-001",
+          "component_type": "SafeAreaView",
+          "props": {
+            "style": "flex:1"
+          },
+          "design_tokens": {
+            "spacing": "md",
+            "background": "surface.primary",
+            "radius": "none"
+          },
+          "children": [
+            {
+              "component_id": "SCR-003-CMP-002",
+              "component_type": "KeyboardAvoidingView",
+              "props": {
+                "behavior": "padding"
+              },
+              "design_tokens": {
+                "spacing": "none",
+                "background": "none",
+                "radius": "none"
+              },
+              "children": [
+                {
+                  "component_id": "SCR-003-CMP-003",
+                  "component_type": "ScrollView",
+                  "props": {
+                    "style": "flex:1",
+                    "showsVerticalScrollIndicator": "false"
+                  },
+                  "design_tokens": {
+                    "spacing": "md",
+                    "background": "none",
+                    "radius": "none"
+                  },
+                  "children": [
+                    {
+                      "component_id": "SCR-003-CMP-004",
+                      "component_type": "View",
+                      "props": {
+                        "style": "padding:20"
+                      },
+                      "design_tokens": {
+                        "spacing": "md",
+                        "background": "surface.secondary",
+                        "radius": "md"
+                      },
+                      "children": [
+                        {
+                          "component_id": "SCR-003-CMP-005",
+                          "component_type": "Text",
+                          "props": {
+                            "style": "fontSize:24,fontWeight:'bold'",
+                            "children": "Order Form"
+                          },
+                          "design_tokens": {
+                            "spacing": "none",
+                            "background": "none",
+                            "radius": "none"
+                          },
+                          "children": []
+                        },
+                        {
+                          "component_id": "SCR-003-CMP-006",
+                          "component_type": "TextInput",
+                          "props": {
+                            "placeholder": "Customer Name",
+                            "style": "marginTop:10"
+                          },
+                          "design_tokens": {
+                            "spacing": "sm",
+                            "background": "surface.tertiary",
+                            "radius": "sm"
+                          },
+                          "children": []
+                        },
+                        {
+                          "component_id": "SCR-003-CMP-007",
+                          "component_type": "TextInput",
+                          "props": {
+                            "placeholder": "Order Description",
+                            "style": "marginTop:10",
+                            "multiline": "true",
+                            "numberOfLines": "5"
+                          },
+                          "design_tokens": {
+                            "spacing": "sm",
+                            "background": "surface.tertiary",
+                            "radius": "sm"
+                          },
+                          "children": []
+                        },
+                        {
+                          "component_id": "SCR-003-CMP-008",
+                          "component_type": "View",
+                          "props": {
+                            "style": "flexDirection:'row',justifyContent:'space-between',marginTop:10"
+                          },
+                          "design_tokens": {
+                            "spacing": "none",
+                            "background": "none",
+                            "radius": "none"
+                          },
+                          "children": [
+                            {
+                              "component_id": "SCR-003-CMP-009",
+                              "component_type": "TextInput",
+                              "props": {
+                                "placeholder": "Quantity",
+                                "style": "width:'40%'",
+                                "keyboardType": "numeric"
+                              },
+                              "design_tokens": {
+                                "spacing": "sm",
+                                "background": "surface.tertiary",
+                                "radius": "sm"
+                              },
+                              "children": []
+                            },
+                            {
+                              "component_id": "SCR-003-CMP-010",
+                              "component_type": "TextInput",
+                              "props": {
+                                "placeholder": "Price",
+                                "style": "width:'40%'",
+                                "keyboardType": "numeric"
+                              },
+                              "design_tokens": {
+                                "spacing": "sm",
+                                "background": "surface.tertiary",
+                                "radius": "sm"
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "component_id": "SCR-003-CMP-011",
+                          "component_type": "Button",
+                          "props": {
+                            "title": "Submit Order",
+                            "style": "marginTop:20"
+                          },
+                          "design_tokens": {
+                            "spacing": "none",
+                            "background": "surface.primary",
+                            "radius": "md"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "screen_id": "SCR-004",
+        "screen_name": "OrderTrackingScreen",
+        "root": {
+          "component_id": "SCR-004-CMP-001",
+          "component_type": "SafeAreaView",
+          "props": {
+            "style": "flex:1"
+          },
+          "design_tokens": {
+            "spacing": "md",
+            "background": "surface.primary",
+            "radius": "md"
+          },
+          "children": [
+            {
+              "component_id": "SCR-004-CMP-002",
+              "component_type": "View",
+              "props": {},
+              "design_tokens": {},
+              "children": [
+                {
+                  "component_id": "SCR-004-CMP-003",
+                  "component_type": "Text",
+                  "props": {
+                    "content": "Placeholder content"
+                  },
+                  "design_tokens": {},
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "tech_stack": {
+    "framework": "React Native (Expo)",
+    "state_management": "Redux Toolkit",
+    "ui_library": "NativeBase",
+    "navigation_library": "React Navigation",
+    "backend_service": "Firebase Firestore + Cloud Functions + Stripe",
+    "reasoning": [
+      "Redux Toolkit is chosen for state management due to the critical nature of FR-003, requiring a robust and predictable state management system.",
+      "NativeBase is selected for the UI library because it provides a user-friendly and accessible interface, aligning with the usability and accessibility non-functional requirements.",
+      "Firebase Firestore + Cloud Functions + Stripe is chosen for the backend service due to its ability to provide real-time updates, secure data storage, and scalable performance, meeting the reliability, security, and scalability non-functional requirements."
+    ]
+  },
+  "stage_timings": [
+    {
+      "stage_name": "requirement",
+      "duration_ms": 1267.5051999976858
+    },
+    {
+      "stage_name": "functional",
+      "duration_ms": 1548.2277000555769
+    },
+    {
+      "stage_name": "non_functional",
+      "duration_ms": 2033.9284000219777
+    },
+    {
+      "stage_name": "sitemap",
+      "duration_ms": 1469.1027000080794
+    },
+    {
+      "stage_name": "entities",
+      "duration_ms": 1838.3348000934348
+    },
+    {
+      "stage_name": "component_tree",
+      "duration_ms": 10401.097199996002
+    },
+    {
+      "stage_name": "stack_identifier",
+      "duration_ms": 1303.0629999702796
+    }
+  ],
+  "total_duration_ms": 19861.350700026378
+}

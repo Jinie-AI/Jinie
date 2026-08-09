@@ -1,0 +1,589 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap");
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    margin: 0;
+    min-height: 100%;
+    width: 100%;
+}
+
+body {
+    font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f5f0ff;
+    color: #29213d;
+}
+
+button,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+/* =========================================================
+   GLOBAL DREAMY BACKGROUND
+   ========================================================= */
+
+.home-page,
+.workspace-page,
+.deploy-page {
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 15% 15%, rgba(210, 185, 255, 0.45), transparent 28%),
+        radial-gradient(circle at 85% 20%, rgba(180, 155, 255, 0.30), transparent 25%),
+        radial-gradient(circle at 50% 100%, rgba(225, 205, 255, 0.45), transparent 35%),
+        linear-gradient(135deg, #fbf9ff 0%, #f4efff 50%, #eee7ff 100%);
+}
+
+.home-page::before,
+.workspace-page::before,
+.deploy-page::before {
+    content: "✦   ˚   ✧        ✦       ˚   ✧";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    color: rgba(126, 91, 190, 0.22);
+    font-size: 18px;
+    letter-spacing: 55px;
+    line-height: 100px;
+    padding: 25px;
+    overflow: hidden;
+    animation: sparkleFloat 12s ease-in-out infinite alternate;
+}
+
+@keyframes sparkleFloat {
+    from {
+        transform: translateY(0);
+        opacity: 0.45;
+    }
+
+    to {
+        transform: translateY(-18px);
+        opacity: 0.8;
+    }
+}
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.6px;
+    color: #35254e;
+}
+
+.logo-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #8d63d8, #6741a8);
+    color: white;
+    font-size: 17px;
+    box-shadow:
+        0 6px 18px rgba(111, 69, 178, 0.30),
+        0 0 25px rgba(151, 108, 225, 0.25);
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.primary-button {
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: linear-gradient(135deg, #8861d1, #6842a7);
+    color: white;
+    padding: 12px 19px;
+    border-radius: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.25s ease;
+    box-shadow:
+        0 8px 22px rgba(104, 66, 167, 0.25),
+        0 0 18px rgba(145, 103, 214, 0.15);
+}
+
+.primary-button:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 12px 28px rgba(104, 66, 167, 0.32),
+        0 0 28px rgba(145, 103, 214, 0.25);
+}
+
+.primary-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.secondary-button {
+    border: 1px solid rgba(125, 94, 166, 0.18);
+    background: rgba(255, 255, 255, 0.58);
+    backdrop-filter: blur(12px);
+    color: #5c4677;
+    padding: 9px 15px;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.secondary-button:hover {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(125, 94, 166, 0.3);
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   HOME HEADER
+   ========================================================= */
+
+.home-header {
+    height: 76px;
+    padding: 0 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.42);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(135, 103, 181, 0.12);
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* =========================================================
+   HOME HERO
+   ========================================================= */
+
+.home-content {
+    width: min(920px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 105px 0 80px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    border: 1px solid rgba(133, 95, 187, 0.18);
+    border-radius: 999px;
+    color: #76569c;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(12px);
+    font-size: 13px;
+    margin-bottom: 27px;
+    box-shadow: 0 4px 20px rgba(113, 79, 160, 0.08);
+}
+
+.home-content h1 {
+    margin: 0;
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: clamp(46px, 6vw, 76px);
+    line-height: 1.04;
+    letter-spacing: -3px;
+    font-weight: 600;
+    color: #30203f;
+}
+
+.home-content h1 span {
+    display: block;
+    background: linear-gradient(90deg, #7651ae, #a176d4, #6844a3);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 35px rgba(137, 93, 201, 0.18);
+}
+
+.hero-description {
+    max-width: 640px;
+    margin: 25px auto 42px;
+    color: #756781;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+/* =========================================================
+   PROMPT CARD
+   ========================================================= */
+
+.prompt-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.67);
+    backdrop-filter: blur(22px);
+    border: 1px solid rgba(133, 101, 180, 0.20);
+    border-radius: 22px;
+    padding: 7px;
+    box-shadow:
+        0 22px 60px rgba(91, 62, 139, 0.12),
+        0 0 35px rgba(153, 112, 217, 0.08);
+    text-align: left;
+    transition: all 0.3s ease;
+}
+
+.prompt-card:focus-within {
+    border-color: rgba(126, 82, 181, 0.42);
+    box-shadow:
+        0 22px 65px rgba(91, 62, 139, 0.16),
+        0 0 40px rgba(153, 112, 217, 0.18);
+}
+
+.prompt-card textarea {
+    width: 100%;
+    resize: none;
+    border: none;
+    outline: none;
+    padding: 21px;
+    min-height: 155px;
+    color: #352746;
+    background: transparent;
+    font-size: 16px;
+    line-height: 1.65;
+}
+
+.prompt-card textarea::placeholder {
+    color: #a293b4;
+}
+
+.prompt-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px 12px 18px;
+}
+
+.prompt-hint {
+    color: #a092b1;
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   WORKSPACE HEADER
+   ========================================================= */
+
+.workspace-header {
+    height: 70px;
+    padding: 0 32px;
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.48);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(133, 101, 180, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.workspace-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.workspace-title span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #49335e;
+}
+
+.workspace-title small {
+    color: #9686a4;
+    max-width: 300px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   WORKFLOW
+   ========================================================= */
+
+.workflow-stepper {
+    width: min(850px, calc(100% - 40px));
+    margin: 32px auto;
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.workflow-step {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex: 1;
+    color: #afa2bd;
+}
+
+.workflow-step-number {
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(133, 101, 180, 0.20);
+    background: rgba(255, 255, 255, 0.45);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    transition: all 0.3s ease;
+}
+
+.workflow-step-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.workflow-step-info strong {
+    font-size: 13px;
+}
+
+.workflow-step-info span {
+    font-size: 11px;
+}
+
+.workflow-step.active {
+    color: #634394;
+}
+
+.workflow-step.active .workflow-step-number {
+    background: linear-gradient(135deg, #8b62d3, #6942a8);
+    color: white;
+    border-color: transparent;
+    box-shadow:
+        0 5px 15px rgba(105, 66, 168, 0.25),
+        0 0 18px rgba(139, 98, 211, 0.22);
+}
+
+.workflow-step.completed {
+    color: #66468f;
+}
+
+.workflow-line {
+    height: 1px;
+    background: rgba(133, 101, 180, 0.17);
+    flex: 1;
+    margin: 0 15px;
+}
+
+.workflow-line.completed {
+    background: linear-gradient(90deg, #9872d0, #b493dd);
+}
+
+.logo-image {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+}
+
+/* ---------- SRS ---------- */
+
+.section-card {
+    width: 100%;
+}
+
+.stage-label {
+    display: inline-block;
+    color: #8b5fc7;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.section-card h1 {
+    margin: 0;
+    color: #302044;
+    font-size: 42px;
+    letter-spacing: -1.5px;
+}
+
+.section-card>p {
+    color: #766886;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 12px 0 35px;
+}
+
+.srs-block {
+    margin-top: 30px;
+    padding: 24px;
+    border: 1px solid rgba(139, 92, 199, 0.16);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.58);
+}
+
+.srs-block h2 {
+    margin: 0;
+    color: #3c2854;
+    font-size: 21px;
+}
+
+.srs-description {
+    margin: 7px 0 20px !important;
+    color: #887a99 !important;
+    font-size: 13px !important;
+}
+
+.srs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.srs-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: rgba(245, 239, 255, 0.8);
+    color: #463754;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.srs-number {
+    flex-shrink: 0;
+    color: #8152bd;
+    font-size: 11px;
+    font-weight: 700;
+    padding-top: 2px;
+}
+
+.empty-srs {
+    color: #9a8fa5;
+    font-size: 14px;
+}
+
+.screen-grid,
+.entity-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.screen-card,
+.entity-card {
+    padding: 18px;
+    border: 1px solid rgba(139, 92, 199, 0.14);
+    border-radius: 14px;
+    background: #faf7ff;
+}
+
+.screen-number {
+    display: block;
+    color: #9b72c9;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.screen-card h3,
+.entity-card h3 {
+    margin: 0 0 7px;
+    color: #3c2854;
+    font-size: 16px;
+}
+
+.screen-route {
+    display: block;
+    color: #8c7b9c;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.screen-type {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #eee4ff;
+    color: #7952a7;
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+.entity-card p {
+    color: #7e718c;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.entity-attributes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.entity-attributes span {
+    padding: 5px 8px;
+    border-radius: 7px;
+    background: #eee6f8;
+    color: #685578;
+    font-size: 11px;
+}
+
+.tech-stack-card {
+    padding: 18px;
+    border-radius: 12px;
+    background: #302044;
+    overflow-x: auto;
+}
+
+.tech-stack-card pre {
+    margin: 0;
+    color: #eee4ff;
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.srs-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 25px;
+}
+
+@media (max-width: 700px) {
+
+    .screen-grid,
+    .entity-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-card h1 {
+        font-size: 32px;
+    }
+
+    .srs-block {
+        padding: 18px;
+    }
+}

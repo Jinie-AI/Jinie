@@ -29,7 +29,7 @@ from common.schemas import (
     ComponentTree,
     ComponentTreeSet,
 )
-from component_tree_generator.component_tree_model import generate_component_tree_with_llm
+from .component_tree_model import generate_component_tree_with_llm
 from logger import Logger
 
 logger = logging.getLogger(__name__)

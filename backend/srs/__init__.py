@@ -15,7 +15,7 @@ Usage:
     result: FullSRSOutput = run_srs_pipeline("Build me a social feed app")
 """
 
-from pipeline import run_srs_pipeline, SRSPipelineError
+from .pipeline import run_srs_pipeline, SRSPipelineError
 from common.schemas import (
     FullSRSOutput,
     RawRequirementFeatures,

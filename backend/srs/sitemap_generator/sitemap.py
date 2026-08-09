@@ -28,7 +28,7 @@ from common.schemas import (
     NavigationEdge,
     ScreenType,
 )
-from sitemap_generator.sitemap_model import generate_sitemap_with_llm
+from .sitemap_model import generate_sitemap_with_llm
 from logger import Logger
 
 logger = logging.getLogger(__name__)

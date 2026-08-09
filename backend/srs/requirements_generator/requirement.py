@@ -22,8 +22,8 @@ import re
 import time
 from typing import List, Tuple
 
+from .requirement_model import extract_with_llm
 from common.schemas import RawRequirementFeatures, SupportedLanguage
-from requirements_generator.requirement_model import extract_with_llm
 from logger import Logger
 
 logger = logging.getLogger(__name__)

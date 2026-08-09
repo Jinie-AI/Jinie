@@ -16,15 +16,15 @@ import logging
 import time
 import uuid
 from typing import Optional
-
 from common.schemas import FullSRSOutput, PipelineTiming
-from requirements_generator.requirement import extract_raw_features
-from fr_generator.functional import generate_functional_requirements
-from nfr_generator.non_functional import generate_non_functional_requirements
-from sitemap_generator.sitemap import generate_sitemap
-from entities_generator.entities import generate_entities
-from component_tree_generator.component_tree import generate_component_trees
-from stack_identifier_generator.stack_identifier import identify_tech_stack
+
+from .requirements_generator.requirement import extract_raw_features
+from .fr_generator.functional import generate_functional_requirements
+from .nfr_generator.non_functional import generate_non_functional_requirements
+from .stack_identifier_generator.stack_identifier import identify_tech_stack
+from .component_tree_generator.component_tree import generate_component_trees
+from .sitemap_generator.sitemap import generate_sitemap
+from .entities_generator.entities import generate_entities
 
 logger = logging.getLogger(__name__)
 

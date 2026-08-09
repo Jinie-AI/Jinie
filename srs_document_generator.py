@@ -343,9 +343,22 @@ def generate_srs_document(json_path: str, output_path: str) -> None:
     doc.save(output_path)
     print(f"SRS document saved to {output_path}")
 
-
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python srs_document_generator.py <input.json> <output.docx>")
+    import glob
+    import os
+
+    files = glob.glob("srs_outputs/*.json")
+
+    if not files:
+        print("No SRS JSON files found.")
         sys.exit(1)
-    generate_srs_document(sys.argv[1], sys.argv[2])
+
+    input_file = max(files, key=os.path.getmtime)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_file = os.path.join(
+    "srs_outputs",
+    f"SRS_Document_{timestamp}.docx"
+)
+
+    generate_srs_document(input_file, output_file)

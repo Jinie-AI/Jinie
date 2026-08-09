@@ -29,7 +29,7 @@ from common.schemas import (
     AttributeType,
     RelationshipType,
 )
-from entities_generator.entities_model import generate_entities_with_llm
+from .entities_model import generate_entities_with_llm
 from logger import Logger
 
 logger = logging.getLogger(__name__)

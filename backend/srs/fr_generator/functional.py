@@ -28,7 +28,7 @@ from common.schemas import (
     FunctionalRequirementSet,
     Priority,
 )
-from fr_generator.functional_model import generate_frs_with_llm
+from .functional_model import generate_frs_with_llm
 from logger import Logger
 
 logger = logging.getLogger(__name__)

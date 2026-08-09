@@ -27,7 +27,7 @@ from common.schemas import (
     NFRCategory,
     Priority,
 )
-from nfr_generator.non_functional_model import generate_nfrs_with_llm
+from .non_functional_model import generate_nfrs_with_llm
 from logger import Logger
 
 logger = logging.getLogger(__name__)
