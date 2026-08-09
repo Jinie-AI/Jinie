@@ -42,6 +42,17 @@ def _new_trace_id() -> str:
     return f"trc-{uuid.uuid4().hex[:12]}"
 
 
+def get_component_type(node: dict) -> Optional[str]:
+    """Resolve a node's component type field.
+
+    Real SRS-generated ComponentNode data uses 'component_type', but
+    earlier/simplified layout specs (and some of our own tests) use
+    'type'. Accepting both means callers don't need to reshape SRS
+    output before passing it in.
+    """
+    return node.get("component_type") or node.get("type")
+
+
 class _ReactNativeRenderer:
     """Generates React Native JSX and StyleSheet fragments for a layout node.
 
@@ -75,7 +86,9 @@ class _ReactNativeRenderer:
         }
 
     def supported_types(self) -> set[str]:
-        """Return the full set of component types this renderer can produce."""
+        """Return the set of component types this renderer has an EXPLICIT
+        rendering rule for. This is NOT the full list of types it can
+        handle — see render_node()'s default-to-View behavior below."""
         return set(self._CONTAINER_ELEMENTS) | self._LEAF_TYPES
 
     def render_node(
@@ -85,8 +98,18 @@ class _ReactNativeRenderer:
         style_key: str,
         children_jsx: str,
     ) -> str:
-        """Render a single layout node into a JSX fragment."""
-        component_type = node["type"]
+        """Render a single layout node into a JSX fragment.
+
+        Real SRS-generated trees contain many component_type values
+        this renderer has no specific rule for (e.g. SafeAreaView,
+        SearchBar, FlatList, ItemCard, FormField). Since this renderer
+        is only ever used as a last-resort FALLBACK (the AI is the
+        primary path and can render any type it's given), unknown
+        types are rendered as a generic View wrapping their children
+        instead of raising — the fallback's job is to never crash,
+        not to be pixel-perfect.
+        """
+        component_type = get_component_type(node)
 
         if component_type in self._leaf_builders:
             return self._leaf_builders[component_type](node, style_key)
@@ -94,8 +117,10 @@ class _ReactNativeRenderer:
         return self._render_container(component_type, style_key, children_jsx)
 
     def _render_container(self, component_type: str, style_key: str, children_jsx: str) -> str:
-        """Render a generic container element (View/ScrollView) with nested children."""
-        tag = self._CONTAINER_ELEMENTS[component_type]
+        """Render a container element (View/ScrollView) with nested children.
+        Falls back to a plain View for any component_type without an
+        explicit mapping (see render_node's docstring)."""
+        tag = self._CONTAINER_ELEMENTS.get(component_type, "View")
         if children_jsx:
             return f"<{tag} style={{styles.{style_key}}}>\n{children_jsx}\n</{tag}>"
         return f"<{tag} style={{styles.{style_key}}} />"
@@ -303,21 +328,25 @@ class ComponentGenerator:
             raise InvalidDesignTokensError("Design tokens must be provided as a dictionary.")
 
     def _validate_layout_spec(self, layout_spec: dict, depth: int = 0) -> None:
-        """Recursively validate a layout specification and its child hierarchy."""
+        """Recursively validate the STRUCTURE of a layout specification.
+
+        This intentionally does NOT reject unfamiliar component_type
+        values (e.g. SafeAreaView, SearchBar, FlatList from real SRS
+        output) — that check only matters for the rule-based fallback
+        renderer, which now degrades unknown types to a generic View
+        instead of crashing (see _ReactNativeRenderer.render_node).
+        Structural validation just confirms the tree is well-formed
+        enough to send to the AI and to walk recursively.
+        """
         if layout_spec is None or not isinstance(layout_spec, dict):
             raise InvalidLayoutSpecificationError(
                 "Layout specification must be provided as a dictionary."
             )
 
-        component_type = layout_spec.get("type") or layout_spec.get("component_type")
+        component_type = get_component_type(layout_spec)
         if not component_type:
             raise InvalidLayoutSpecificationError(
-                "Layout specification must include a 'type' field."
-            )
-        if component_type not in self._renderer.supported_types():
-            supported = ", ".join(sorted(self._renderer.supported_types()))
-            raise UnsupportedComponentTypeError(
-                f"Unsupported component type '{component_type}'. Supported: {supported}"
+                "Layout specification must include a 'type' or 'component_type' field."
             )
 
         alignment = layout_spec.get("alignment")
@@ -398,7 +427,7 @@ class ComponentGenerator:
         """Recursively build JSX for a layout node and register its style entry."""
         style_registry[style_key] = self._apply_design_tokens(node, design_tokens)
 
-        if node.get("type") == "Button":
+        if get_component_type(node) == "Button":
             style_registry[f"{style_key}_label"] = self._build_label_style(design_tokens)
 
         children_jsx = ""
@@ -417,6 +446,7 @@ class ComponentGenerator:
     def _apply_design_tokens(self, node: dict, design_tokens: dict) -> dict:
         """Merge design tokens and layout properties into a single style dictionary."""
         style: dict = {}
+        component_type = get_component_type(node)
 
         spacing = design_tokens.get("spacing", {})
         style["padding"] = node.get("padding", spacing.get("default", 8) if isinstance(spacing, dict) else 8)
@@ -428,9 +458,9 @@ class ComponentGenerator:
             "backgroundColor", colors.get("surface", "#FFFFFF") if isinstance(colors, dict) else "#FFFFFF"
         )
 
-        if "borderRadius" in design_tokens or node.get("type") == "Avatar":
+        if "borderRadius" in design_tokens or component_type == "Avatar":
             style["borderRadius"] = design_tokens.get(
-                "borderRadius", 999 if node.get("type") == "Avatar" else 4
+                "borderRadius", 999 if component_type == "Avatar" else 4
             )
 
         elevation = design_tokens.get("elevation")
@@ -442,10 +472,10 @@ class ComponentGenerator:
         if "height" in node:
             style["height"] = node["height"]
 
-        if node.get("type") in {"Row", "Container", "Screen", "Card", "Navbar", "Header", "Footer"}:
-            style["flexDirection"] = node.get("flexDirection", "row" if node.get("type") == "Row" else "column")
+        if component_type in {"Row", "Container", "Screen", "Card", "Navbar", "Header", "Footer"}:
+            style["flexDirection"] = node.get("flexDirection", "row" if component_type == "Row" else "column")
 
-        if node.get("type") == "Column":
+        if component_type == "Column":
             style["flexDirection"] = "column"
 
         alignment = node.get("alignment")

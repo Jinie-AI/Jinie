@@ -226,10 +226,19 @@ def test_raises_on_missing_layout_type():
         generator.generate_component("WelcomeCard", SIMPLE_TOKENS, {"children": []})
 
 
-def test_raises_on_unsupported_component_type():
+@patch("generator.generate_component_with_llm")
+def test_unsupported_component_type_falls_back_to_generic_view(mock_generate):
+    """Unknown component_type values (e.g. real SRS types like SearchBar,
+    FlatList) should no longer crash the fallback renderer — they render
+    as a generic View instead, since the fallback's job is to never
+    block generation, not to be pixel-perfect for every type."""
+    mock_generate.return_value = None  # force the rule-based fallback path
     generator = ComponentGenerator()
-    with pytest.raises(UnsupportedComponentTypeError):
-        generator.generate_component("WelcomeCard", SIMPLE_TOKENS, {"type": "VideoPlayer"})
+
+    result = generator.generate_component("WelcomeCard", SIMPLE_TOKENS, {"type": "VideoPlayer"})
+
+    assert "export default WelcomeCard" in result
+    assert "<View" in result
 
 
 def test_raises_on_malformed_children():
@@ -249,3 +258,57 @@ def test_raises_on_excessive_nesting_depth():
 
     with pytest.raises(MalformedHierarchyError):
         generator.generate_component("WelcomeCard", SIMPLE_TOKENS, node)
+
+
+# =====================================================================
+# generator.py — real SRS fixture data (component_type field, unknown types)
+# =====================================================================
+
+import json
+import os
+
+_FIXTURE_PATH = os.path.join(os.path.dirname(__file__), "sample_component_trees.json")
+
+
+def _load_real_sample_trees():
+    with open(_FIXTURE_PATH) as f:
+        return json.load(f)["trees"]
+
+
+@patch("generator.generate_component_with_llm")
+def test_generates_from_real_srs_tree_with_component_type_field(mock_generate):
+    """Real SRS ComponentNode data uses 'component_type', not 'type', and
+    includes node types (SafeAreaView, SearchBar, FlatList, ItemCard)
+    this module never explicitly modeled. This should work end-to-end
+    without raising, whether the AI succeeds or falls back."""
+    mock_generate.return_value = None  # force rule-based fallback for a deterministic assertion
+    trees = _load_real_sample_trees()
+    product_catalog_tree = next(t for t in trees if t["screen_name"] == "ProductCatalog")
+
+    generator = ComponentGenerator()
+    result = generator.generate_component(
+        "ProductCatalogScreen",
+        {"colors": {"surface": "#FFFFFF"}},
+        product_catalog_tree["root"],
+    )
+
+    assert "export default ProductCatalogScreen" in result
+    assert "Traceability-ID" in result
+
+
+@patch("generator.generate_component_with_llm")
+def test_generates_all_screens_from_real_srs_output(mock_generate):
+    """Confirms every screen in a real multi-screen SRS output can be
+    generated without any single node type crashing the pipeline."""
+    mock_generate.return_value = None
+    trees = _load_real_sample_trees()
+
+    generator = ComponentGenerator()
+    for tree in trees:
+        component_name = f"{tree['screen_name']}Screen"
+        result = generator.generate_component(
+            component_name,
+            {"colors": {"surface": "#F5F5F5"}, "spacing": {"default": 12}},
+            tree["root"],
+        )
+        assert f"export default {component_name}" in result

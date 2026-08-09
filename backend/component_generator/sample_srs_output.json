@@ -1,0 +1,327 @@
+{
+  "trace_id": "trc-795802ae73ef",
+  "generated_at": "2026-08-09 13:09:20.707680",
+  "raw_features": {
+    "trace_id": "trc-795802ae73ef",
+    "original_prompt": "A simple food delivery app where users can browse restaurants, view a menu, add items to a cart, and checkout.",
+    "detected_language": "roman_urdu",
+    "normalized_text": "A simple food delivery app where users can browse restaurants, view a menu, add items to a cart, and checkout.",
+    "extracted_keywords": [
+      "simple",
+      "food",
+      "delivery",
+      "where",
+      "users",
+      "can",
+      "browse",
+      "restaurants",
+      "view",
+      "menu",
+      "add",
+      "items",
+      "cart",
+      "checkout"
+    ],
+    "intent_tags": [
+      "ecommerce"
+    ],
+    "candidate_entities": [
+      "cart"
+    ],
+    "confidence_score": 0.55
+  },
+  "functional_requirements": {
+    "trace_id": "trc-795802ae73ef",
+    "requirements": [
+      {
+        "fr_id": "FR-001",
+        "description": "User browses a catalog of products with filtering.",
+        "actors": [
+          "AuthenticatedUser",
+          "Guest"
+        ],
+        "inputs": [
+          "category_filter",
+          "search_query"
+        ],
+        "outputs": [
+          "product_list"
+        ],
+        "priority": "high",
+        "source_keywords": [
+          "browse"
+        ]
+      },
+      {
+        "fr_id": "FR-002",
+        "description": "User adds a product to the shopping cart and checks out.",
+        "actors": [
+          "AuthenticatedUser"
+        ],
+        "inputs": [
+          "product_id",
+          "quantity",
+          "payment_method"
+        ],
+        "outputs": [
+          "order_confirmation"
+        ],
+        "priority": "critical",
+        "source_keywords": [
+          "add",
+          "cart"
+        ]
+      }
+    ]
+  },
+  "non_functional_requirements": {
+    "trace_id": "trc-795802ae73ef",
+    "requirements": [
+      {
+        "nfr_id": "NFR-001",
+        "category": "performance",
+        "constraint": "Screen render must complete within 200ms of navigation trigger.",
+        "linked_fr_id": "FR-001",
+        "threshold_value": 200.0,
+        "threshold_unit": "ms"
+      },
+      {
+        "nfr_id": "NFR-002",
+        "category": "reliability",
+        "constraint": "Operation must degrade gracefully with a retry-capable error state on failure.",
+        "linked_fr_id": "FR-001",
+        "threshold_value": null,
+        "threshold_unit": null
+      },
+      {
+        "nfr_id": "NFR-003",
+        "category": "performance",
+        "constraint": "Screen render must complete within 200ms of navigation trigger.",
+        "linked_fr_id": "FR-002",
+        "threshold_value": 200.0,
+        "threshold_unit": "ms"
+      },
+      {
+        "nfr_id": "NFR-004",
+        "category": "reliability",
+        "constraint": "Operation must degrade gracefully with a retry-capable error state on failure.",
+        "linked_fr_id": "FR-002",
+        "threshold_value": null,
+        "threshold_unit": null
+      },
+      {
+        "nfr_id": "NFR-005",
+        "category": "security",
+        "constraint": "Payment data must be handled via PCI-DSS compliant tokenization, never stored raw.",
+        "linked_fr_id": "FR-002",
+        "threshold_value": null,
+        "threshold_unit": null
+      }
+    ]
+  },
+  "sitemap": {
+    "trace_id": "trc-795802ae73ef",
+    "nodes": [
+      {
+        "screen_id": "SCR-001",
+        "screen_name": "ProductCatalog",
+        "route": "/catalog",
+        "screen_type": "list",
+        "linked_fr_ids": [
+          "FR-001"
+        ],
+        "is_entry_point": true
+      },
+      {
+        "screen_id": "SCR-002",
+        "screen_name": "CheckoutScreen",
+        "route": "/checkout",
+        "screen_type": "form",
+        "linked_fr_ids": [
+          "FR-002"
+        ],
+        "is_entry_point": false
+      }
+    ],
+    "edges": [
+      {
+        "from_screen_id": "SCR-001",
+        "to_screen_id": "SCR-002",
+        "trigger": "navigate"
+      }
+    ]
+  },
+  "entities": {
+    "trace_id": "trc-795802ae73ef",
+    "entities": [
+      {
+        "entity_id": "ENT-001",
+        "name": "cart",
+        "attributes": [
+          {
+            "name": "cart_id",
+            "type": "string",
+            "required": true,
+            "constraints": {}
+          },
+          {
+            "name": "user_id",
+            "type": "reference",
+            "required": true,
+            "constraints": {}
+          },
+          {
+            "name": "items",
+            "type": "array",
+            "required": true,
+            "constraints": {}
+          }
+        ],
+        "relationships": [],
+        "source_fr_ids": [
+          "FR-002"
+        ]
+      }
+    ]
+  },
+  "component_trees": {
+    "trace_id": "trc-795802ae73ef",
+    "trees": [
+      {
+        "screen_id": "SCR-001",
+        "screen_name": "ProductCatalog",
+        "root": {
+          "component_id": "SCR-001-CMP-001",
+          "component_type": "SafeAreaView",
+          "props": {
+            "style": "flex:1"
+          },
+          "design_tokens": {
+            "spacing": "md",
+            "background": "surface.primary",
+            "radius": "md"
+          },
+          "children": [
+            {
+              "component_id": "SCR-001-CMP-002",
+              "component_type": "SearchBar",
+              "props": {
+                "placeholder": "Search"
+              },
+              "design_tokens": {},
+              "children": []
+            },
+            {
+              "component_id": "SCR-001-CMP-003",
+              "component_type": "FlatList",
+              "props": {
+                "data": "items",
+                "numColumns": 2
+              },
+              "design_tokens": {},
+              "children": [
+                {
+                  "component_id": "SCR-001-CMP-004",
+                  "component_type": "ItemCard",
+                  "props": {
+                    "onPress": "openItem"
+                  },
+                  "design_tokens": {},
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "screen_id": "SCR-002",
+        "screen_name": "CheckoutScreen",
+        "root": {
+          "component_id": "SCR-002-CMP-001",
+          "component_type": "SafeAreaView",
+          "props": {
+            "style": "flex:1"
+          },
+          "design_tokens": {
+            "spacing": "md",
+            "background": "surface.primary",
+            "radius": "md"
+          },
+          "children": [
+            {
+              "component_id": "SCR-002-CMP-002",
+              "component_type": "ScrollView",
+              "props": {},
+              "design_tokens": {},
+              "children": [
+                {
+                  "component_id": "SCR-002-CMP-003",
+                  "component_type": "FormField",
+                  "props": {
+                    "label": "Field"
+                  },
+                  "design_tokens": {},
+                  "children": []
+                },
+                {
+                  "component_id": "SCR-002-CMP-004",
+                  "component_type": "Button",
+                  "props": {
+                    "label": "Submit"
+                  },
+                  "design_tokens": {},
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "tech_stack": {
+    "framework": "React Native (Expo)",
+    "state_management": "React Context + useReducer",
+    "ui_library": "Tamagui",
+    "navigation_library": "React Navigation",
+    "backend_service": "Firebase Firestore",
+    "reasoning": [
+      "Small FR count; lightweight built-in state is sufficient.",
+      "Tamagui gives themeable, performant primitives suited for most generated screens.",
+      "Default managed backend for rapid, serverless data persistence.",
+      "1 security-category NFR(s) detected; Firebase Auth + App Check recommended for token/session integrity."
+    ]
+  },
+  "stage_timings": [
+    {
+      "stage_name": "requirement",
+      "duration_ms": 0.7038630000000268
+    },
+    {
+      "stage_name": "functional",
+      "duration_ms": 0.19405200000122136
+    },
+    {
+      "stage_name": "non_functional",
+      "duration_ms": 0.23828700000017022
+    },
+    {
+      "stage_name": "sitemap",
+      "duration_ms": 0.17203500000029237
+    },
+    {
+      "stage_name": "entities",
+      "duration_ms": 0.16564899999949034
+    },
+    {
+      "stage_name": "component_tree",
+      "duration_ms": 0.2840939999995129
+    },
+    {
+      "stage_name": "stack_identifier",
+      "duration_ms": 0.14444700000026955
+    }
+  ],
+  "total_duration_ms": 1.9298440000010686
+}
