@@ -45,13 +45,10 @@ preamble, no explanation. The JSON must have exactly these keys:
   "detected_language": "english" | "urdu" | "roman_urdu" | "unknown",
   "keywords": [list of lowercase single-word or short-phrase keywords, \
 max 15],
-  "intent_tags": [list of coarse app-category tags, choose only from: \
-"auth", "social_feed", "ecommerce", "messaging", "profile", "dashboard" \
--- include only tags clearly implied by the text],
+  "intent_tags": [short, domain-neutral capability labels inferred from the request, \
+such as "authentication", "scheduling", "inventory", "learning", or "reporting"],
   "candidate_entities": [list of lowercase singular nouns that represent \
-persistable data objects the app would need to store, e.g. "user", \
-"post", "product", "order", "message", "comment", "review", "payment", \
-"notification", "cart"],
+persistable data objects the app would need to store],
   "confidence_score": float between 0.0 and 1.0 representing how clear \
 and unambiguous the extraction was
 }

@@ -133,13 +133,13 @@ def test_uses_llm_result_when_available(mock_generate):
 
 
 @patch("component_tree_generator.component_tree.generate_component_tree_with_llm")
-def test_falls_back_to_template_when_llm_unavailable(mock_generate):
+def test_fallback_uses_screen_context_when_llm_unavailable(mock_generate):
     mock_generate.return_value = None
     sitemap = Sitemap(trace_id="t8", nodes=[_node("SCR-001", "AuthScreen", ScreenType.AUTH)], edges=[])
     result = generate_component_trees(sitemap, trace_id="t8")
     assert len(result.trees) == 1
     child_types = _flatten_component_types(result.trees[0].root)
-    assert "TextInput" in child_types  # template builder fallback kicked in
+    assert "TextInput" in child_types
 
 
 @patch("component_tree_generator.component_tree.generate_component_tree_with_llm")
@@ -184,3 +184,17 @@ def test_trace_id_propagated(mock_generate):
     sitemap = Sitemap(trace_id="t12", nodes=[_node("SCR-001", "AuthScreen", ScreenType.AUTH)], edges=[])
     result = generate_component_trees(sitemap, trace_id="trace-tree-222")
     assert result.trace_id == "trace-tree-222"
+
+
+@patch("component_tree_generator.component_tree.generate_component_tree_with_llm")
+def test_fallback_uses_linked_requirement_for_labels(mock_generate):
+    mock_generate.return_value = None
+    sitemap = Sitemap(trace_id="t13", nodes=[_node("SCR-013", "AppointmentBookingScreen", ScreenType.FORM)], edges=[])
+    from common.schemas import FunctionalRequirement, FunctionalRequirementSet, Priority
+    frs = FunctionalRequirementSet(trace_id="t13", requirements=[FunctionalRequirement(
+        fr_id="FR-001", description="Patient books a doctor appointment.", actors=["Patient"],
+        inputs=["doctor", "appointment_time"], outputs=["appointment_confirmation"], priority=Priority.HIGH,
+    )])
+    root = generate_component_trees(sitemap, "t13", frs, "Clinic appointment application").trees[0].root
+    assert root.children[0].props["title"] == "Appointment Booking"
+    assert any(child.component_type == "Form" for child in root.children)

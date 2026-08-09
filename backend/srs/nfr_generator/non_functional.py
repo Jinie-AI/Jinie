@@ -76,17 +76,17 @@ _TRIGGERED_CONSTRAINTS = {
         "threshold_value": 3600.0,
         "threshold_unit": "s",
     },
-    "feed_items_list": {
-        "category": NFRCategory.SCALABILITY,
-        "constraint": "Feed pagination must support incremental loading without full re-fetch.",
-        "threshold_value": 20.0,
-        "threshold_unit": "items_per_page",
+    "upload": {
+        "category": NFRCategory.RELIABILITY,
+        "constraint": "File transfers must show progress and allow a safe retry after an interrupted connection.",
+        "threshold_value": None,
+        "threshold_unit": None,
     },
-    "message_text": {
+    "search": {
         "category": NFRCategory.PERFORMANCE,
-        "constraint": "Message delivery round-trip must complete within 500ms under normal network conditions.",
-        "threshold_value": 500.0,
-        "threshold_unit": "ms",
+        "constraint": "Search results must provide a loading and empty state and respond within 1 second under normal conditions.",
+        "threshold_value": 1.0,
+        "threshold_unit": "s",
     },
 }
 
