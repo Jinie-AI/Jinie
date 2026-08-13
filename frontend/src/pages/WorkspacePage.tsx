@@ -35,7 +35,7 @@ export default function WorkspacePage() {
         } catch {
             localStorage.removeItem("jinie_srs");
             navigate("/");
-            return;
+return;
         }
 
         const savedDesignTokens = localStorage.getItem("jinie_design_tokens");

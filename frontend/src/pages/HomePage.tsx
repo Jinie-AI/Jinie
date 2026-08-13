@@ -47,18 +47,12 @@ export default function HomePage() {
                 </div>
 
                 <div className="header-actions">
-                    <button className="secondary-button">
-                        Documentation
-                    </button>
-
-                    <button className="secondary-button">
-                        GitHub
-                    </button>
+                    <button className="secondary-button">Documentation</button>
+                    <button className="secondary-button">GitHub</button>
                 </div>
             </header>
 
             <main className="home-content">
-
                 <h1>
                     Turn your idea into an
                     <span> application.</span>
@@ -66,7 +60,7 @@ export default function HomePage() {
 
                 <p className="hero-description">
                     Describe what you want to build and Jinie will transform
-                    your idea into a deployed application.
+                    your idea into a complete software plan.
                 </p>
 
                 <div className="prompt-card">
@@ -75,11 +69,12 @@ export default function HomePage() {
                         onChange={(e) => setPrompt(e.target.value)}
                         placeholder="Describe the application you want to build..."
                         rows={6}
+                        disabled={isGenerating}
                     />
 
                     <div className="prompt-footer">
                         <span className="prompt-hint">
-                            {errorMessage}
+                            {errorMessage && <span className="home-error">{errorMessage}</span>}
                         </span>
 
                         <button
@@ -92,7 +87,6 @@ export default function HomePage() {
                         </button>
                     </div>
                 </div>
-
             </main>
         </div>
     );

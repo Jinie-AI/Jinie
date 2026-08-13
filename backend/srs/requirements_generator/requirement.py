@@ -38,15 +38,6 @@ _ROMAN_URDU_MARKERS = {
     "mein", "aur", "nahi", "hoga", "bnado", "screen", "banana",
 }
 
-_INTENT_KEYWORD_MAP = {
-    "auth": ["login", "signup", "signin", "register", "password", "otp", "authentication"],
-    "social_feed": ["feed", "post", "like", "comment", "share", "timeline", "story"],
-    "ecommerce": ["cart", "checkout", "product", "price", "order", "payment", "buy"],
-    "messaging": ["chat", "message", "inbox", "notification", "call"],
-    "profile": ["profile", "avatar", "bio", "settings", "account"],
-    "dashboard": ["dashboard", "analytics", "chart", "stats", "report"],
-}
-
 _STOPWORDS = {
     "the", "a", "an", "to", "and", "of", "for", "in", "on", "with",
     "app", "should", "want", "please", "make", "create", "build",
@@ -84,21 +75,14 @@ def _extract_keywords(text: str) -> List[str]:
 
 
 def _extract_intent_tags(keywords: List[str]) -> List[str]:
-    tags = []
-    keyword_set = set(keywords)
-    for intent, markers in _INTENT_KEYWORD_MAP.items():
-        if keyword_set.intersection(markers):
-            tags.append(intent)
-    return tags
+    # Preserve useful context without forcing it into a fixed app taxonomy.
+    return keywords[:5]
 
 
 def _extract_candidate_entities(keywords: List[str]) -> List[str]:
-    # Rule-based fallback: nouns that commonly map to persistable objects.
-    noun_like = {
-        "user", "product", "order", "post", "comment", "message",
-        "profile", "cart", "payment", "notification", "review",
-    }
-    return [kw for kw in keywords if kw in noun_like]
+    # Without a language model, use prompt terms as candidate names rather than
+    # silently discarding domains outside a pre-defined dictionary.
+    return keywords[:8]
 
 
 # ---------------------------------------------------------------------

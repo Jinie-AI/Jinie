@@ -78,7 +78,10 @@ def run_srs_pipeline(prompt: str, trace_id: Optional[str] = None) -> FullSRSOutp
     stage_timings.append(PipelineTiming(stage_name="entities", duration_ms=(time.perf_counter() - stage_start) * 1000))
 
     stage_start = time.perf_counter()
-    component_tree_set = generate_component_trees(sitemap, trace_id)
+    component_tree_set = generate_component_trees(
+        sitemap, trace_id, functional_set=functional_set,
+        app_description=raw_features.normalized_text,
+    )
     stage_timings.append(PipelineTiming(stage_name="component_tree", duration_ms=(time.perf_counter() - stage_start) * 1000))
 
     stage_start = time.perf_counter()

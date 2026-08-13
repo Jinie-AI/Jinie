@@ -281,8 +281,12 @@ button {
 .prompt-hint {
     color: #a092b1;
     font-size: 13px;
-}
 
+}
+.home-error {
+       color: #b34565;
+       font-weight: 600;
+   }
 
 /* =========================================================
    WORKSPACE HEADER
@@ -1068,6 +1072,7 @@ button {
     font-size: 13px;
 }
 
+
 .design-detail--stacked {
     flex-direction: column;
     gap: 12px;
@@ -1140,6 +1145,7 @@ button {
     border-color: #8056bb;
     color: #ffffff;
 }
+
 
 .design-preview {
     display: grid;

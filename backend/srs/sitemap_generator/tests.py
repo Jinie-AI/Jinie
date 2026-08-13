@@ -155,8 +155,9 @@ def test_falls_back_to_rules_when_llm_unavailable(mock_generate):
     mock_generate.return_value = None
     fr_set = FunctionalRequirementSet(trace_id="t11", requirements=[_fr("FR-001", "User logs in with password", outputs=["auth_token"])])
     result = generate_sitemap(fr_set, trace_id="t11")
-    screen_names = [n.screen_name for n in result.nodes]
-    assert "AuthScreen" in screen_names  # keyword-lookup fallback kicked in
+    assert len(result.nodes) == 1
+    assert result.nodes[0].linked_fr_ids == ["FR-001"]
+    assert result.nodes[0].screen_type == ScreenType.AUTH
 
 
 @patch("sitemap_generator.sitemap.generate_sitemap_with_llm")

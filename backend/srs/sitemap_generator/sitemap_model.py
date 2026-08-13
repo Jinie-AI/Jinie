@@ -20,9 +20,7 @@ logger = logging.getLogger(__name__)
 
 _client = LLMClient()
 
-_VALID_SCREEN_TYPES = {
-    "auth", "feed", "detail", "form", "profile", "settings", "list", "dashboard", "generic",
-}
+_VALID_SCREEN_TYPES = {"auth", "detail", "form", "profile", "settings", "list", "dashboard", "generic"}
 
 
 class ExtractedScreen(TypedDict):
@@ -55,10 +53,9 @@ preamble, no explanation, with exactly these keys:
 {
   "screens": [
     {
-      "screen_name": "PascalCase name ending in 'Screen' or a common \
-name like 'MainFeed'",
+      "screen_name": "a meaningful PascalCase name ending in 'Screen'",
       "route": "lowercase path, e.g. '/auth'",
-      "screen_type": "auth" | "feed" | "detail" | "form" | "profile" | \
+      "screen_type": "auth" | "detail" | "form" | "profile" | \
 "settings" | "list" | "dashboard" | "generic",
       "linked_fr_ids": [fr_id strings this screen serves],
       "is_entry_point": true only for the screen(s) the app opens on
