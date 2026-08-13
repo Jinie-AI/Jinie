@@ -2,48 +2,85 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import WorkflowStepper from "../components/workflow/WorkflowStepper";
-import PromptComposer from "../components/prompt/PromptComposer";
 import SRSSection from "../components/srs/SRSSection";
-import DesignSection from "../components/design/DesignSection";
+import DesignSection, { type DesignTokens } from "../components/design/DesignSection";
+import GeneratedComponentsSection, {
+    type GeneratedComponent,
+} from "../components/generatedComponents/GeneratedComponentsSection";
 import PreviewSection from "../components/preview/PreviewSection";
 
-type Stage = "prompt" | "srs" | "design" | "preview";
+type Stage = "srs" | "design" | "components" | "preview";
 
 export default function WorkspacePage() {
     const navigate = useNavigate();
 
-    const [stage, setStage] = useState<Stage>("prompt");
+    const [stage, setStage] = useState<Stage>("srs");
     const [prompt, setPrompt] = useState("");
     const [srs, setSrs] = useState<any>(null);
+    const [designTokens, setDesignTokens] = useState<DesignTokens | null>(null);
+    const [generatedComponents, setGeneratedComponents] = useState<GeneratedComponent[]>([]);
 
     useEffect(() => {
         const savedPrompt = localStorage.getItem("jinie_prompt");
+        const savedSRS = localStorage.getItem("jinie_srs");
 
-        if (savedPrompt) {
-            setPrompt(savedPrompt);
+        if (!savedPrompt || !savedSRS) {
+            navigate("/");
+            return;
         }
-    }, []);
 
-    const handlePromptSubmit = (value: string, generatedSRS: any) => {
-        setPrompt(value);
-        setSrs(generatedSRS);
+        try {
+            setPrompt(savedPrompt);
+            setSrs(JSON.parse(savedSRS));
+        } catch {
+            localStorage.removeItem("jinie_srs");
+            navigate("/");
+            return;
+        }
 
-        localStorage.setItem("jinie_prompt", value);
+        const savedDesignTokens = localStorage.getItem("jinie_design_tokens");
+        if (savedDesignTokens) {
+            try {
+                setDesignTokens(JSON.parse(savedDesignTokens));
+            } catch {
+                localStorage.removeItem("jinie_design_tokens");
+            }
+        }
 
-        setStage("srs");
-    };
+        const savedStage = localStorage.getItem("jinie_stage") as Stage | null;
+        if (savedStage === "design" || savedStage === "components" || savedStage === "preview") {
+            setStage(savedStage);
+        }
+    }, [navigate]);
+
+    useEffect(() => {
+        localStorage.setItem("jinie_stage", stage);
+    }, [stage]);
 
     const handleSRSApprove = () => {
         setStage("design");
     };
 
-    const handleDesignApprove = () => {
+    const handleDesignApprove = (tokens: DesignTokens) => {
+        setDesignTokens(tokens);
+        localStorage.setItem("jinie_design_tokens", JSON.stringify(tokens));
+        // Real component generation happens on the next stage — this
+        // click just carries the srs + design tokens forward to it.
+        setStage("components");
+    };
+
+    const handleComponentsApprove = (components: GeneratedComponent[]) => {
+        setGeneratedComponents(components);
         setStage("preview");
     };
 
     const handleDeploy = () => {
         navigate("/deploy");
     };
+
+    if (!srs) {
+        return null;
+    }
 
     return (
         <div className="workspace-page">
@@ -55,7 +92,7 @@ export default function WorkspacePage() {
 
                 <div className="workspace-title">
                     <span>Workspace</span>
-                    <small>{prompt || "New Project"}</small>
+                    <small>{prompt}</small>
                 </div>
 
                 <button
@@ -69,15 +106,6 @@ export default function WorkspacePage() {
             <WorkflowStepper currentStage={stage} />
 
             <main className="workspace-content">
-                {stage === "prompt" && (
-                    <section className="workspace-section">
-                        <PromptComposer
-                            initialPrompt={prompt}
-                            onSubmit={handlePromptSubmit}
-                        />
-                    </section>
-                )}
-
                 {stage === "srs" && (
                     <section className="workspace-section">
                         <SRSSection
@@ -90,7 +118,18 @@ export default function WorkspacePage() {
                 {stage === "design" && (
                     <section className="workspace-section">
                         <DesignSection
+                            srs={srs}
                             onApprove={handleDesignApprove}
+                        />
+                    </section>
+                )}
+
+                {stage === "components" && designTokens && (
+                    <section className="workspace-section">
+                        <GeneratedComponentsSection
+                            srs={srs}
+                            designTokens={designTokens}
+                            onApprove={handleComponentsApprove}
                         />
                     </section>
                 )}
@@ -98,6 +137,9 @@ export default function WorkspacePage() {
                 {stage === "preview" && (
                     <section className="workspace-section">
                         <PreviewSection
+                            srs={srs}
+                            designTokens={designTokens}
+                            generatedComponents={generatedComponents}
                             onDeploy={handleDeploy}
                         />
                     </section>

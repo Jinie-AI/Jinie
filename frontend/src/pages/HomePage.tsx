@@ -1,17 +1,41 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import jinieLogo from "../assets/logo_jinie.png";
+import { generateSRS } from "../services/JinieService";
 
 export default function HomePage() {
     const [prompt, setPrompt] = useState("");
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
 
-    const handleGenerate = () => {
-        if (!prompt.trim()) return;
+    const handleGenerate = async () => {
+        if (!prompt.trim() || isGenerating) return;
 
-        localStorage.setItem("jinie_prompt", prompt);
+        setIsGenerating(true);
+        setErrorMessage("");
 
-        navigate("/workspace");
+        try {
+            const srs = await generateSRS(prompt);
+
+            localStorage.setItem("jinie_prompt", prompt);
+            localStorage.setItem("jinie_srs", JSON.stringify(srs));
+            // A fresh prompt means a fresh run — clear anything left over
+            // from a previous session so the workspace doesn't reopen on
+            // stale design tokens or an old stage.
+            localStorage.removeItem("jinie_design_tokens");
+            localStorage.removeItem("jinie_stage");
+
+            navigate("/workspace");
+        } catch (error) {
+            setErrorMessage(
+                error instanceof Error
+                    ? error.message
+                    : "SRS generation failed. Please try again."
+            );
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     return (
@@ -55,15 +79,15 @@ export default function HomePage() {
 
                     <div className="prompt-footer">
                         <span className="prompt-hint">
-
+                            {errorMessage}
                         </span>
 
                         <button
                             className="primary-button"
                             onClick={handleGenerate}
-                            disabled={!prompt.trim()}
+                            disabled={!prompt.trim() || isGenerating}
                         >
-                            Generate
+                            {isGenerating ? "Generating…" : "Generate"}
                             <span>→</span>
                         </button>
                     </div>

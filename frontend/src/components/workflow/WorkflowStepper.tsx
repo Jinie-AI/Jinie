@@ -1,4 +1,4 @@
-type StageId = "prompt" | "srs" | "design" | "preview";
+type StageId = "prompt" | "srs" | "design" | "components" | "preview";
 
 interface WorkflowStepperProps {
     currentStage: StageId;
@@ -29,8 +29,14 @@ const stages: {
             description: "Create UI",
         },
         {
-            id: "preview",
+            id: "components",
             number: "04",
+            title: "Components",
+            description: "Generate components",
+        },
+        {
+            id: "preview",
+            number: "05",
             title: "Preview",
             description: "Review application",
         },

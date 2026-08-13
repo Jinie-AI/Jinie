@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from srs.pipeline import run_srs_pipeline
+from component_generator.router import router as components_router
 
 
 app = FastAPI(title="Jinie Backend")
@@ -16,6 +17,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Stage 5 — Component Generator, exposed at POST /api/components/generate
+app.include_router(components_router)
 
 
 class SRSRequest(BaseModel):
