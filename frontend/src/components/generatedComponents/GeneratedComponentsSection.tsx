@@ -35,6 +35,11 @@ function toGeneratorDesignTokens(tokens: DesignTokens) {
             surface: tokens.theme === "dark" ? "#0F172A" : "#FFFFFF",
             onPrimary: "#FFFFFF",
         },
+        // Tells the AI generation prompt whether these exact colors are
+        // the user's explicit, non-negotiable choice (picked via the
+        // custom color inputs) versus a starting-point preset they're
+        // fine with the model adapting slightly.
+        isCustomColor: tokens.isCustomColor,
         typography: {
             headingFont: tokens.typography.headingFont,
             bodyFont: tokens.typography.bodyFont,

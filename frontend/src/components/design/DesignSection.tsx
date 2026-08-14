@@ -6,6 +6,11 @@ export interface DesignTokens {
         secondary: string;
         accent: string;
     };
+    // True when the user explicitly picked these exact colors themselves
+    // (rather than choosing one of the built-in presets). Carried through
+    // to the backend so the AI generation prompt can treat these as a
+    // hard requirement instead of a soft suggestion.
+    isCustomColor: boolean;
     typography: {
         headingFont: string;
         bodyFont: string;
@@ -36,22 +41,37 @@ const LAYOUT_MODES: Array<{ value: DesignTokens["layoutMode"]; label: string }> 
 ];
 
 export default function DesignSection({ srs, onApprove }: DesignSectionProps) {
+    const [colorMode, setColorMode] = useState<"preset" | "custom">("preset");
+    // Shown immediately when this step loads, before the user can see or
+    // touch anything else — forces an explicit choice up front instead of
+    // burying "choose your own colors" as a toggle the user might never
+    // scroll down far enough to notice.
+    const [showColorModal, setShowColorModal] = useState(true);
     const [selectedPreset, setSelectedPreset] = useState(0);
+    const [customColors, setCustomColors] = useState({
+        primary: "#2563EB",
+        secondary: "#1E3A8A",
+        accent: "#38BDF8",
+    });
     const [headingFont, setHeadingFont] = useState(FONT_OPTIONS[0]);
     const [bodyFont, setBodyFont] = useState(FONT_OPTIONS[1]);
     const [layoutMode, setLayoutMode] = useState<DesignTokens["layoutMode"]>("top-nav");
     const [theme, setTheme] = useState<DesignTokens["theme"]>("light");
 
     const activePreset = COLOR_PRESETS[selectedPreset];
+    // Whichever mode is active, this is the single source of truth the
+    // rest of the component (preview + approve) reads colors from.
+    const activeColors = colorMode === "custom" ? customColors : activePreset;
     const screenCount = srs?.sitemap?.nodes?.length ?? 0;
 
     const handleApprove = () => {
         const designTokens: DesignTokens = {
             colors: {
-                primary: activePreset.primary,
-                secondary: activePreset.secondary,
-                accent: activePreset.accent,
+                primary: activeColors.primary,
+                secondary: activeColors.secondary,
+                accent: activeColors.accent,
             },
+            isCustomColor: colorMode === "custom",
             typography: {
                 headingFont,
                 bodyFont,
@@ -62,8 +82,58 @@ export default function DesignSection({ srs, onApprove }: DesignSectionProps) {
         onApprove(designTokens);
     };
 
+    const handleChooseModalOption = (mode: "preset" | "custom") => {
+        setColorMode(mode);
+        setShowColorModal(false);
+    };
+
     return (
         <div className="section-card design-panel">
+            {showColorModal && (
+                <div className="color-modal-backdrop">
+                    <div className="color-modal" role="dialog" aria-modal="true">
+                        <span className="stage-label">Before you continue</span>
+                        <h2>How should we pick your app's colors?</h2>
+                        <p>
+                            You can go with a ready-made palette, or choose the
+                            exact colors yourself — either way, this only takes
+                            a second.
+                        </p>
+
+                        <div className="color-modal-options">
+                            <button
+                                type="button"
+                                className="color-modal-option"
+                                onClick={() => handleChooseModalOption("preset")}
+                            >
+                                <span className="color-modal-option__swatches">
+                                    {COLOR_PRESETS.slice(0, 3).map((preset) => (
+                                        <span
+                                            key={preset.name}
+                                            style={{ backgroundColor: preset.primary }}
+                                        />
+                                    ))}
+                                </span>
+                                <strong>Use a preset</strong>
+                                <span>Pick from curated color palettes</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                className="color-modal-option"
+                                onClick={() => handleChooseModalOption("custom")}
+                            >
+                                <span className="color-modal-option__swatches color-modal-option__swatches--custom">
+                                    🎨
+                                </span>
+                                <strong>Choose my own</strong>
+                                <span>Pick your exact brand colors</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="design-panel__header">
                 <div>
                     <span className="stage-label">03 · Design</span>
@@ -83,26 +153,91 @@ export default function DesignSection({ srs, onApprove }: DesignSectionProps) {
             <div className="design-layout">
                 <div className="design-sidebar">
                     <span className="design-sidebar__label">Color palette</span>
-                    <div className="design-color-row">
-                        {COLOR_PRESETS.map((preset, index) => (
-                            <button
-                                key={preset.name}
-                                type="button"
-                                title={preset.name}
-                                aria-pressed={selectedPreset === index}
-                                onClick={() => setSelectedPreset(index)}
-                                className={
-                                    "color-swatch-button" +
-                                    (selectedPreset === index ? " color-swatch-button--selected" : "")
-                                }
-                                style={{ backgroundColor: preset.primary }}
-                            />
-                        ))}
+                    <div className="design-layout-mode-row">
+                        <button
+                            type="button"
+                            aria-pressed={colorMode === "preset"}
+                            onClick={() => setColorMode("preset")}
+                            className={
+                                "chip-button" +
+                                (colorMode === "preset" ? " chip-button--selected" : "")
+                            }
+                        >
+                            Use a preset
+                        </button>
+                        <button
+                            type="button"
+                            aria-pressed={colorMode === "custom"}
+                            onClick={() => setColorMode("custom")}
+                            className={
+                                "chip-button" +
+                                (colorMode === "custom" ? " chip-button--selected" : "")
+                            }
+                        >
+                            Choose my own
+                        </button>
                     </div>
-                    <div className="design-detail">
-                        <span>Palette</span>
-                        <strong>{activePreset.name}</strong>
-                    </div>
+
+                    {colorMode === "preset" ? (
+                        <>
+                            <div className="design-color-row">
+                                {COLOR_PRESETS.map((preset, index) => (
+                                    <button
+                                        key={preset.name}
+                                        type="button"
+                                        title={preset.name}
+                                        aria-pressed={selectedPreset === index}
+                                        onClick={() => setSelectedPreset(index)}
+                                        className={
+                                            "color-swatch-button" +
+                                            (selectedPreset === index ? " color-swatch-button--selected" : "")
+                                        }
+                                        style={{ backgroundColor: preset.primary }}
+                                    />
+                                ))}
+                            </div>
+                            <div className="design-detail">
+                                <span>Palette</span>
+                                <strong>{activePreset.name}</strong>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="design-detail design-detail--stacked">
+                            <label>
+                                Primary color
+                                <input
+                                    type="color"
+                                    className="color-input"
+                                    value={customColors.primary}
+                                    onChange={(e) =>
+                                        setCustomColors((prev) => ({ ...prev, primary: e.target.value }))
+                                    }
+                                />
+                            </label>
+                            <label>
+                                Secondary color
+                                <input
+                                    type="color"
+                                    className="color-input"
+                                    value={customColors.secondary}
+                                    onChange={(e) =>
+                                        setCustomColors((prev) => ({ ...prev, secondary: e.target.value }))
+                                    }
+                                />
+                            </label>
+                            <label>
+                                Accent color
+                                <input
+                                    type="color"
+                                    className="color-input"
+                                    value={customColors.accent}
+                                    onChange={(e) =>
+                                        setCustomColors((prev) => ({ ...prev, accent: e.target.value }))
+                                    }
+                                />
+                            </label>
+                        </div>
+                    )}
 
                     <span className="design-sidebar__label">Typography</span>
                     <div className="design-detail design-detail--stacked">
@@ -181,7 +316,7 @@ export default function DesignSection({ srs, onApprove }: DesignSectionProps) {
                     >
                         <div
                             className="mock-header"
-                            style={{ backgroundColor: activePreset.primary, color: "#FFFFFF" }}
+                            style={{ backgroundColor: activeColors.primary, color: "#FFFFFF" }}
                         >
                             <div className="mock-logo">J</div>
                             <span style={{ fontFamily: headingFont }}>Your App</span>
@@ -191,7 +326,7 @@ export default function DesignSection({ srs, onApprove }: DesignSectionProps) {
                         <div className="mock-content">
                             <span
                                 className="mock-eyebrow"
-                                style={{ color: activePreset.accent }}
+                                style={{ color: activeColors.accent }}
                             >
                                 WELCOME BACK
                             </span>
@@ -207,7 +342,7 @@ export default function DesignSection({ srs, onApprove }: DesignSectionProps) {
                             <div className="mock-card">
                                 <div
                                     className="mock-card__icon"
-                                    style={{ color: activePreset.secondary }}
+                                    style={{ color: activeColors.secondary }}
                                 >
                                     ✦
                                 </div>

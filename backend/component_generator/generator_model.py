@@ -47,7 +47,36 @@ provided design tokens.
 (e.g. View, Text, TouchableOpacity, TextInput, Image, ScrollView).
 - Respect the given tech stack (e.g. state management / UI library) \
 only where the tree actually calls for it — do not add unrelated \
-dependencies."""
+dependencies.
+
+Color fidelity: if `design_tokens.isCustomColor` is true, the colors \
+in `design_tokens.colors` were explicitly hand-picked by the end user \
+as their final, non-negotiable choice — not a starting palette for \
+you to interpret or adjust. In that case you MUST use those exact hex \
+values verbatim everywhere a themed color applies (backgrounds, \
+buttons, accents, text-on-color, etc.) — do not substitute a similar \
+shade, do not add your own accent colors, and do not lighten/darken \
+them for "better contrast" unless the tree or props explicitly call \
+for a computed variant (e.g. a pressed/disabled state). If \
+`isCustomColor` is false or absent, treat the given colors as a \
+sensible default palette you may adapt tastefully.
+
+Visual polish: within the existing tree structure (never add or remove \
+nodes to achieve this), make reasonable styling choices that avoid a \
+flat, generic look:
+- Spacing: use a consistent scale (4, 8, 12, 16, 24) for padding and \
+margins rather than one flat value everywhere — group related items \
+with smaller gaps, separate distinct sections with larger ones.
+- Depth: give elevated surfaces like Cards, buttons, and modals a \
+subtle shadow or elevation (e.g. `shadowColor`, `shadowOpacity`, \
+`shadowRadius`, `shadowOffset` on iOS and `elevation` on Android) \
+instead of a flat, borderless block — keep it subtle, not heavy.
+- Typography: give headings and titles a visibly larger `fontSize` \
+and heavier `fontWeight` than body or label text, so there's a clear \
+visual hierarchy instead of every piece of text looking the same size.
+- Borders/radius: prefer soft, rounded corners (roughly 8–16) on \
+cards, buttons, and inputs over sharp corners, unless the design \
+tokens specify otherwise."""
 
 
 def _build_user_prompt(
@@ -62,9 +91,20 @@ def _build_user_prompt(
         "design_tokens": design_tokens,
         "tech_stack": tech_stack or {},
     }
+    color_instruction = ""
+    if design_tokens.get("isCustomColor"):
+        colors = design_tokens.get("colors", {})
+        color_instruction = (
+            "\n\nIMPORTANT: The user explicitly chose these exact colors "
+            f"themselves: primary={colors.get('primary')}, "
+            f"secondary={colors.get('secondary')}, accent={colors.get('accent')}. "
+            "Use these literal hex values verbatim — do not substitute, "
+            "adjust, or invent alternate shades."
+        )
     return (
         "Generate the React Native component for the following input:\n"
         f"{json.dumps(payload, ensure_ascii=False)}"
+        f"{color_instruction}"
     )
 
 

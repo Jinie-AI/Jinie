@@ -47,7 +47,7 @@ button {
 .home-page::before,
 .workspace-page::before,
 .deploy-page::before {
-    content: "✦   ˚   ✧        ✦       ˚   ✧";
+    content: "âœ¦   Ëš   âœ§        âœ¦       Ëš   âœ§";
     position: absolute;
     inset: 0;
     pointer-events: none;
@@ -281,12 +281,8 @@ button {
 .prompt-hint {
     color: #a092b1;
     font-size: 13px;
-
 }
-.home-error {
-       color: #b34565;
-       font-weight: 600;
-   }
+
 
 /* =========================================================
    WORKSPACE HEADER
@@ -1072,7 +1068,6 @@ button {
     font-size: 13px;
 }
 
-
 .design-detail--stacked {
     flex-direction: column;
     gap: 12px;
@@ -1096,6 +1091,127 @@ button {
     background: #ffffff;
     color: #4a385b;
     font-size: 13px;
+}
+
+.color-input {
+    width: 100%;
+    height: 38px;
+    padding: 3px;
+    border: 1px solid rgba(139, 92, 199, 0.2);
+    border-radius: 9px;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+.color-input::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.color-input::-webkit-color-swatch {
+    border: none;
+    border-radius: 6px;
+}
+
+/* =========================================================
+   COLOR CHOICE MODAL
+   ========================================================= */
+
+.color-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(41, 24, 66, 0.45);
+    backdrop-filter: blur(6px);
+}
+
+.color-modal {
+    width: min(480px, 100%);
+    padding: 32px;
+    border: 1px solid rgba(139, 92, 199, 0.22);
+    border-radius: 22px;
+    background: #fffdff;
+    box-shadow:
+        0 30px 70px rgba(58, 35, 78, 0.35),
+        0 0 40px rgba(153, 112, 217, 0.15);
+    text-align: center;
+}
+
+.color-modal h2 {
+    margin: 8px 0 10px;
+    color: #30203f;
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 26px;
+    letter-spacing: -0.8px;
+}
+
+.color-modal p {
+    margin: 0 0 24px;
+    color: #786b87;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.color-modal-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.color-modal-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 22px 14px;
+    border: 1px solid rgba(139, 92, 199, 0.2);
+    border-radius: 16px;
+    background: rgba(249, 246, 255, 0.7);
+    color: #4a385b;
+    transition: all 0.2s ease;
+}
+
+.color-modal-option:hover {
+    border-color: rgba(112, 67, 177, 0.5);
+    background: white;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(84, 54, 132, 0.14);
+}
+
+.color-modal-option strong {
+    font-size: 14px;
+    color: #3c2854;
+}
+
+.color-modal-option span {
+    font-size: 12px;
+    color: #897b98;
+}
+
+.color-modal-option__swatches {
+    display: flex;
+    gap: 4px;
+    font-size: 20px;
+}
+
+.color-modal-option__swatches span {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 2px 5px rgba(84, 54, 132, 0.2);
+}
+
+.color-modal-option__swatches--custom {
+    line-height: 1;
+}
+
+@media (max-width: 500px) {
+    .color-modal-options {
+        grid-template-columns: 1fr;
+    }
 }
 
 .color-swatch-button {
@@ -1145,7 +1261,6 @@ button {
     border-color: #8056bb;
     color: #ffffff;
 }
-
 
 .design-preview {
     display: grid;

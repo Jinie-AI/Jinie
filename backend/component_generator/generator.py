@@ -453,10 +453,24 @@ class ComponentGenerator:
         if "margin" in node or "margin" in design_tokens:
             style["margin"] = node.get("margin", design_tokens.get("margin", 0))
 
-        colors = design_tokens.get("colors", {})
-        style["backgroundColor"] = node.get(
-            "backgroundColor", colors.get("surface", "#FFFFFF") if isinstance(colors, dict) else "#FFFFFF"
-        )
+        colors = design_tokens.get("colors", {}) if isinstance(design_tokens.get("colors"), dict) else {}
+
+        # Interactive elements (buttons) are meant to stand out using the
+        # user's chosen primary color, not blend into the background like
+        # every other container. Without this distinction, a Button node
+        # got the same white "surface" background as everything else,
+        # which combined with its white ("onPrimary") label text made
+        # every fallback-rendered button invisible — and meant the
+        # primary/secondary/accent colors the user picked were never
+        # actually applied anywhere in the rendered output.
+        if component_type == "Button":
+            style["backgroundColor"] = node.get(
+                "backgroundColor", colors.get("primary", "#2563EB")
+            )
+        else:
+            style["backgroundColor"] = node.get(
+                "backgroundColor", colors.get("surface", "#FFFFFF")
+            )
 
         if "borderRadius" in design_tokens or component_type == "Avatar":
             style["borderRadius"] = design_tokens.get(
