@@ -1,10 +1,16 @@
 """
-sitemap_model.py
+LLM model for Stage 4 — Sitemap generation.
 
-Domain-specific LLM layer for Stage 4 (Sitemap / navigation topology).
-Given the FR list, asks the LLM to design screens and navigation edges
-directly, instead of relying only on the fixed keyword-lookup table in
-sitemap.py.
+The important difference from the old version is that the model receives
+the ORIGINAL application description as well as the functional requirements.
+
+This prevents bad screen names such as:
+
+    BuildAModernScreen
+    ShouldBeAbleScreen
+    IncludeAnUpcomingScreen
+
+Instead, the LLM must understand the actual application domain.
 """
 
 from __future__ import annotations
@@ -13,15 +19,40 @@ import json
 import logging
 from typing import Optional, TypedDict, List
 
-from shared.llm_client import LLMClient, LLMAPIError
-from shared.json_utils import strip_markdown_fences
+from shared.llm_client import (
+    LLMAPIError,
+    LLMClient,
+)
+
+from shared.json_utils import (
+    strip_markdown_fences,
+)
+
 
 logger = logging.getLogger(__name__)
 
 _client = LLMClient()
 
-_VALID_SCREEN_TYPES = {"auth", "detail", "form", "profile", "settings", "list", "dashboard", "generic"}
 
+# =========================================================
+# VALID SCREEN TYPES
+# =========================================================
+
+_VALID_SCREEN_TYPES = {
+    "auth",
+    "detail",
+    "form",
+    "profile",
+    "settings",
+    "list",
+    "dashboard",
+    "generic",
+}
+
+
+# =========================================================
+# TYPES
+# =========================================================
 
 class ExtractedScreen(TypedDict):
     screen_name: str
@@ -42,136 +73,564 @@ class ExtractedSitemap(TypedDict):
     edges: List[ExtractedEdge]
 
 
-_SYSTEM_PROMPT = """You are a navigation/sitemap design engine for a mobile \
-app generation pipeline. Given a list of Functional Requirements (each \
-with an fr_id and description), design the set of app screens/routes \
-needed and how navigation flows between them.
+# =========================================================
+# SYSTEM PROMPT
+# =========================================================
 
-Respond with ONLY a single valid JSON object, no markdown fences, no \
-preamble, no explanation, with exactly these keys:
+_SYSTEM_PROMPT = """
+You are the sitemap and navigation designer for a software application.
+
+Your job is to understand the ACTUAL APPLICATION described by the user.
+
+You will receive:
+
+1. The original application request.
+2. Functional requirements generated from that request.
+
+IMPORTANT:
+
+The original application request is the source of truth for the application's
+domain.
+
+DO NOT create screen names from requirement grammar.
+
+NEVER create names like:
+
+- BuildAModernScreen
+- ShouldBeAbleScreen
+- ShouldBeAble2Screen
+- IncludeAnUpcomingScreen
+- TheApplicationScreen
+- SupportUsersScreen
+
+Those are BAD names.
+
+Instead, identify the actual features of the application.
+
+For example:
+
+If the application request is:
+
+"Create a student attendance management system"
+
+Good screens could be:
+
+- DashboardScreen
+- StudentsScreen
+- AttendanceScreen
+- ClassesScreen
+- ReportsScreen
+- SettingsScreen
+
+If the application request is:
+
+"Create an online bakery ordering application"
+
+Good screens could be:
+
+- HomeScreen
+- MenuScreen
+- ProductDetailsScreen
+- CartScreen
+- CheckoutScreen
+- OrdersScreen
+- ProfileScreen
+
+If the application request is:
+
+"Create a doctor appointment booking system"
+
+Good screens could be:
+
+- HomeScreen
+- DoctorsScreen
+- DoctorDetailsScreen
+- AppointmentScreen
+- MyAppointmentsScreen
+- ProfileScreen
+
+Do NOT blindly use these examples.
+Only use screens that are actually appropriate for the user's request.
+
+SCREEN NAMING RULES:
+
+- Use meaningful PascalCase.
+- Every screen name must end with "Screen".
+- Use nouns/features, not requirement sentences.
+- Maximum approximately 4 words before "Screen".
+- Do not include words such as:
+  "shall", "should", "able", "support", "application", "system",
+  unless they are genuinely part of a domain name.
+- Keep the number of screens reasonable.
+- Group related functional requirements onto the same screen.
+- Do not create one screen for every FR automatically.
+
+ROUTES:
+
+Routes must be lowercase.
+
+Examples:
+
+DashboardScreen -> /dashboard
+StudentsScreen -> /students
+AttendanceScreen -> /attendance
+ProductDetailsScreen -> /product-details
+
+SCREEN TYPES:
+
+Use one of:
+
+auth
+detail
+form
+profile
+settings
+list
+dashboard
+generic
+
+ENTRY POINT:
+
+Usually there should be exactly one entry point.
+
+NAVIGATION:
+
+Create logical navigation between screens.
+
+Return ONLY valid JSON.
+
+Do not return markdown.
+Do not return explanations.
+
+Required format:
 
 {
   "screens": [
     {
-      "screen_name": "a meaningful PascalCase name ending in 'Screen'",
-      "route": "lowercase path, e.g. '/auth'",
-      "screen_type": "auth" | "detail" | "form" | "profile" | \
-"settings" | "list" | "dashboard" | "generic",
-      "linked_fr_ids": [fr_id strings this screen serves],
-      "is_entry_point": true only for the screen(s) the app opens on
+      "screen_name": "DashboardScreen",
+      "route": "/dashboard",
+      "screen_type": "dashboard",
+      "linked_fr_ids": ["FR-001"],
+      "is_entry_point": true
     }
   ],
   "edges": [
-    {"from_screen": "screen_name", "to_screen": "screen_name", "trigger": \
-"short description like 'on_login_success' or 'navigate'"}
+    {
+      "from_screen": "DashboardScreen",
+      "to_screen": "StudentsScreen",
+      "trigger": "open_students"
+    }
   ]
 }
-
-Group related FRs onto the same screen where it makes sense (e.g. login \
-and register both belong on an auth screen). Only reference fr_ids that \
-were given to you. Keep the screen count reasonable (roughly one screen \
-per distinct user-facing area, not one per FR)."""
+"""
 
 
-def _build_user_prompt(fr_summaries: List[dict]) -> str:
-    lines = [f"- {fr['fr_id']}: {fr['description']}" for fr in fr_summaries]
-    return "Functional Requirements:\n" + "\n".join(lines)
+# =========================================================
+# USER PROMPT
+# =========================================================
+
+def _build_user_prompt(
+    fr_summaries: List[dict],
+    app_description: str,
+) -> str:
+
+    requirements = "\n".join(
+        f"- {fr['fr_id']}: {fr['description']}"
+        for fr in fr_summaries
+    )
+
+    return f"""
+ORIGINAL APPLICATION REQUEST:
+
+{app_description}
 
 
-def generate_sitemap_with_llm(fr_summaries: List[dict], trace_id: str) -> Optional[ExtractedSitemap]:
-    """
-    Calls the LLM to design screens + navigation edges from the given
-    FR summaries. Returns None (never raises) on any failure — caller
-    falls back to the keyword-lookup table in sitemap.py.
-    """
-    if not fr_summaries:
-        logger.debug("trace_id=%s | sitemap_model.py | no FRs provided, skipping LLM call", trace_id)
+FUNCTIONAL REQUIREMENTS:
+
+{requirements}
+
+
+TASK:
+
+Design the sitemap for THIS application.
+
+First understand what the application is.
+
+Then identify its meaningful user-facing areas.
+
+Do not convert the first words of the functional requirements into screen names.
+
+The screen names must represent actual application features.
+
+Return only JSON.
+"""
+
+
+# =========================================================
+# MAIN FUNCTION
+# =========================================================
+
+def generate_sitemap_with_llm(
+    fr_summaries: List[dict],
+    trace_id: str,
+    app_description: str = "",
+) -> Optional[ExtractedSitemap]:
+
+    if not fr_summaries and not app_description:
+
+        logger.debug(
+            "trace_id=%s | sitemap_model.py | "
+            "no application description or FRs provided",
+            trace_id,
+        )
+
         return None
 
     messages = [
-        {"role": "system", "content": _SYSTEM_PROMPT},
-        {"role": "user", "content": _build_user_prompt(fr_summaries)},
+        {
+            "role": "system",
+            "content": _SYSTEM_PROMPT,
+        },
+        {
+            "role": "user",
+            "content": _build_user_prompt(
+                fr_summaries,
+                app_description,
+            ),
+        },
     ]
 
+    # =====================================================
+    # CALL LLM
+    # =====================================================
+
     try:
-        raw_response = _client.chat_completion(messages=messages, trace_id=trace_id, temperature=0.3, max_tokens=1200)
+
+        raw_response = _client.chat_completion(
+            messages=messages,
+            trace_id=trace_id,
+            temperature=0.1,
+            max_tokens=1600,
+        )
+
     except LLMAPIError as exc:
+
         logger.warning(
-            "trace_id=%s | sitemap_model.py | LLM call failed, caller should fall back | error=%s",
-            trace_id, str(exc),
+            "trace_id=%s | sitemap_model.py | "
+            "LLM call failed | error=%s",
+            trace_id,
+            str(exc),
         )
+
         return None
 
-    cleaned = strip_markdown_fences(raw_response)
+    # =====================================================
+    # CLEAN RESPONSE
+    # =====================================================
+
+    cleaned = strip_markdown_fences(
+        raw_response
+    )
+
+    # =====================================================
+    # PARSE JSON
+    # =====================================================
 
     try:
-        parsed = json.loads(cleaned)
-        if not isinstance(parsed, dict) or "screens" not in parsed:
-            raise ValueError("Expected a JSON object with a 'screens' key")
-    except (json.JSONDecodeError, ValueError) as exc:
-        logger.warning(
-            "trace_id=%s | sitemap_model.py | LLM response was not valid JSON | error=%s | raw=%s",
-            trace_id, str(exc), cleaned[:300],
+
+        parsed = json.loads(
+            cleaned
         )
+
+        if not isinstance(
+            parsed,
+            dict,
+        ):
+            raise ValueError(
+                "Expected JSON object"
+            )
+
+        if "screens" not in parsed:
+            raise ValueError(
+                "Missing screens"
+            )
+
+    except (
+        json.JSONDecodeError,
+        ValueError,
+    ) as exc:
+
+        logger.warning(
+            "trace_id=%s | sitemap_model.py | "
+            "invalid LLM JSON | error=%s | raw=%s",
+            trace_id,
+            str(exc),
+            cleaned[:500],
+        )
+
         return None
 
-    valid_fr_ids = {fr["fr_id"] for fr in fr_summaries}
+    # =====================================================
+    # VALID FR IDS
+    # =====================================================
+
+    valid_fr_ids = {
+        fr["fr_id"]
+        for fr in fr_summaries
+    }
+
+    # =====================================================
+    # PROCESS SCREENS
+    # =====================================================
+
     screens: List[ExtractedScreen] = []
+
     screen_names_seen = set()
 
-    for index, item in enumerate(parsed.get("screens", [])):
+    for index, item in enumerate(
+        parsed.get("screens", [])
+    ):
+
         try:
-            screen_type = str(item.get("screen_type", "generic")).lower()
-            if screen_type not in _VALID_SCREEN_TYPES:
+
+            if not isinstance(
+                item,
+                dict,
+            ):
+                continue
+
+            screen_name = str(
+                item.get(
+                    "screen_name",
+                    "",
+                )
+            ).strip()
+
+            if not screen_name:
+                continue
+
+            # ---------------------------------------------
+            # Screen type
+            # ---------------------------------------------
+
+            screen_type = str(
+                item.get(
+                    "screen_type",
+                    "generic",
+                )
+            ).lower()
+
+            if (
+                screen_type
+                not in _VALID_SCREEN_TYPES
+            ):
                 screen_type = "generic"
 
-            linked_ids = [fid for fid in item.get("linked_fr_ids", []) if fid in valid_fr_ids]
+            # ---------------------------------------------
+            # Linked FRs
+            # ---------------------------------------------
 
-            screen: ExtractedScreen = {
-                "screen_name": str(item["screen_name"]),
-                "route": str(item.get("route", f"/{str(item['screen_name']).lower()}")),
-                "screen_type": screen_type,
-                "linked_fr_ids": linked_ids,
-                "is_entry_point": bool(item.get("is_entry_point", False)),
-            }
-            screens.append(screen)
-            screen_names_seen.add(screen["screen_name"])
-        except (KeyError, TypeError) as exc:
-            logger.warning(
-                "trace_id=%s | sitemap_model.py | skipping malformed screen item at index=%d | error=%s",
-                trace_id, index, str(exc),
+            linked_ids = [
+                fid
+                for fid in item.get(
+                    "linked_fr_ids",
+                    [],
+                )
+                if fid in valid_fr_ids
+            ]
+
+            # ---------------------------------------------
+            # Route
+            # ---------------------------------------------
+
+            route = str(
+                item.get(
+                    "route",
+                    "",
+                )
+            ).strip()
+
+            if not route:
+                route = (
+                    "/"
+                    + screen_name
+                    .removesuffix("Screen")
+                    .lower()
+                    .replace(" ", "-")
+                )
+
+            # ---------------------------------------------
+            # Duplicate screen names
+            # ---------------------------------------------
+
+            original_name = screen_name
+
+            counter = 2
+
+            while screen_name in screen_names_seen:
+
+                screen_name = (
+                    f"{original_name.removesuffix('Screen')}"
+                    f"{counter}Screen"
+                )
+
+                counter += 1
+
+            screen_names_seen.add(
+                screen_name
             )
-            continue
+
+            screens.append(
+                {
+                    "screen_name": screen_name,
+                    "route": route,
+                    "screen_type": screen_type,
+                    "linked_fr_ids": linked_ids,
+                    "is_entry_point": bool(
+                        item.get(
+                            "is_entry_point",
+                            False,
+                        )
+                    ),
+                }
+            )
+
+        except (
+            KeyError,
+            TypeError,
+            ValueError,
+        ) as exc:
+
+            logger.warning(
+                "trace_id=%s | sitemap_model.py | "
+                "skipping malformed screen index=%d | error=%s",
+                trace_id,
+                index,
+                str(exc),
+            )
+
+    # =====================================================
+    # NO SCREENS
+    # =====================================================
 
     if not screens:
-        logger.warning("trace_id=%s | sitemap_model.py | LLM returned zero usable screens", trace_id)
+
+        logger.warning(
+            "trace_id=%s | sitemap_model.py | "
+            "LLM returned zero usable screens",
+            trace_id,
+        )
+
         return None
 
+    # =====================================================
+    # GUARANTEE ENTRY POINT
+    # =====================================================
+
+    entry_points = [
+        screen
+        for screen in screens
+        if screen["is_entry_point"]
+    ]
+
+    if not entry_points:
+
+        screens[0]["is_entry_point"] = True
+
+    elif len(entry_points) > 1:
+
+        # Keep only the first one as entry point
+        first = True
+
+        for screen in screens:
+
+            if screen["is_entry_point"]:
+
+                if first:
+                    first = False
+                else:
+                    screen["is_entry_point"] = False
+
+    # =====================================================
+    # PROCESS EDGES
+    # =====================================================
+
     edges: List[ExtractedEdge] = []
-    for index, item in enumerate(parsed.get("edges", [])):
+
+    for index, item in enumerate(
+        parsed.get("edges", [])
+    ):
+
         try:
-            from_screen = str(item["from_screen"])
-            to_screen = str(item["to_screen"])
-            if from_screen not in screen_names_seen or to_screen not in screen_names_seen:
-                logger.debug(
-                    "trace_id=%s | sitemap_model.py | skipping edge referencing unknown screen at index=%d",
-                    trace_id, index,
-                )
+
+            if not isinstance(
+                item,
+                dict,
+            ):
                 continue
-            edges.append({
-                "from_screen": from_screen,
-                "to_screen": to_screen,
-                "trigger": str(item.get("trigger", "navigate")),
-            })
-        except (KeyError, TypeError) as exc:
-            logger.warning(
-                "trace_id=%s | sitemap_model.py | skipping malformed edge item at index=%d | error=%s",
-                trace_id, index, str(exc),
+
+            from_screen = str(
+                item.get(
+                    "from_screen",
+                    "",
+                )
             )
-            continue
+
+            to_screen = str(
+                item.get(
+                    "to_screen",
+                    "",
+                )
+            )
+
+            if (
+                from_screen
+                not in screen_names_seen
+                or
+                to_screen
+                not in screen_names_seen
+            ):
+                continue
+
+            edges.append(
+                {
+                    "from_screen": from_screen,
+                    "to_screen": to_screen,
+                    "trigger": str(
+                        item.get(
+                            "trigger",
+                            "navigate",
+                        )
+                    ),
+                }
+            )
+
+        except (
+            KeyError,
+            TypeError,
+        ) as exc:
+
+            logger.warning(
+                "trace_id=%s | sitemap_model.py | "
+                "skipping malformed edge index=%d | error=%s",
+                trace_id,
+                index,
+                str(exc),
+            )
+
+    # =====================================================
+    # LOG
+    # =====================================================
 
     logger.info(
-        "trace_id=%s | sitemap_model.py | LLM generated %d screens and %d edges",
-        trace_id, len(screens), len(edges),
+        "trace_id=%s | sitemap_model.py | "
+        "generated %d screens and %d edges",
+        trace_id,
+        len(screens),
+        len(edges),
     )
-    return {"screens": screens, "edges": edges}
+
+    return {
+        "screens": screens,
+        "edges": edges,
+    }
