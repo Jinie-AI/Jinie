@@ -1,25 +1,61 @@
+import { useState } from "react";
+
+import type { DesignTokens } from "../design/DesignSection";
+import type { GeneratedComponent } from "../generatedComponents/GeneratedComponentsSection";
+import ScreenRenderer from "./ScreenRenderer";
+
 interface PreviewSectionProps {
     srs?: any;
-    designTokens?: any;
-    // Real generated component code now flows in from the Components
-    // stage (see GeneratedComponentsSection). Rendering an actual
-    // screen preview from these is Compiler/screen-assembly territory,
-    // not this module — left as a pass-through for now.
-    generatedComponents?: Array<{ screen_name: string; code: string }>;
+    designTokens?: DesignTokens | null;
+    generatedComponents?: GeneratedComponent[];
     onDeploy: () => void;
 }
 
+type ViewTab = "preview" | "code";
+
 export default function PreviewSection({
+    designTokens,
+    generatedComponents = [],
     onDeploy,
 }: PreviewSectionProps) {
+    const [activeScreenId, setActiveScreenId] = useState<string | null>(
+        generatedComponents[0]?.screen_id ?? null
+    );
+    const [activeTab, setActiveTab] = useState<ViewTab>("preview");
+
+    const activeComponent =
+        generatedComponents.find((c) => c.screen_id === activeScreenId) ||
+        generatedComponents[0] ||
+        null;
+
+    if (generatedComponents.length === 0) {
+        return (
+            <div className="section-card preview-panel">
+                <div className="preview-panel__header">
+                    <div>
+                        <span className="stage-label">05 · Preview</span>
+                        <h1>No screens to preview yet</h1>
+                        <p>
+                            Go back and generate your components first — this
+                            stage renders whatever came out of that step.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="section-card preview-panel">
             <div className="preview-panel__header">
                 <div>
-                    <span className="stage-label">04 · Preview</span>
+                    <span className="stage-label">05 · Preview</span>
                     <h1>Your application is ready</h1>
                     <p>
-                        Review the final product experience before deploying it.
+                        {generatedComponents.length} screen
+                        {generatedComponents.length !== 1 ? "s" : ""} generated
+                        from your requirements and design choices. Review each
+                        one below before deploying.
                     </p>
                 </div>
 
@@ -28,82 +64,78 @@ export default function PreviewSection({
                 </span>
             </div>
 
-            <div className="app-preview">
-                <div className="preview-window">
-                    <div className="preview-bar">
-                        <div className="preview-dots">
-                            <span />
-                            <span />
-                            <span />
-                        </div>
-
-                        <div className="preview-address">your-app.jinie.local</div>
-                    </div>
-
-                    <div className="preview-body">
-                        <aside className="preview-nav">
-                            <div className="preview-brand">
-                                <span>J</span>
-                                Your App
-                            </div>
-
-                            <button className="preview-nav-item active">Overview</button>
-                            <button className="preview-nav-item">Projects</button>
-                            <button className="preview-nav-item">Activity</button>
-                            <button className="preview-nav-item">Settings</button>
-                        </aside>
-
-                        <main className="preview-main">
-                            <span className="preview-main__eyebrow">WORKSPACE</span>
-                            <h2>Welcome back.</h2>
-                            <p>Here is a quick overview of your application.</p>
-
-                            <div className="preview-metrics">
-                                <div>
-                                    <span>Projects</span>
-                                    <strong>12</strong>
-                                    <small>+3 this week</small>
-                                </div>
-
-                                <div>
-                                    <span>Tasks completed</span>
-                                    <strong>84%</strong>
-                                    <small>On track</small>
-                                </div>
-
-                                <div>
-                                    <span>Team members</span>
-                                    <strong>8</strong>
-                                    <small>All active</small>
-                                </div>
-                            </div>
-
-                            <div className="preview-activity">
-                                <div className="preview-activity__heading">
-                                    <strong>Recent activity</strong>
-                                    <span>View all</span>
-                                </div>
-
-                                <div className="preview-activity__item">
-                                    <span className="activity-icon">✓</span>
-                                    <p>
-                                        <strong>Project requirements approved</strong>
-                                        <span>Just now</span>
-                                    </p>
-                                </div>
-
-                                <div className="preview-activity__item">
-                                    <span className="activity-icon">✦</span>
-                                    <p>
-                                        <strong>New design created</strong>
-                                        <span>Today</span>
-                                    </p>
-                                </div>
-                            </div>
-                        </main>
-                    </div>
-                </div>
+            <div className="design-layout-mode-row" style={{ flexWrap: "wrap" }}>
+                {generatedComponents.map((component) => (
+                    <button
+                        key={component.screen_id}
+                        type="button"
+                        aria-pressed={activeComponent?.screen_id === component.screen_id}
+                        onClick={() => setActiveScreenId(component.screen_id)}
+                        className={
+                            "chip-button" +
+                            (activeComponent?.screen_id === component.screen_id
+                                ? " chip-button--selected"
+                                : "")
+                        }
+                    >
+                        {component.screen_name}
+                    </button>
+                ))}
             </div>
+
+            {activeComponent && (
+                <>
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            flexWrap: "wrap",
+                            gap: 8,
+                            margin: "1rem 0 0.5rem",
+                        }}
+                    >
+                        <strong>{activeComponent.component_name}</strong>
+
+                        <div style={{ display: "flex", gap: 6 }}>
+                            <button
+                                type="button"
+                                onClick={() => setActiveTab("preview")}
+                                className={
+                                    activeTab === "preview" ? "primary-button" : "secondary-button"
+                                }
+                            >
+                                Preview
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setActiveTab("code")}
+                                className={
+                                    activeTab === "code" ? "primary-button" : "secondary-button"
+                                }
+                            >
+                                Code
+                            </button>
+                        </div>
+                    </div>
+
+                    {activeTab === "preview" ? (
+                        <div className="app-preview" style={{ padding: "16px 0" }}>
+                            <ScreenRenderer
+                                layout={activeComponent.layout}
+                                screenName={activeComponent.screen_name}
+                                designTokens={designTokens}
+                            />
+                        </div>
+                    ) : (
+                        <div className="tech-stack-card">
+                            <pre style={{ maxHeight: 420, overflow: "auto" }}>
+                                <code>{activeComponent.code}</code>
+                            </pre>
+                        </div>
+                    )}
+                </>
+            )}
 
             <div className="preview-actions">
                 <div>

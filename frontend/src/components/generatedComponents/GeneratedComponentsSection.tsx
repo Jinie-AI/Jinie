@@ -8,6 +8,7 @@ export interface GeneratedComponent {
     screen_name: string;
     component_name: string;
     code: string;
+    layout: Record<string, any>;
 }
 
 interface GeneratedComponentsSectionProps {
@@ -35,11 +36,6 @@ function toGeneratorDesignTokens(tokens: DesignTokens) {
             surface: tokens.theme === "dark" ? "#0F172A" : "#FFFFFF",
             onPrimary: "#FFFFFF",
         },
-        // Tells the AI generation prompt whether these exact colors are
-        // the user's explicit, non-negotiable choice (picked via the
-        // custom color inputs) versus a starting-point preset they're
-        // fine with the model adapting slightly.
-        isCustomColor: tokens.isCustomColor,
         typography: {
             headingFont: tokens.typography.headingFont,
             bodyFont: tokens.typography.bodyFont,
@@ -84,6 +80,11 @@ export default function GeneratedComponentsSection({
             srs?.trace_id
         )
             .then((result) => {
+                console.log("FULL GENERATE COMPONENTS RESULT:", result);
+                console.log("COMPONENTS:", result.components);
+                console.log("FIRST COMPONENT:", result.components?.[0]);
+                console.log("FIRST COMPONENT LAYOUT:", result.components?.[0]?.layout);
+
                 setComponents(result.components ?? []);
                 setFailed(result.failed ?? []);
                 setActiveIndex(0);
