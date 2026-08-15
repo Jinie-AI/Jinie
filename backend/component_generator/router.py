@@ -79,6 +79,7 @@ class GeneratedComponent(BaseModel):
     screen_name: str
     component_name: str
     code: str
+    layout: Dict[str, Any]
 
 
 class FailedComponent(BaseModel):
@@ -142,6 +143,7 @@ def generate_components(request: GenerateComponentsRequest) -> GenerateComponent
                     screen_name=tree.screen_name,
                     component_name=component_name,
                     code=code,
+                    layout=tree.root,
                 )
             )
         except ComponentGenerationError as exc:
