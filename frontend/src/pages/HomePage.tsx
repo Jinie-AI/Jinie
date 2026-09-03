@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import jinieLogo from "../assets/logo_jinie.png";
+import Header from "../components/common/Header";
+import Footer from "../components/common/Footer";
 import { generateSRS } from "../services/JinieService";
 
 export default function HomePage() {
@@ -8,6 +9,13 @@ export default function HomePage() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
+
+    const samplePrompts = [
+        "Create an e-commerce fashion storefront with shopping cart & checkout",
+        "Mujhe ek khane ki delivery app banani hai jisme menu aur order place ho sake",
+        "Build a Kanban task manager like Trello with drag and drop columns",
+        "Create a fitness logger with daily workout tracking and progress charts",
+    ];
 
     const handleGenerate = async () => {
         if (!prompt.trim() || isGenerating) return;
@@ -40,19 +48,11 @@ export default function HomePage() {
 
     return (
         <div className="home-page">
-            <header className="home-header">
-                <div className="logo">
-                    <img src={jinieLogo} alt="Jinie" className="logo-image" />
-                    <span>Jinie</span>
-                </div>
-
-                <div className="header-actions">
-                    <button className="secondary-button">Documentation</button>
-                    <button className="secondary-button">GitHub</button>
-                </div>
-            </header>
+            <Header />
 
             <main className="home-content">
+                <div className="hero-badge">✦ AUTONOMOUS SOFTWARE GENERATION ✦</div>
+
                 <h1>
                     Turn your idea into an
                     <span> application.</span>
@@ -60,21 +60,25 @@ export default function HomePage() {
 
                 <p className="hero-description">
                     Describe what you want to build and Jinie will transform
-                    your idea into a complete software plan.
+                    your idea into a complete, production-ready software plan.
                 </p>
 
                 <div className="prompt-card">
                     <textarea
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
-                        placeholder="Describe the application you want to build..."
+                        placeholder="Describe the application you want to build (e.g. 'Build an e-commerce storefront' or 'Mujhe ek delivery app banani hai')..."
                         rows={6}
                         disabled={isGenerating}
                     />
 
                     <div className="prompt-footer">
                         <span className="prompt-hint">
-                            {errorMessage && <span className="home-error">{errorMessage}</span>}
+                            {errorMessage ? (
+                                <span className="home-error">{errorMessage}</span>
+                            ) : (
+                                <span>Try natural language or Roman Urdu</span>
+                            )}
                         </span>
 
                         <button
@@ -87,7 +91,65 @@ export default function HomePage() {
                         </button>
                     </div>
                 </div>
+
+                {/* Sample Prompt Pills */}
+                <div className="sample-prompts-container">
+                    <span className="sample-label">Need inspiration? Try these:</span>
+                    <div className="sample-pills">
+                        {samplePrompts.map((pText, idx) => (
+                            <button
+                                key={idx}
+                                className="sample-pill"
+                                onClick={() => setPrompt(pText)}
+                            >
+                                {pText}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* How It Works Teaser */}
+                <section className="home-teaser-section">
+                    <div className="teaser-header">
+                        <span className="teaser-badge">HOW IT WORKS</span>
+                        <h2>4 Steps from Prompt to Production</h2>
+                    </div>
+
+                    <div className="teaser-grid">
+                        <div className="teaser-card">
+                            <div className="teaser-step-num">01</div>
+                            <h3>Prompt Intake</h3>
+                            <p>Describe your app concept in plain text or Roman Urdu.</p>
+                        </div>
+                        <div className="teaser-card">
+                            <div className="teaser-step-num">02</div>
+                            <h3>SRS Blueprint</h3>
+                            <p>Jinie extracts entities, user flows, and technical requirements.</p>
+                        </div>
+                        <div className="teaser-card">
+                            <div className="teaser-step-num">03</div>
+                            <h3>Design Tokens</h3>
+                            <p>Tailors color palettes, fonts, and component styling.</p>
+                        </div>
+                        <div className="teaser-card">
+                            <div className="teaser-step-num">04</div>
+                            <h3>Live Deployment</h3>
+                            <p>Compiles and publishes your app to Firebase cloud hosting.</p>
+                        </div>
+                    </div>
+
+                    <div className="teaser-cta">
+                        <button
+                            className="secondary-button"
+                            onClick={() => navigate("/how-it-works")}
+                        >
+                            Explore Full 7-Stage Pipeline →
+                        </button>
+                    </div>
+                </section>
             </main>
+
+            <Footer />
         </div>
     );
 }

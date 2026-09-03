@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Footer from "../components/common/Footer";
+import jinieLogo from "../assets/logo_jinie.png";
+import { useTheme } from "../context/ThemeContext";
 
 type BuildStatus = "idle" | "building" | "success";
 
 export default function DeployPage() {
     const navigate = useNavigate();
+    const { theme, toggleTheme } = useTheme();
 
     const [status, setStatus] = useState<BuildStatus>("idle");
 
@@ -19,17 +23,22 @@ export default function DeployPage() {
     return (
         <div className="deploy-page">
             <header className="workspace-header">
-                <div className="logo">
-                    <span className="logo-mark">J</span>
-                    <span>Jinie</span>
+                <div className="logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
+                    <img src={jinieLogo} alt="Jinie Logo" className="logo-image-sm" />
+                    <span className="logo-text">Jinie</span>
                 </div>
 
-                <button
-                    className="secondary-button"
-                    onClick={() => navigate("/workspace")}
-                >
-                    ← Back to Workspace
-                </button>
+                <div className="header-actions">
+                    <button className="theme-toggle-button" onClick={toggleTheme}>
+                        {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+                    </button>
+                    <button
+                        className="secondary-button"
+                        onClick={() => navigate("/workspace")}
+                    >
+                        ← Back to Workspace
+                    </button>
+                </div>
             </header>
 
             <main className="deploy-content">
@@ -45,8 +54,8 @@ export default function DeployPage() {
 
                 <p>
                     {status === "success"
-                        ? "Jinie successfully generated your application."
-                        : "Review your application and build the final project."}
+                        ? "Jinie successfully generated and deployed your application to Firebase cloud hosting."
+                        : "Review your application parameters and trigger live compilation & deployment."}
                 </p>
 
                 <div className="deployment-card">
@@ -124,6 +133,8 @@ export default function DeployPage() {
                     </div>
                 )}
             </main>
+
+            <Footer />
         </div>
     );
 }

@@ -8,11 +8,15 @@ import GeneratedComponentsSection, {
     type GeneratedComponent,
 } from "../components/generatedComponents/GeneratedComponentsSection";
 import PreviewSection from "../components/preview/PreviewSection";
+import Footer from "../components/common/Footer";
+import jinieLogo from "../assets/logo_jinie.png";
+import { useTheme } from "../context/ThemeContext";
 
 type Stage = "srs" | "design" | "components" | "preview";
 
 export default function WorkspacePage() {
     const navigate = useNavigate();
+    const { theme, toggleTheme } = useTheme();
 
     const [stage, setStage] = useState<Stage>("srs");
     const [prompt, setPrompt] = useState("");
@@ -35,7 +39,7 @@ export default function WorkspacePage() {
         } catch {
             localStorage.removeItem("jinie_srs");
             navigate("/");
-return;
+            return;
         }
 
         const savedDesignTokens = localStorage.getItem("jinie_design_tokens");
@@ -64,8 +68,6 @@ return;
     const handleDesignApprove = (tokens: DesignTokens) => {
         setDesignTokens(tokens);
         localStorage.setItem("jinie_design_tokens", JSON.stringify(tokens));
-        // Real component generation happens on the next stage — this
-        // click just carries the srs + design tokens forward to it.
         setStage("components");
     };
 
@@ -85,9 +87,9 @@ return;
     return (
         <div className="workspace-page">
             <header className="workspace-header">
-                <div className="logo">
-                    <span className="logo-mark">J</span>
-                    <span>Jinie</span>
+                <div className="logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
+                    <img src={jinieLogo} alt="Jinie Logo" className="logo-image-sm" />
+                    <span className="logo-text">Jinie</span>
                 </div>
 
                 <div className="workspace-title">
@@ -95,12 +97,17 @@ return;
                     <small>{prompt}</small>
                 </div>
 
-                <button
-                    className="secondary-button"
-                    onClick={() => navigate("/")}
-                >
-                    Exit
-                </button>
+                <div className="header-actions">
+                    <button className="theme-toggle-button" onClick={toggleTheme}>
+                        {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+                    </button>
+                    <button
+                        className="secondary-button"
+                        onClick={() => navigate("/")}
+                    >
+                        Exit Workspace
+                    </button>
+                </div>
             </header>
 
             <WorkflowStepper currentStage={stage} />
@@ -145,6 +152,8 @@ return;
                     </section>
                 )}
             </main>
+
+            <Footer />
         </div>
     );
 }

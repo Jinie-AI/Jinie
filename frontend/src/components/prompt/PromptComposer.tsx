@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import {
     generateSRSWithProgress,
-    SRSProgress,
+    type SRSProgress,
 } from "../../services/JinieService";
 
 
