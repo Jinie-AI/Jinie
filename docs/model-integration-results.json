@@ -1,0 +1,57 @@
+{
+  "checkpoint_status": {
+    "intake": "trained checkpoint",
+    "layout": "synthetic-trained Random Forest",
+    "code": "CodeT5 ProductCard specialization + behavior checks"
+  },
+  "checks": {
+    "layout": {
+      "seconds": 9.28,
+      "result": [
+        {
+          "id": "grid",
+          "score": 0.851,
+          "source": "synthetic-trained Random Forest"
+        },
+        {
+          "id": "cards",
+          "score": 0.102,
+          "source": "synthetic-trained Random Forest"
+        },
+        {
+          "id": "editorial",
+          "score": 0.046,
+          "source": "synthetic-trained Random Forest"
+        }
+      ]
+    },
+    "intake": {
+      "seconds": 9.28,
+      "result": {
+        "business": "beauty",
+        "pages": [
+          "home",
+          "products",
+          "detail",
+          "cart",
+          "checkout",
+          "about"
+        ],
+        "features": [
+          "catalog",
+          "cart",
+          "checkout",
+          "about"
+        ],
+        "style": "minimal",
+        "source": "DistilBERT",
+        "confidence": 0.942,
+        "warnings": []
+      }
+    },
+    "code": {
+      "seconds": 12.27,
+      "result": "import React from 'react';\nimport {View,Text,Pressable} from 'react-native';\nexport default function ProductCard({product,primary,dark,onOpen,onAdd,horizontal=false}) {\nreturn <View style={{padding:16,borderRadius:18,backgroundColor:dark?'#211c2d':'#ffffff',flexDirection:horizontal?'row':'column'}}>\n<Pressable accessibilityRole=\"button\" accessibilityLabel={'View '+product.name} onPress={onOpen}><Text style={{fontSize:40}}>{product.icon}</Text><Text style={{color:dark?'#ffffff':'#221d32'}}>{product.name}</Text></Pressable>\n<Text style={{color:primary}}>Rs. {product.price.toLocaleString()}</Text>\n<Pressable accessibilityRole=\"button\" accessibilityLabel={'Add '+product.name+' to bag'} onPress={onAdd}><Text style={{color:primary}}>Add to bag</Text></Pressable>\n</View>;\n}\n"
+    }
+  }
+}

@@ -1,0 +1,198 @@
+{
+  "dataset_sha256": "e1492b49f6e25289c8b2cd6bd583c5263611835a8dfe9b1eca8e87eb15133c27",
+  "base_model": "distilbert/distilbert-base-multilingual-cased",
+  "synthetic_bootstrap": true,
+  "threshold": 0.35,
+  "test_micro_f1": 0.910880262438491,
+  "test_macro_f1": 0.5835756985894581,
+  "test_exact_match": 0.0,
+  "hamming_loss": 0.08384773662551441,
+  "per_label": {
+    "business:clothing": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 3.0
+    },
+    "business:food": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 3.0
+    },
+    "business:electronics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 6.0
+    },
+    "business:accessories": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 9.0
+    },
+    "business:furniture": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 3.0
+    },
+    "business:beauty": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 6.0
+    },
+    "business:books": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 9.0
+    },
+    "business:repair": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 9.0
+    },
+    "business:jewellery": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 12.0
+    },
+    "business:services": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 12.0
+    },
+    "page:home": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 72.0
+    },
+    "page:products": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 72.0
+    },
+    "page:detail": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 72.0
+    },
+    "page:cart": {
+      "precision": 0.9090909090909091,
+      "recall": 1.0,
+      "f1-score": 0.9523809523809523,
+      "support": 60.0
+    },
+    "page:checkout": {
+      "precision": 0.7368421052631579,
+      "recall": 1.0,
+      "f1-score": 0.8484848484848485,
+      "support": 42.0
+    },
+    "page:contact": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 57.0
+    },
+    "page:about": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 33.0
+    },
+    "page:search": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 48.0
+    },
+    "feature:catalog": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 72.0
+    },
+    "feature:cart": {
+      "precision": 0.9523809523809523,
+      "recall": 1.0,
+      "f1-score": 0.975609756097561,
+      "support": 60.0
+    },
+    "feature:checkout": {
+      "precision": 0.7924528301886793,
+      "recall": 1.0,
+      "f1-score": 0.8842105263157894,
+      "support": 42.0
+    },
+    "feature:search": {
+      "precision": 0.9795918367346939,
+      "recall": 1.0,
+      "f1-score": 0.9896907216494846,
+      "support": 48.0
+    },
+    "feature:contact": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 57.0
+    },
+    "feature:about": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 33.0
+    },
+    "style:minimal": {
+      "precision": 0.7272727272727273,
+      "recall": 0.8,
+      "f1-score": 0.7619047619047619,
+      "support": 30.0
+    },
+    "style:luxury": {
+      "precision": 0.24489795918367346,
+      "recall": 1.0,
+      "f1-score": 0.39344262295081966,
+      "support": 12.0
+    },
+    "style:playful": {
+      "precision": 0.9354838709677419,
+      "recall": 0.9666666666666667,
+      "f1-score": 0.9508196721311475,
+      "support": 30.0
+    },
+    "micro avg": {
+      "precision": 0.9083969465648855,
+      "recall": 0.9133771929824561,
+      "f1-score": 0.910880262438491,
+      "support": 912.0
+    },
+    "macro avg": {
+      "precision": 0.5658523404104643,
+      "recall": 0.6209876543209876,
+      "f1-score": 0.5835756985894581,
+      "support": 912.0
+    },
+    "weighted avg": {
+      "precision": 0.8681585313574259,
+      "recall": 0.9133771929824561,
+      "f1-score": 0.8860316309057017,
+      "support": 912.0
+    },
+    "samples avg": {
+      "precision": 0.9060058768392101,
+      "recall": 0.9109953703703704,
+      "f1-score": 0.9074629133860329,
+      "support": 912.0
+    }
+  }
+}

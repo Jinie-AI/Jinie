@@ -1,0 +1,48 @@
+{
+  "count": 18,
+  "syntax_valid": 8,
+  "syntax_valid_rate": 0.4444444444444444,
+  "errors": [
+    {
+      "id": "EmptyState-0",
+      "error": "Transform failed with 1 error:\n<stdin>:3:368: ERROR: Expected \">\" but found \"<\""
+    },
+    {
+      "id": "EmptyState-1",
+      "error": "Transform failed with 1 error:\n<stdin>:3:364: ERROR: Expected identifier but found \"/\""
+    },
+    {
+      "id": "EmptyState-2",
+      "error": "Transform failed with 1 error:\n<stdin>:3:359: ERROR: Expected \">\" but found \"<\""
+    },
+    {
+      "id": "EmptyState-3",
+      "error": "Transform failed with 1 error:\n<stdin>:3:364: ERROR: Expected identifier but found \"/\""
+    },
+    {
+      "id": "EmptyState-4",
+      "error": "Transform failed with 1 error:\n<stdin>:3:364: ERROR: Expected identifier but found \"/\""
+    },
+    {
+      "id": "EmptyState-5",
+      "error": "Transform failed with 1 error:\n<stdin>:3:368: ERROR: Expected \">\" but found \"<\""
+    },
+    {
+      "id": "EmptyState-6",
+      "error": "Transform failed with 1 error:\n<stdin>:3:365: ERROR: Expected identifier but found \"/\""
+    },
+    {
+      "id": "EmptyState-7",
+      "error": "Transform failed with 1 error:\n<stdin>:3:371: ERROR: Expected \">\" but found \"<\""
+    },
+    {
+      "id": "EmptyState-8",
+      "error": "Transform failed with 1 error:\n<stdin>:3:363: ERROR: Expected \">\" but found \"<\""
+    },
+    {
+      "id": "NavigationTab-2",
+      "error": "Transform failed with 1 error:\n<stdin>:3:367: ERROR: Expected \">\" but found \"<\""
+    }
+  ],
+  "note": "Syntax validation does not prove correct imports, props, rendering or behavior."
+}

@@ -1,0 +1,1228 @@
+[
+  {
+    "name": "ActivityIndicator",
+    "category": "Feedback",
+    "props": [
+      "animating",
+      "color",
+      "size",
+      "hidesWhenStopped",
+      "style",
+      "theme"
+    ],
+    "description": "Whether to show the indicator or hide it.",
+    "import_path": "react-native-paper",
+    "source_file": "ActivityIndicator.tsx"
+  },
+  {
+    "name": "Badge",
+    "category": "Display",
+    "props": [
+      "visible",
+      "children",
+      "size",
+      "style",
+      "ref",
+      "theme"
+    ],
+    "description": "Whether the badge is visible",
+    "import_path": "react-native-paper",
+    "source_file": "Badge.tsx"
+  },
+  {
+    "name": "Banner",
+    "category": "Feedback",
+    "props": [
+      "visible",
+      "children",
+      "icon",
+      "actions",
+      "label",
+      "contentStyle",
+      "elevation",
+      "maxFontSizeMultiplier",
+      "style",
+      "ref",
+      "theme",
+      "onShowAnimationFinished",
+      "onHideAnimationFinished"
+    ],
+    "description": "Whether banner is currently visible.",
+    "import_path": "react-native-paper",
+    "source_file": "Banner.tsx"
+  },
+  {
+    "name": "Divider",
+    "category": "Display",
+    "props": [
+      "leftInset",
+      "horizontalInset",
+      "bold",
+      "style",
+      "theme"
+    ],
+    "description": "@renamed Renamed from 'inset' to 'leftInset` in v5.x Whether divider has a left inset.",
+    "import_path": "react-native-paper",
+    "source_file": "Divider.tsx"
+  },
+  {
+    "name": "Icon",
+    "category": "Display",
+    "props": [
+      "size",
+      "allowFontScaling"
+    ],
+    "description": "Size of icon.",
+    "import_path": "react-native-paper",
+    "source_file": "Icon.tsx"
+  },
+  {
+    "name": "Modal",
+    "category": "Overlay",
+    "props": [
+      "dismissable",
+      "dismissableBackButton",
+      "onDismiss",
+      "overlayAccessibilityLabel",
+      "visible",
+      "children",
+      "contentContainerStyle",
+      "style",
+      "theme",
+      "testID"
+    ],
+    "description": "Determines whether clicking outside the modal dismisses it.",
+    "import_path": "react-native-paper",
+    "source_file": "Modal.tsx"
+  },
+  {
+    "name": "ProgressBar",
+    "category": "Feedback",
+    "props": [
+      "Note",
+      "animatedValue",
+      "progress",
+      "color",
+      "indeterminate",
+      "visible",
+      "fillStyle",
+      "style",
+      "theme",
+      "testID"
+    ],
+    "description": "Animated value (between 0 and 1). This tells the progress bar to rely on this value to animate it. Note: It should not be used in parallel with the `progress` prop.",
+    "import_path": "react-native-paper",
+    "source_file": "ProgressBar.tsx"
+  },
+  {
+    "name": "Searchbar",
+    "category": "Inputs",
+    "props": [
+      "placeholder",
+      "value",
+      "onChangeText",
+      "mode",
+      "icon",
+      "iconColor",
+      "rippleColor",
+      "onIconPress",
+      "onClearIconPress",
+      "searchAccessibilityLabel",
+      "clearIcon",
+      "clearAccessibilityLabel",
+      "traileringIcon",
+      "traileringIconColor",
+      "traileringRippleColor",
+      "onTraileringIconPress",
+      "traileringIconAccessibilityLabel",
+      "right",
+      "color",
+      "style",
+      "testID",
+      "showDivider",
+      "elevation",
+      "inputStyle",
+      "loading",
+      "theme"
+    ],
+    "description": "Hint text shown when the input is empty.",
+    "import_path": "react-native-paper",
+    "source_file": "Searchbar.tsx"
+  },
+  {
+    "name": "Snackbar",
+    "category": "Feedback",
+    "props": [
+      "visible",
+      "action",
+      "label",
+      "icon",
+      "rippleColor",
+      "onIconPress",
+      "iconAccessibilityLabel",
+      "duration",
+      "onDismiss",
+      "children",
+      "elevation",
+      "maxFontSizeMultiplier",
+      "wrapperStyle",
+      "contentStyle",
+      "style",
+      "ref",
+      "theme",
+      "testID"
+    ],
+    "description": "Whether the Snackbar is currently visible.",
+    "import_path": "react-native-paper",
+    "source_file": "Snackbar.tsx"
+  },
+  {
+    "name": "Surface",
+    "category": "Display",
+    "props": [
+      "children",
+      "style",
+      "Note",
+      "elevation",
+      "mode",
+      "theme",
+      "testID",
+      "ref",
+      "container"
+    ],
+    "description": "Content of the `Surface`.",
+    "import_path": "react-native-paper",
+    "source_file": "Surface.tsx"
+  },
+  {
+    "name": "Appbar",
+    "category": "Navigation",
+    "props": [
+      "dark",
+      "children",
+      "mode",
+      "elevated",
+      "safeAreaInsets",
+      "bottom",
+      "top",
+      "left",
+      "right",
+      "theme",
+      "style"
+    ],
+    "description": "Whether the background color is a dark color. A dark appbar will render light text and vice-versa.",
+    "import_path": "react-native-paper",
+    "source_file": "Appbar/Appbar.tsx"
+  },
+  {
+    "name": "AppbarAction",
+    "category": "Navigation",
+    "props": [
+      "color",
+      "rippleColor",
+      "icon",
+      "size",
+      "disabled",
+      "accessibilityLabel",
+      "onPress",
+      "isLeading",
+      "style",
+      "ref",
+      "theme"
+    ],
+    "description": "Custom color for action icon.",
+    "import_path": "react-native-paper",
+    "source_file": "Appbar/AppbarAction.tsx"
+  },
+  {
+    "name": "AppbarBackAction",
+    "category": "Navigation",
+    "props": [
+      "color",
+      "size",
+      "disabled",
+      "accessibilityLabel",
+      "onPress",
+      "style",
+      "ref"
+    ],
+    "description": "Custom color for back icon.",
+    "import_path": "react-native-paper",
+    "source_file": "Appbar/AppbarBackAction.tsx"
+  },
+  {
+    "name": "AppbarContent",
+    "category": "Navigation",
+    "props": [
+      "title",
+      "titleStyle",
+      "titleRef",
+      "subtitle",
+      "subtitleStyle",
+      "onPress",
+      "disabled",
+      "color",
+      "titleMaxFontSizeMultiplier",
+      "mode",
+      "style",
+      "theme",
+      "testID"
+    ],
+    "description": "Text or component for the title.",
+    "import_path": "react-native-paper",
+    "source_file": "Appbar/AppbarContent.tsx"
+  },
+  {
+    "name": "AppbarHeader",
+    "category": "Navigation",
+    "props": [
+      "dark",
+      "statusBarHeight",
+      "children",
+      "mode",
+      "elevated",
+      "theme",
+      "style"
+    ],
+    "description": "Whether the background color is a dark color. A dark header will render light text and vice-versa.",
+    "import_path": "react-native-paper",
+    "source_file": "Appbar/AppbarHeader.tsx"
+  },
+  {
+    "name": "Avatar",
+    "category": "Display",
+    "props": [],
+    "description": "React Native Paper Avatar component.",
+    "import_path": "react-native-paper",
+    "source_file": "Avatar/Avatar.tsx"
+  },
+  {
+    "name": "AvatarImage",
+    "category": "Display",
+    "props": [
+      "source",
+      "size",
+      "style",
+      "onError",
+      "onLayout",
+      "onLoad",
+      "onLoadEnd",
+      "onLoadStart",
+      "onProgress",
+      "theme"
+    ],
+    "description": "Image to display for the `Avatar`. It accepts a standard React Native Image `source` prop Or a function that returns an `Image`.",
+    "import_path": "react-native-paper",
+    "source_file": "Avatar/AvatarImage.tsx"
+  },
+  {
+    "name": "AvatarText",
+    "category": "Display",
+    "props": [
+      "label",
+      "size",
+      "color",
+      "style",
+      "labelStyle",
+      "maxFontSizeMultiplier",
+      "theme"
+    ],
+    "description": "Initials to show as the text in the `Avatar`.",
+    "import_path": "react-native-paper",
+    "source_file": "Avatar/AvatarText.tsx"
+  },
+  {
+    "name": "AvatarIcon",
+    "category": "Display",
+    "props": [
+      "icon",
+      "size",
+      "color",
+      "style",
+      "theme"
+    ],
+    "description": "Icon to display for the `Avatar`.",
+    "import_path": "react-native-paper",
+    "source_file": "Avatar/AvatarIcon.tsx"
+  },
+  {
+    "name": "BottomNavigation",
+    "category": "Navigation",
+    "props": [
+      "key",
+      "route",
+      "children",
+      "borderless",
+      "centered",
+      "rippleColor"
+    ],
+    "description": "@deprecated In v5.x works only with theme version 2.",
+    "import_path": "react-native-paper",
+    "source_file": "BottomNavigation/BottomNavigation.tsx"
+  },
+  {
+    "name": "Button",
+    "category": "Buttons",
+    "props": [
+      "mode",
+      "dark",
+      "compact",
+      "color",
+      "buttonColor",
+      "textColor",
+      "rippleColor",
+      "loading",
+      "icon",
+      "disabled",
+      "children",
+      "uppercase",
+      "https",
+      "background",
+      "accessibilityLabel",
+      "accessibilityHint",
+      "accessibilityRole",
+      "onPress",
+      "onPressIn",
+      "onPressOut",
+      "onLongPress",
+      "delayLongPress",
+      "contentStyle",
+      "maxFontSizeMultiplier",
+      "hitSlop",
+      "style",
+      "labelStyle",
+      "theme",
+      "touchableRef",
+      "testID"
+    ],
+    "description": "Mode of the button. You can change the mode to adjust the styling to give it desired emphasis. - `text` - flat button without background or outline, used for the lowest priority actions, especially when presenting multiple options. - `outlined` - button with an outline without background, typically ",
+    "import_path": "react-native-paper",
+    "source_file": "Button/Button.tsx"
+  },
+  {
+    "name": "Card",
+    "category": "Display",
+    "props": [
+      "mode",
+      "elevation"
+    ],
+    "description": "Mode of the Card. - `elevated` - Card with elevation. - `contained` - Card without outline and elevation @supported Available in v5.x with theme version 3 - `outlined` - Card with an outline.",
+    "import_path": "react-native-paper",
+    "source_file": "Card/Card.tsx"
+  },
+  {
+    "name": "CardActions",
+    "category": "Display",
+    "props": [
+      "children",
+      "style",
+      "theme"
+    ],
+    "description": "Items inside the `CardActions`.",
+    "import_path": "react-native-paper",
+    "source_file": "Card/CardActions.tsx"
+  },
+  {
+    "name": "CardContent",
+    "category": "Display",
+    "props": [
+      "children",
+      "index",
+      "total",
+      "siblings",
+      "style"
+    ],
+    "description": "Items inside the `Card.Content`.",
+    "import_path": "react-native-paper",
+    "source_file": "Card/CardContent.tsx"
+  },
+  {
+    "name": "CardCover",
+    "category": "Display",
+    "props": [
+      "index",
+      "total",
+      "style",
+      "theme"
+    ],
+    "description": "@internal",
+    "import_path": "react-native-paper",
+    "source_file": "Card/CardCover.tsx"
+  },
+  {
+    "name": "CardTitle",
+    "category": "Display",
+    "props": [
+      "title",
+      "titleStyle",
+      "titleNumberOfLines",
+      "Display",
+      "Headline",
+      "Title",
+      "Label",
+      "Body",
+      "titleVariant",
+      "subtitle",
+      "subtitleStyle",
+      "subtitleNumberOfLines",
+      "subtitleVariant",
+      "left",
+      "leftStyle",
+      "right",
+      "rightStyle",
+      "index",
+      "total",
+      "titleMaxFontSizeMultiplier",
+      "subtitleMaxFontSizeMultiplier",
+      "style",
+      "theme"
+    ],
+    "description": "Text for the title. Note that this will only accept a string or `<Text>`-based node.",
+    "import_path": "react-native-paper",
+    "source_file": "Card/CardTitle.tsx"
+  },
+  {
+    "name": "Checkbox",
+    "category": "Inputs",
+    "props": [
+      "status",
+      "disabled",
+      "onPress",
+      "uncheckedColor",
+      "color",
+      "theme",
+      "testID"
+    ],
+    "description": "Status of checkbox.",
+    "import_path": "react-native-paper",
+    "source_file": "Checkbox/Checkbox.tsx"
+  },
+  {
+    "name": "CheckboxItem",
+    "category": "Inputs",
+    "props": [
+      "status",
+      "disabled",
+      "label",
+      "onPress",
+      "onLongPress",
+      "https",
+      "background",
+      "accessibilityLabel",
+      "uncheckedColor",
+      "color",
+      "rippleColor",
+      "style",
+      "labelMaxFontSizeMultiplier",
+      "labelStyle",
+      "Display",
+      "Headline",
+      "Title",
+      "Label",
+      "Body",
+      "labelVariant",
+      "theme",
+      "testID",
+      "position",
+      "mode",
+      "hitSlop"
+    ],
+    "description": "Status of checkbox.",
+    "import_path": "react-native-paper",
+    "source_file": "Checkbox/CheckboxItem.tsx"
+  },
+  {
+    "name": "Chip",
+    "category": "Display",
+    "props": [
+      "mode",
+      "children",
+      "icon",
+      "avatar",
+      "closeIcon",
+      "selected",
+      "Note",
+      "selectedColor",
+      "showSelectedOverlay",
+      "showSelectedCheck",
+      "rippleColor",
+      "disabled",
+      "https",
+      "background",
+      "accessibilityLabel",
+      "closeIconAccessibilityLabel",
+      "onPress",
+      "onLongPress",
+      "onPressIn",
+      "onPressOut",
+      "onClose",
+      "delayLongPress",
+      "compact",
+      "elevated",
+      "textStyle",
+      "style",
+      "hitSlop",
+      "theme",
+      "testID",
+      "ellipsizeMode",
+      "maxFontSizeMultiplier"
+    ],
+    "description": "Mode of the chip. - `flat` - flat chip without outline. - `outlined` - chip with an outline.",
+    "import_path": "react-native-paper",
+    "source_file": "Chip/Chip.tsx"
+  },
+  {
+    "name": "DataTable",
+    "category": "Display",
+    "props": [
+      "children",
+      "style"
+    ],
+    "description": "Content of the `DataTable`.",
+    "import_path": "react-native-paper",
+    "source_file": "DataTable/DataTable.tsx"
+  },
+  {
+    "name": "DataTableCell",
+    "category": "Display",
+    "props": [
+      "children",
+      "numeric",
+      "onPress",
+      "style",
+      "textStyle",
+      "maxFontSizeMultiplier",
+      "testID"
+    ],
+    "description": "Content of the `DataTableCell`.",
+    "import_path": "react-native-paper",
+    "source_file": "DataTable/DataTableCell.tsx"
+  },
+  {
+    "name": "DataTableHeader",
+    "category": "Display",
+    "props": [
+      "children",
+      "style",
+      "theme"
+    ],
+    "description": "Content of the `DataTableHeader`.",
+    "import_path": "react-native-paper",
+    "source_file": "DataTable/DataTableHeader.tsx"
+  },
+  {
+    "name": "DataTableRow",
+    "category": "Display",
+    "props": [
+      "children",
+      "onPress",
+      "style",
+      "theme",
+      "pointerEvents"
+    ],
+    "description": "Content of the `DataTableRow`.",
+    "import_path": "react-native-paper",
+    "source_file": "DataTable/DataTableRow.tsx"
+  },
+  {
+    "name": "Dialog",
+    "category": "Overlay",
+    "props": [
+      "dismissable",
+      "dismissableBackButton",
+      "onDismiss",
+      "visible",
+      "children",
+      "style",
+      "theme",
+      "testID"
+    ],
+    "description": "Determines whether clicking outside the dialog dismiss it.",
+    "import_path": "react-native-paper",
+    "source_file": "Dialog/Dialog.tsx"
+  },
+  {
+    "name": "DialogActions",
+    "category": "Overlay",
+    "props": [
+      "children",
+      "style",
+      "theme"
+    ],
+    "description": "Content of the `DialogActions`.",
+    "import_path": "react-native-paper",
+    "source_file": "Dialog/DialogActions.tsx"
+  },
+  {
+    "name": "DialogContent",
+    "category": "Overlay",
+    "props": [
+      "children",
+      "style"
+    ],
+    "description": "Content of the `DialogContent`.",
+    "import_path": "react-native-paper",
+    "source_file": "Dialog/DialogContent.tsx"
+  },
+  {
+    "name": "DialogTitle",
+    "category": "Overlay",
+    "props": [
+      "children",
+      "style",
+      "theme"
+    ],
+    "description": "Title text for the `DialogTitle`.",
+    "import_path": "react-native-paper",
+    "source_file": "Dialog/DialogTitle.tsx"
+  },
+  {
+    "name": "Drawer",
+    "category": "Navigation",
+    "props": [],
+    "description": "React Native Paper Drawer component.",
+    "import_path": "react-native-paper",
+    "source_file": "Drawer/Drawer.tsx"
+  },
+  {
+    "name": "DrawerItem",
+    "category": "Navigation",
+    "props": [
+      "label",
+      "icon",
+      "active",
+      "disabled",
+      "onPress",
+      "https",
+      "background",
+      "accessibilityLabel",
+      "right",
+      "labelMaxFontSizeMultiplier",
+      "rippleColor",
+      "hitSlop",
+      "style",
+      "theme"
+    ],
+    "description": "The label text of the item.",
+    "import_path": "react-native-paper",
+    "source_file": "Drawer/DrawerItem.tsx"
+  },
+  {
+    "name": "DrawerSection",
+    "category": "Navigation",
+    "props": [
+      "title",
+      "children",
+      "showDivider",
+      "titleMaxFontSizeMultiplier",
+      "style",
+      "theme"
+    ],
+    "description": "Title to show as the header for the section.",
+    "import_path": "react-native-paper",
+    "source_file": "Drawer/DrawerSection.tsx"
+  },
+  {
+    "name": "FAB",
+    "category": "Buttons",
+    "props": [
+      "icon",
+      "label",
+      "uppercase",
+      "https",
+      "background",
+      "accessibilityLabel",
+      "accessibilityState",
+      "animated",
+      "small",
+      "color",
+      "rippleColor",
+      "disabled",
+      "visible",
+      "loading",
+      "onPress",
+      "onLongPress",
+      "delayLongPress",
+      "size",
+      "customSize",
+      "mode",
+      "variant",
+      "labelMaxFontSizeMultiplier",
+      "style",
+      "theme",
+      "testID",
+      "ref"
+    ],
+    "description": "Icon to display for the `FAB`. It's optional only if `label` is defined.",
+    "import_path": "react-native-paper",
+    "source_file": "FAB/FAB.tsx"
+  },
+  {
+    "name": "AnimatedFAB",
+    "category": "Buttons",
+    "props": [
+      "icon",
+      "label",
+      "uppercase",
+      "https",
+      "background",
+      "accessibilityLabel",
+      "accessibilityState",
+      "color",
+      "rippleColor",
+      "disabled",
+      "visible",
+      "onPress",
+      "onLongPress",
+      "delayLongPress",
+      "iconMode",
+      "animateFrom",
+      "extended",
+      "labelMaxFontSizeMultiplier",
+      "variant",
+      "style",
+      "hitSlop",
+      "theme",
+      "testID"
+    ],
+    "description": "Icon to display for the `FAB`.",
+    "import_path": "react-native-paper",
+    "source_file": "FAB/AnimatedFAB.tsx"
+  },
+  {
+    "name": "HelperText",
+    "category": "Inputs",
+    "props": [
+      "type",
+      "children",
+      "visible",
+      "padding",
+      "disabled",
+      "style",
+      "theme",
+      "testID"
+    ],
+    "description": "Type of the helper text.",
+    "import_path": "react-native-paper",
+    "source_file": "HelperText/HelperText.tsx"
+  },
+  {
+    "name": "IconButton",
+    "category": "Buttons",
+    "props": [
+      "icon",
+      "mode",
+      "iconColor",
+      "containerColor",
+      "rippleColor",
+      "selected",
+      "size",
+      "disabled",
+      "animated",
+      "accessibilityLabel",
+      "contentStyle",
+      "onPress",
+      "style",
+      "ref",
+      "testID",
+      "theme",
+      "loading"
+    ],
+    "description": "Icon to display.",
+    "import_path": "react-native-paper",
+    "source_file": "IconButton/IconButton.tsx"
+  },
+  {
+    "name": "List",
+    "category": "Display",
+    "props": [],
+    "description": "React Native Paper List component.",
+    "import_path": "react-native-paper",
+    "source_file": "List/List.tsx"
+  },
+  {
+    "name": "ListItem",
+    "category": "Display",
+    "props": [
+      "title",
+      "description",
+      "left",
+      "right",
+      "onPress",
+      "theme",
+      "style",
+      "containerStyle",
+      "contentStyle",
+      "titleStyle",
+      "descriptionStyle",
+      "titleNumberOfLines",
+      "descriptionNumberOfLines",
+      "titleEllipsizeMode",
+      "descriptionEllipsizeMode",
+      "titleMaxFontSizeMultiplier",
+      "descriptionMaxFontSizeMultiplier",
+      "testID"
+    ],
+    "description": "Title text for the list item.",
+    "import_path": "react-native-paper",
+    "source_file": "List/ListItem.tsx"
+  },
+  {
+    "name": "ListIcon",
+    "category": "Display",
+    "props": [
+      "icon",
+      "color",
+      "style",
+      "theme"
+    ],
+    "description": "Icon to show.",
+    "import_path": "react-native-paper",
+    "source_file": "List/ListIcon.tsx"
+  },
+  {
+    "name": "ListImage",
+    "category": "Display",
+    "props": [
+      "source",
+      "variant",
+      "style",
+      "theme"
+    ],
+    "description": "@optional",
+    "import_path": "react-native-paper",
+    "source_file": "List/ListImage.tsx"
+  },
+  {
+    "name": "ListSection",
+    "category": "Display",
+    "props": [
+      "title",
+      "children",
+      "theme",
+      "titleStyle",
+      "style"
+    ],
+    "description": "Title text for the section.",
+    "import_path": "react-native-paper",
+    "source_file": "List/ListSection.tsx"
+  },
+  {
+    "name": "ListSubheader",
+    "category": "Display",
+    "props": [
+      "theme",
+      "style",
+      "maxFontSizeMultiplier"
+    ],
+    "description": "@optional",
+    "import_path": "react-native-paper",
+    "source_file": "List/ListSubheader.tsx"
+  },
+  {
+    "name": "ListAccordion",
+    "category": "Display",
+    "props": [
+      "title",
+      "description",
+      "left",
+      "right",
+      "expanded",
+      "onPress",
+      "onLongPress",
+      "delayLongPress",
+      "children",
+      "theme",
+      "https",
+      "background",
+      "style",
+      "containerStyle",
+      "contentStyle",
+      "titleStyle",
+      "descriptionStyle",
+      "rippleColor",
+      "titleNumberOfLines",
+      "descriptionNumberOfLines",
+      "titleMaxFontSizeMultiplier",
+      "descriptionMaxFontSizeMultiplier",
+      "id",
+      "testID",
+      "accessibilityLabel",
+      "pointerEvents",
+      "hitSlop"
+    ],
+    "description": "Title text for the list accordion.",
+    "import_path": "react-native-paper",
+    "source_file": "List/ListAccordion.tsx"
+  },
+  {
+    "name": "Menu",
+    "category": "Navigation",
+    "props": [
+      "visible",
+      "anchor",
+      "anchorPosition",
+      "statusBarHeight",
+      "onDismiss",
+      "overlayAccessibilityLabel",
+      "children",
+      "contentStyle",
+      "style",
+      "elevation",
+      "mode",
+      "theme",
+      "keyboardShouldPersistTaps",
+      "testID"
+    ],
+    "description": "Whether the Menu is currently visible.",
+    "import_path": "react-native-paper",
+    "source_file": "Menu/Menu.tsx"
+  },
+  {
+    "name": "MenuItem",
+    "category": "Navigation",
+    "props": [
+      "title",
+      "leadingIcon",
+      "trailingIcon",
+      "disabled",
+      "dense",
+      "https",
+      "background",
+      "onPress",
+      "titleMaxFontSizeMultiplier",
+      "style",
+      "containerStyle",
+      "contentStyle",
+      "titleStyle",
+      "rippleColor",
+      "theme",
+      "hitSlop",
+      "testID",
+      "accessibilityLabel",
+      "accessibilityState"
+    ],
+    "description": "Title text for the `MenuItem`.",
+    "import_path": "react-native-paper",
+    "source_file": "Menu/MenuItem.tsx"
+  },
+  {
+    "name": "RadioButton",
+    "category": "Inputs",
+    "props": [
+      "value",
+      "status",
+      "disabled",
+      "onPress",
+      "uncheckedColor",
+      "color",
+      "theme",
+      "testID"
+    ],
+    "description": "Value of the radio button",
+    "import_path": "react-native-paper",
+    "source_file": "RadioButton/RadioButton.tsx"
+  },
+  {
+    "name": "RadioButtonGroup",
+    "category": "Inputs",
+    "props": [
+      "onValueChange",
+      "value",
+      "children"
+    ],
+    "description": "Function to execute on selection change.",
+    "import_path": "react-native-paper",
+    "source_file": "RadioButton/RadioButtonGroup.tsx"
+  },
+  {
+    "name": "RadioButtonItem",
+    "category": "Inputs",
+    "props": [
+      "value",
+      "label",
+      "disabled",
+      "https",
+      "background",
+      "onPress",
+      "onLongPress",
+      "accessibilityLabel",
+      "uncheckedColor",
+      "color",
+      "rippleColor",
+      "status",
+      "style",
+      "labelStyle",
+      "Display",
+      "Headline",
+      "Title",
+      "Label",
+      "Body",
+      "labelVariant",
+      "labelMaxFontSizeMultiplier",
+      "theme",
+      "testID",
+      "mode",
+      "position",
+      "hitSlop"
+    ],
+    "description": "Value of the radio button.",
+    "import_path": "react-native-paper",
+    "source_file": "RadioButton/RadioButtonItem.tsx"
+  },
+  {
+    "name": "SegmentedButtons",
+    "category": "Inputs",
+    "props": [
+      "buttons",
+      "value",
+      "icon",
+      "disabled",
+      "accessibilityLabel",
+      "checkedColor",
+      "uncheckedColor",
+      "onPress",
+      "label",
+      "showSelectedCheck",
+      "style",
+      "labelStyle",
+      "testID",
+      "density",
+      "theme"
+    ],
+    "description": "Array of the currently selected segmented button values.",
+    "import_path": "react-native-paper",
+    "source_file": "SegmentedButtons/SegmentedButtons.tsx"
+  },
+  {
+    "name": "Switch",
+    "category": "Inputs",
+    "props": [
+      "disabled",
+      "value",
+      "color",
+      "onValueChange",
+      "style",
+      "theme"
+    ],
+    "description": "Disable toggling the switch.",
+    "import_path": "react-native-paper",
+    "source_file": "Switch/Switch.tsx"
+  },
+  {
+    "name": "TextInput",
+    "category": "Inputs",
+    "props": [
+      "mode",
+      "left",
+      "right",
+      "disabled",
+      "label",
+      "placeholder",
+      "error",
+      "onChangeText",
+      "selectionColor",
+      "cursorColor",
+      "underlineColor",
+      "activeUnderlineColor",
+      "outlineColor",
+      "activeOutlineColor",
+      "textColor",
+      "dense",
+      "multiline",
+      "numberOfLines",
+      "onFocus",
+      "onBlur",
+      "Example",
+      "render",
+      "value",
+      "style",
+      "theme",
+      "testID",
+      "contentStyle",
+      "outlineStyle",
+      "underlineStyle"
+    ],
+    "description": "Mode of the TextInput. - `flat` - flat input with an underline. - `outlined` - input with an outline. In `outlined` mode, the background color of the label is derived from `colors?.background` in theme or the `backgroundColor` style. This component render TextInputOutlined or TextInputFlat based on ",
+    "import_path": "react-native-paper",
+    "source_file": "TextInput/TextInput.tsx"
+  },
+  {
+    "name": "ToggleButton",
+    "category": "Buttons",
+    "props": [
+      "icon",
+      "size",
+      "iconColor",
+      "rippleColor",
+      "disabled",
+      "accessibilityLabel",
+      "onPress",
+      "value",
+      "status",
+      "style",
+      "theme",
+      "ref",
+      "testID"
+    ],
+    "description": "Icon to display for the `ToggleButton`.",
+    "import_path": "react-native-paper",
+    "source_file": "ToggleButton/ToggleButton.tsx"
+  },
+  {
+    "name": "Tooltip",
+    "category": "Navigation",
+    "props": [
+      "children",
+      "enterTouchDelay",
+      "leaveTouchDelay",
+      "title",
+      "titleMaxFontSizeMultiplier",
+      "theme"
+    ],
+    "description": "Tooltip reference element. Needs to be able to hold a ref.",
+    "import_path": "react-native-paper",
+    "source_file": "Tooltip/Tooltip.tsx"
+  },
+  {
+    "name": "TouchableRipple",
+    "category": "Interaction",
+    "props": [
+      "borderless",
+      "https",
+      "background",
+      "centered",
+      "disabled",
+      "onPress",
+      "onLongPress",
+      "onPressIn",
+      "onPressOut",
+      "rippleColor",
+      "underlayColor",
+      "children",
+      "style",
+      "theme"
+    ],
+    "description": "Whether to render the ripple outside the view bounds.",
+    "import_path": "react-native-paper",
+    "source_file": "TouchableRipple/TouchableRipple.tsx"
+  },
+  {
+    "name": "Text",
+    "category": "Display",
+    "props": [
+      "Display",
+      "Headline",
+      "Title",
+      "Label",
+      "Body",
+      "variant",
+      "children",
+      "theme",
+      "style"
+    ],
+    "description": "@supported Available in v5.x with theme version 3 Variant defines appropriate text styles for type role and its size. Available variants: Display: `displayLarge`, `displayMedium`, `displaySmall` Headline: `headlineLarge`, `headlineMedium`, `headlineSmall` Title: `titleLarge`, `titleMedium`, `titleSm",
+    "import_path": "react-native-paper",
+    "source_file": "Typography/Text.tsx"
+  }
+]

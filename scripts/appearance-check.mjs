@@ -1,0 +1,42 @@
+import {spawn} from 'node:child_process';
+import {createRequire} from 'node:module';
+import {fileURLToPath} from 'node:url';
+import path from 'node:path';
+import fs from 'node:fs';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const require=createRequire(new URL('../frontend/package.json',import.meta.url));
+const {chromium}=process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES+'/playwright'):require('playwright');
+const web=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1','--port','5182'],{cwd:path.join(root,'frontend'),stdio:'ignore'});
+let browser;
+try{
+ for(let i=0;i<80;i++){try{await fetch('http://127.0.0.1:5182');break;}catch{await new Promise(r=>setTimeout(r,150));}}
+ browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH,args:['--no-sandbox','--disable-dev-shm-usage']}: {})});
+ const page=await browser.newPage({viewport:{width:1440,height:1000},colorScheme:'light'});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/api/**',route=>route.fulfill({json:route.request().url().endsWith('/health')?{models:{intake:'rule fallback',layout:'synthetic-trained Random Forest',code:'templates'}}:[]}));
+ await page.goto('http://127.0.0.1:5182');await page.getByText('Engine connected').waitFor();
+ const assert=async(fn,message)=>{if(!await fn())throw new Error(message);};
+ await page.locator('.concept-card').nth(1).click();
+ await assert(()=>page.locator('#project-name').inputValue().then(v=>v==='Crave Kitchen'),'Concept selection failed');
+ await assert(()=>page.locator('#prompt').inputValue().then(v=>v.includes('restaurant')),'Concept prompt failed');
+ await page.getByLabel('Workspace theme').selectOption('dark');
+ await assert(()=>page.locator('.studio-shell').getAttribute('data-theme').then(v=>v==='dark'),'Dark theme did not apply');
+ await page.reload();await page.getByText('Engine connected').waitFor();
+ await assert(()=>page.getByLabel('Workspace theme').inputValue().then(v=>v==='dark'),'Theme not persisted');
+ const scene=page.locator('.hero-scene');await scene.scrollIntoViewIfNeeded();const box=await scene.boundingBox();await page.mouse.move(box.x+box.width*.8,box.y+box.height*.2);
+ await assert(()=>scene.evaluate(e=>e.style.getPropertyValue('--pointer-x')!=='0deg'&&e.style.getPropertyValue('--pointer-x')!==''),'Pointer tilt missing');
+ await page.screenshot({path:path.join(root,'docs/screenshots/05-dark-workspace.png'),fullPage:true});
+ await page.getByRole('button',{name:'Ambient animation'}).click();
+ await assert(()=>page.locator('.phone-float').evaluate(e=>getComputedStyle(e).animationName==='none'),'Motion off did not stop animation');
+ await page.getByLabel('Workspace theme').selectOption('light');
+ await page.screenshot({path:path.join(root,'docs/screenshots/06-light-workspace.png'),fullPage:true});
+ await page.setViewportSize({width:390,height:844});await page.getByLabel('Workspace theme').selectOption('dark');
+ await page.screenshot({path:path.join(root,'docs/screenshots/07-dark-mobile.png'),fullPage:true});
+ await assert(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Horizontal overflow');
+ await page.getByLabel('Workspace theme').selectOption('system');await page.emulateMedia({colorScheme:'dark',reducedMotion:'reduce'});
+ await page.getByRole('button',{name:'Ambient animation'}).click();
+ await assert(()=>page.locator('.studio-shell').getAttribute('data-motion').then(v=>v==='off'),'Reduced motion ignored');
+ await assert(()=>page.locator('.studio-shell').getAttribute('data-theme').then(v=>v==='dark'),'System appearance ignored');
+ if(errors.length)throw new Error(errors.join('\n'));
+ const result={passed:true,checks:['concept selection and prompt','dark theme','theme persistence','pointer tilt','motion pause','light theme','mobile width','system appearance','reduced motion'],api:'mocked for visual checks'};
+ fs.writeFileSync(path.join(root,'docs/appearance-test-results.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
+}finally{await browser?.close();web.kill();}

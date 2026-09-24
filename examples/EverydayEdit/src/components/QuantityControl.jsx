@@ -1,0 +1,3 @@
+import React from 'react';
+import {View,Text,Pressable,TextInput,StyleSheet} from 'react-native';
+export default function QuantityControl({value=1,onChange,min=0,max=99}) { return <View style={{flexDirection:'row',alignItems:'center',gap:18}}><Pressable accessibilityRole='button' accessibilityLabel='Decrease quantity' disabled={value<=min} onPress={()=>onChange?.(Math.max(min,value-1))}><Text style={{fontSize:24}}>−</Text></Pressable><Text>{value}</Text><Pressable accessibilityRole='button' accessibilityLabel='Increase quantity' disabled={value>=max} onPress={()=>onChange?.(Math.min(max,value+1))}><Text style={{fontSize:24}}>+</Text></Pressable></View>; }

@@ -1,0 +1,77 @@
+{
+  "name": "The Everyday Edit",
+  "business": "clothing",
+  "pages": [
+    "home",
+    "products",
+    "detail",
+    "cart",
+    "checkout",
+    "contact",
+    "about",
+    "search"
+  ],
+  "features": [
+    "catalog",
+    "cart",
+    "checkout",
+    "contact",
+    "about",
+    "search"
+  ],
+  "products": [
+    {
+      "id": "1",
+      "name": "Everyday linen shirt",
+      "price": 2490,
+      "icon": "👕",
+      "image_url": "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600&auto=format&fit=crop&q=80",
+      "badge": "Best Seller",
+      "rating": 4.9,
+      "category": "Essentials",
+      "description": "Thoughtfully selected everyday linen shirt for your everyday. Premium craftsmanship and durable quality."
+    },
+    {
+      "id": "2",
+      "name": "Classic overshirt",
+      "price": 3990,
+      "icon": "🧥",
+      "image_url": "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&auto=format&fit=crop&q=80",
+      "badge": "New Arrival",
+      "rating": 4.8,
+      "category": "Featured",
+      "description": "Thoughtfully selected classic overshirt for your everyday. Premium craftsmanship and durable quality."
+    },
+    {
+      "id": "3",
+      "name": "Relaxed cotton tee",
+      "price": 1490,
+      "icon": "👚",
+      "image_url": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80",
+      "badge": "Trending",
+      "rating": 4.7,
+      "category": "Essentials",
+      "description": "Thoughtfully selected relaxed cotton tee for your everyday. Premium craftsmanship and durable quality."
+    },
+    {
+      "id": "4",
+      "name": "Weekend essentials",
+      "price": 2990,
+      "icon": "👖",
+      "image_url": "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600&auto=format&fit=crop&q=80",
+      "badge": "20% OFF",
+      "rating": 4.9,
+      "category": "Featured",
+      "description": "Thoughtfully selected weekend essentials for your everyday. Premium craftsmanship and durable quality."
+    }
+  ],
+  "primary": "#7c5ce0",
+  "secondary": "#ede5f7",
+  "accent": "#b98849",
+  "bodyFont": "sans",
+  "navigation": "bottom",
+  "theme": "light",
+  "font": "sans",
+  "layout": "grid",
+  "contact": "hello@example.com"
+}

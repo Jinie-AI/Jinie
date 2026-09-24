@@ -245,43 +245,131 @@ function RenderNode({
                 />
             );
 
-        case "Image":
+        case "Image": {
+            const imgSrc =
+                node.props?.src ||
+                node.props?.source?.uri ||
+                node.props?.url ||
+                "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80";
             return (
                 <div
                     style={{
                         width: "100%",
-                        height: 90,
-                        borderRadius: 8,
+                        height: 120,
+                        borderRadius: 12,
+                        overflow: "hidden",
+                        position: "relative",
                         background: colors.placeholder,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 18,
-                        color: colors.subtleText,
                     }}
                 >
-                    🖼️
+                    <img
+                        src={imgSrc}
+                        alt={label || "Product"}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
                 </div>
             );
+        }
 
-        case "ItemCard":
+        case "ItemCard": {
+            const itemImg =
+                node.props?.image_url ||
+                node.props?.src ||
+                "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600&auto=format&fit=crop&q=80";
+            const itemName = label || node.props?.name || "Curated Essential";
+            const itemPrice = node.props?.price ? `Rs. ${Number(node.props.price).toLocaleString()}` : "Rs. 2,490";
+            const itemBadge = node.props?.badge || "Best Seller";
+            const itemRating = node.props?.rating || 4.9;
+
             return (
                 <div
                     style={{
                         border: `1px solid ${colors.border}`,
-                        borderRadius: 10,
-                        padding: 8,
+                        borderRadius: 16,
+                        padding: 10,
                         display: "flex",
                         flexDirection: "column",
-                        gap: 6,
+                        gap: 8,
                         background: colors.surface,
+                        boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
+                        position: "relative",
                     }}
                 >
-                    <div style={{ width: "100%", height: 60, borderRadius: 6, background: colors.placeholder }} />
-                    <div style={{ width: "70%", height: 8, borderRadius: 4, background: colors.border }} />
-                    <div style={{ width: "40%", height: 8, borderRadius: 4, background: colors.border }} />
+                    <div
+                        style={{
+                            width: "100%",
+                            height: 100,
+                            borderRadius: 10,
+                            overflow: "hidden",
+                            position: "relative",
+                            background: colors.placeholder,
+                        }}
+                    >
+                        <img
+                            src={itemImg}
+                            alt={itemName}
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                        {itemBadge && (
+                            <span
+                                style={{
+                                    position: "absolute",
+                                    top: 6,
+                                    left: 6,
+                                    background: colors.primary,
+                                    color: "#ffffff",
+                                    fontSize: 9,
+                                    fontWeight: 700,
+                                    padding: "2px 6px",
+                                    borderRadius: 8,
+                                    letterSpacing: 0.5,
+                                }}
+                            >
+                                {itemBadge}
+                            </span>
+                        )}
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span style={{ fontSize: 10, color: colors.subtleText, textTransform: "uppercase", fontWeight: 600 }}>
+                                Collection
+                            </span>
+                            <span style={{ fontSize: 10, color: "#eab308", fontWeight: 700 }}>
+                                ★ {itemRating}
+                            </span>
+                        </div>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: colors.text, fontFamily, lineHeight: "15px" }}>
+                            {itemName}
+                        </span>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                            <span style={{ fontSize: 13, fontWeight: 800, color: colors.primary }}>
+                                {itemPrice}
+                            </span>
+                            <button
+                                type="button"
+                                style={{
+                                    width: 24,
+                                    height: 24,
+                                    borderRadius: 7,
+                                    background: colors.primary,
+                                    color: "#ffffff",
+                                    border: "none",
+                                    fontSize: 14,
+                                    fontWeight: "bold",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                }}
+                            >
+                                +
+                            </button>
+                        </div>
+                    </div>
                 </div>
             );
+        }
 
         case "FlatList": {
             const numColumns = Number(node.props?.numColumns) || 1;
@@ -314,9 +402,7 @@ function RenderNode({
         }
 
         default:
-            // Unknown component_type — still render it (mirrors the
-            // backend fallback renderer treating unknown types as a
-            // generic container) instead of silently dropping the node.
+            // Unknown component_type — still render it
             return (
                 <div
                     style={{
@@ -338,7 +424,7 @@ function RenderNode({
     }
 }
 
-export default function ScreenRenderer({ layout, screenName, designTokens }: ScreenRendererProps) {
+export default function ScreenRenderer({ layout, screenName: _screenName, designTokens }: ScreenRendererProps) {
     const colors = buildColors(designTokens);
     const fontFamily = designTokens?.typography?.bodyFont
         ? `"${designTokens.typography.bodyFont}", sans-serif`
@@ -362,39 +448,74 @@ export default function ScreenRenderer({ layout, screenName, designTokens }: Scr
     return (
         <div
             style={{
-                width: 300,
+                width: 320,
                 margin: "0 auto",
-                borderRadius: 32,
-                border: "10px solid #1f1830",
-                background: "#1f1830",
-                boxShadow: "0 12px 30px rgba(15, 23, 42, 0.25)",
+                borderRadius: 38,
+                border: "11px solid #14121f",
+                background: "#14121f",
+                boxShadow: "0 20px 40px rgba(15, 23, 42, 0.28)",
                 overflow: "hidden",
+                position: "relative",
             }}
         >
             <div
                 style={{
                     background: colors.background,
-                    minHeight: 560,
+                    minHeight: 580,
                     display: "flex",
                     flexDirection: "column",
                 }}
             >
+                {/* Modern Status Bar with Dynamic Island */}
                 <div
                     style={{
                         display: "flex",
                         justifyContent: "space-between",
-                        padding: "8px 16px 0",
+                        alignItems: "center",
+                        padding: "10px 16px 6px",
                         fontSize: 11,
-                        color: colors.subtleText,
+                        color: colors.text,
+                        fontWeight: 700,
                         fontFamily,
+                        borderBottom: `1px solid ${colors.border}`,
                     }}
                 >
                     <span>9:41</span>
-                    <span>{screenName}</span>
+                    <div
+                        style={{
+                            width: 68,
+                            height: 14,
+                            borderRadius: 10,
+                            background: "#090810",
+                            boxShadow: "inset 0 1px 2px rgba(255,255,255,0.15)",
+                        }}
+                    />
+                    <span style={{ fontSize: 10, color: colors.subtleText }}>
+                        5G 􀛨
+                    </span>
                 </div>
 
                 <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                     <RenderNode node={layout} keyPrefix="root" colors={colors} fontFamily={fontFamily || "inherit"} />
+                </div>
+
+                {/* Home Indicator Bar */}
+                <div
+                    style={{
+                        padding: "8px 0 6px",
+                        display: "flex",
+                        justifyContent: "center",
+                        background: colors.background,
+                    }}
+                >
+                    <div
+                        style={{
+                            width: 100,
+                            height: 4,
+                            borderRadius: 4,
+                            background: colors.border,
+                        }}
+                    />
                 </div>
             </div>
         </div>

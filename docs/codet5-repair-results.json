@@ -1,0 +1,113 @@
+{
+  "scope": "Known ProductCard contract; synthetic specialization, not independent generalization",
+  "results": [
+    {
+      "prompt": "Generate a React Native ProductCard with product, primary, dark, onOpen, onAdd props. Export default ProductCard.",
+      "seconds": 5.24,
+      "validation": {
+        "passed": true,
+        "checks": [
+          {
+            "dark": false,
+            "horizontal": false,
+            "render": true,
+            "price": true,
+            "open": true,
+            "add": true
+          },
+          {
+            "dark": true,
+            "horizontal": true,
+            "render": true,
+            "price": true,
+            "open": true,
+            "add": true
+          }
+        ],
+        "note": "Known ProductCard contract only; browser/native validation remains separate."
+      },
+      "candidate": "repaired-candidate-0.jsx"
+    },
+    {
+      "prompt": "Create the ProductCard UI in JSX for a mobile commerce app.",
+      "seconds": 4.8,
+      "validation": {
+        "passed": true,
+        "checks": [
+          {
+            "dark": false,
+            "horizontal": false,
+            "render": true,
+            "price": true,
+            "open": true,
+            "add": true
+          },
+          {
+            "dark": true,
+            "horizontal": true,
+            "render": true,
+            "price": true,
+            "open": true,
+            "add": true
+          }
+        ],
+        "note": "Known ProductCard contract only; browser/native validation remains separate."
+      },
+      "candidate": "repaired-candidate-1.jsx"
+    },
+    {
+      "prompt": "Create a product card for a clothing store. Show its name and price, open the product when tapped and add it to the bag.",
+      "seconds": 5.13,
+      "validation": {
+        "passed": true,
+        "checks": [
+          {
+            "dark": false,
+            "horizontal": false,
+            "render": true,
+            "price": true,
+            "open": true,
+            "add": true
+          },
+          {
+            "dark": true,
+            "horizontal": true,
+            "render": true,
+            "price": true,
+            "open": true,
+            "add": true
+          }
+        ],
+        "note": "Known ProductCard contract only; browser/native validation remains separate."
+      },
+      "candidate": "repaired-candidate-2.jsx"
+    },
+    {
+      "prompt": "Build a ProductCard with dark mode support and a horizontal layout option.",
+      "seconds": 4.95,
+      "validation": {
+        "passed": true,
+        "checks": [
+          {
+            "dark": false,
+            "horizontal": false,
+            "render": true,
+            "price": true,
+            "open": true,
+            "add": true
+          },
+          {
+            "dark": true,
+            "horizontal": true,
+            "render": true,
+            "price": true,
+            "open": true,
+            "add": true
+          }
+        ],
+        "note": "Known ProductCard contract only; browser/native validation remains separate."
+      },
+      "candidate": "repaired-candidate-3.jsx"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "checks": [
+    "actual CodeT5 ProductCard accepted",
+    "workspace creation",
+    "requirement approvals",
+    "design generation",
+    "actual compiled iframe renders",
+    "add to cart",
+    "checkout validation",
+    "demo order",
+    "search empty state",
+    "isolated component interaction",
+    "evidence display",
+    "mobile width",
+    "source editor save/rebuild",
+    "edited config appears in preview",
+    "sidebar navigation"
+  ],
+  "native_device_tested": false
+}

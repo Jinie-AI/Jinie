@@ -1,0 +1,79 @@
+{
+  "Buttons": [
+    "Button",
+    "FAB",
+    "AnimatedFAB",
+    "IconButton",
+    "ToggleButton"
+  ],
+  "Display": [
+    "Badge",
+    "Divider",
+    "Icon",
+    "Surface",
+    "Avatar",
+    "AvatarImage",
+    "AvatarText",
+    "AvatarIcon",
+    "Card",
+    "CardActions",
+    "CardContent",
+    "CardCover",
+    "CardTitle",
+    "Chip",
+    "DataTable",
+    "DataTableCell",
+    "DataTableHeader",
+    "DataTableRow",
+    "List",
+    "ListItem",
+    "ListIcon",
+    "ListImage",
+    "ListSection",
+    "ListSubheader",
+    "ListAccordion",
+    "Text"
+  ],
+  "Feedback": [
+    "ActivityIndicator",
+    "Banner",
+    "ProgressBar",
+    "Snackbar"
+  ],
+  "Inputs": [
+    "Searchbar",
+    "Checkbox",
+    "CheckboxItem",
+    "HelperText",
+    "RadioButton",
+    "RadioButtonGroup",
+    "RadioButtonItem",
+    "SegmentedButtons",
+    "Switch",
+    "TextInput"
+  ],
+  "Interaction": [
+    "TouchableRipple"
+  ],
+  "Navigation": [
+    "Appbar",
+    "AppbarAction",
+    "AppbarBackAction",
+    "AppbarContent",
+    "AppbarHeader",
+    "BottomNavigation",
+    "Drawer",
+    "DrawerItem",
+    "DrawerSection",
+    "Menu",
+    "MenuItem",
+    "Tooltip"
+  ],
+  "Overlay": [
+    "Modal",
+    "Dialog",
+    "DialogActions",
+    "DialogContent",
+    "DialogTitle"
+  ]
+}

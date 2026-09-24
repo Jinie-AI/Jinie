@@ -1,0 +1,3 @@
+import React from 'react';
+import {View,Text,Pressable,TextInput,StyleSheet} from 'react-native';
+export default function ServiceCard({title='Signature service',duration=30,price=1500,onBook}) { return <View style={{padding:20,borderRadius:18,borderWidth:1,borderColor:'#e5deed',gap:10}}><Text style={{fontSize:20,fontWeight:'700'}}>{title}</Text><Text>{duration} minutes · Rs. {price}</Text><Pressable accessibilityRole='button' onPress={onBook} style={{padding:13,backgroundColor:'#7856d8',borderRadius:12}}><Text style={{color:'white',textAlign:'center'}}>Book service</Text></Pressable></View>; }

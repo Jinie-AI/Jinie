@@ -1,0 +1,3 @@
+import React from 'react';
+import {View,Text,Pressable,TextInput,StyleSheet} from 'react-native';
+export default function CartItem({name='Selected item',price=1990,quantity=1,onIncrease,onDecrease}) { return <View style={{padding:16,borderBottomWidth:1,borderColor:'#eee'}}><Text style={{fontWeight:'700'}}>{name}</Text><Text>Rs. {price*quantity}</Text><View style={{flexDirection:'row',gap:18,alignItems:'center',marginTop:12}}><Pressable accessibilityRole='button' accessibilityLabel='Decrease quantity' onPress={onDecrease}><Text style={{fontSize:24}}>−</Text></Pressable><Text>{quantity}</Text><Pressable accessibilityRole='button' accessibilityLabel='Increase quantity' onPress={onIncrease}><Text style={{fontSize:24}}>+</Text></Pressable></View></View>; }

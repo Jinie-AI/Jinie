@@ -1,0 +1,90 @@
+[
+  {
+    "requirement": "REQ-001",
+    "page": "home",
+    "components": [
+      "CMP-001"
+    ],
+    "files": [
+      "App.jsx",
+      "src/config.json"
+    ],
+    "test": "TEST-001"
+  },
+  {
+    "requirement": "REQ-002",
+    "page": "products",
+    "components": [
+      "CMP-001"
+    ],
+    "files": [
+      "App.jsx",
+      "src/config.json"
+    ],
+    "test": "TEST-002"
+  },
+  {
+    "requirement": "REQ-003",
+    "page": "detail",
+    "components": [
+      "CMP-001"
+    ],
+    "files": [
+      "App.jsx",
+      "src/config.json"
+    ],
+    "test": "TEST-003"
+  },
+  {
+    "requirement": "REQ-004",
+    "page": "cart",
+    "components": [],
+    "files": [
+      "App.jsx",
+      "src/config.json"
+    ],
+    "test": "TEST-004"
+  },
+  {
+    "requirement": "REQ-005",
+    "page": "checkout",
+    "components": [],
+    "files": [
+      "App.jsx",
+      "src/config.json"
+    ],
+    "test": "TEST-005"
+  },
+  {
+    "requirement": "REQ-006",
+    "page": "contact",
+    "components": [],
+    "files": [
+      "App.jsx",
+      "src/config.json"
+    ],
+    "test": "TEST-006"
+  },
+  {
+    "requirement": "REQ-007",
+    "page": "about",
+    "components": [],
+    "files": [
+      "App.jsx",
+      "src/config.json"
+    ],
+    "test": "TEST-007"
+  },
+  {
+    "requirement": "REQ-008",
+    "page": "search",
+    "components": [
+      "CMP-001"
+    ],
+    "files": [
+      "App.jsx",
+      "src/config.json"
+    ],
+    "test": "TEST-008"
+  }
+]

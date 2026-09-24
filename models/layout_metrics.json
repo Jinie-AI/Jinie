@@ -1,0 +1,137 @@
+{
+  "dataset_sha256": "353e02882b2245f778efab70179d7822a17479470a9e2045e9b4adefe90e3ffd",
+  "provenance": "synthetic rule-generated bootstrap; NOT independent real-world evaluation",
+  "sklearn": "1.8.0",
+  "seed": 42,
+  "best_params": {
+    "forest__max_depth": 6,
+    "forest__min_samples_leaf": 1,
+    "forest__n_estimators": 100
+  },
+  "cv_macro_f1": 1.0,
+  "split_sizes": {
+    "train": 320,
+    "validation": 40,
+    "test": 40
+  },
+  "validation": {
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "top2_accuracy": 1.0,
+    "classification_report": {
+      "cards": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 18.0
+      },
+      "editorial": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 7.0
+      },
+      "grid": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 15.0
+      },
+      "accuracy": 1.0,
+      "macro avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 40.0
+      },
+      "weighted avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 40.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        18,
+        0,
+        0
+      ],
+      [
+        0,
+        7,
+        0
+      ],
+      [
+        0,
+        0,
+        15
+      ]
+    ],
+    "labels": [
+      "cards",
+      "editorial",
+      "grid"
+    ]
+  },
+  "test": {
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "top2_accuracy": 1.0,
+    "classification_report": {
+      "cards": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 17.0
+      },
+      "editorial": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 12.0
+      },
+      "grid": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 11.0
+      },
+      "accuracy": 1.0,
+      "macro avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 40.0
+      },
+      "weighted avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 40.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        17,
+        0,
+        0
+      ],
+      [
+        0,
+        12,
+        0
+      ],
+      [
+        0,
+        0,
+        11
+      ]
+    ],
+    "labels": [
+      "cards",
+      "editorial",
+      "grid"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "base_model": "Salesforce/codet5-small",
+  "dataset_sha256": "f9b7836c5948acba2703e0d8f960e04dd78bfe38cc14d4874518f10dfead5bf8",
+  "synthetic_bootstrap": true,
+  "test": {
+    "test_loss": 0.9743143916130066,
+    "test_exact_match": 0.0,
+    "test_runtime": 23.1757,
+    "test_samples_per_second": 0.777,
+    "test_steps_per_second": 0.388
+  },
+  "note": "Exact match is not functional correctness. Run node scripts/check-code-predictions.mjs models/code/predictions.json, then test accepted components in Expo."
+}

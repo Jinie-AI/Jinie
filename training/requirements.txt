@@ -1,0 +1,9 @@
+torch>=2.2,<3
+transformers==4.57.1
+datasets>=3,<5
+accelerate>=1,<2
+scikit-learn==1.8.0
+joblib>=1.4,<2
+numpy>=1.26,<3
+sentencepiece>=0.2,<1
+safetensors>=0.4,<1

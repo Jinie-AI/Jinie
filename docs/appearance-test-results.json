@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "checks": [
+    "concept selection and prompt",
+    "dark theme",
+    "theme persistence",
+    "pointer tilt",
+    "motion pause",
+    "light theme",
+    "mobile width",
+    "system appearance",
+    "reduced motion"
+  ],
+  "api": "mocked for visual checks"
+}

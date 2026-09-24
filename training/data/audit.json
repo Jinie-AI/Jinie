@@ -1,0 +1,38 @@
+{
+  "intake": {
+    "rows": 720,
+    "groups": 240,
+    "splits": {
+      "train": 576,
+      "validation": 72,
+      "test": 72
+    },
+    "unreviewed": 720,
+    "cross_split_exact_duplicates": 0,
+    "sha256": "e1492b49f6e25289c8b2cd6bd583c5263611835a8dfe9b1eca8e87eb15133c27"
+  },
+  "layouts": {
+    "rows": 400,
+    "groups": 400,
+    "splits": {
+      "train": 320,
+      "test": 40,
+      "validation": 40
+    },
+    "unreviewed": 400,
+    "cross_split_exact_duplicates": 0,
+    "sha256": "353e02882b2245f778efab70179d7822a17479470a9e2045e9b4adefe90e3ffd"
+  },
+  "code": {
+    "rows": 180,
+    "groups": 20,
+    "splits": {
+      "train": 144,
+      "test": 18,
+      "validation": 18
+    },
+    "unreviewed": 180,
+    "cross_split_exact_duplicates": 0,
+    "sha256": "f9b7836c5948acba2703e0d8f960e04dd78bfe38cc14d4874518f10dfead5bf8"
+  }
+}

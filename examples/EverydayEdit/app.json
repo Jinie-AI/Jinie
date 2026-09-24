@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "The Everyday Edit",
+    "slug": "jinie-a37ffab5",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "scope": "ProductCard specialization only",
+  "synthetic_bootstrap": true,
+  "known_component_prompt_checks": {
+    "passed": 4,
+    "total": 4
+  },
+  "independent_generalization_accuracy": null,
+  "evidence": "docs/codet5-repair-results.json",
+  "warning": "These are regression checks, not an independent accuracy estimate."
+}

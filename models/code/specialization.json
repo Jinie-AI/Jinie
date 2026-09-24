@@ -1,0 +1,59 @@
+{
+  "scope": "ProductCard only",
+  "provenance": "synthetic focused repair",
+  "training_prompts": 9,
+  "unique_targets": 1,
+  "steps": 80,
+  "device": "cpu",
+  "history": [
+    {
+      "step": 1,
+      "loss": 2.03157,
+      "seconds": 3.2
+    },
+    {
+      "step": 11,
+      "loss": 0.71484,
+      "seconds": 11.1
+    },
+    {
+      "step": 21,
+      "loss": 0.25962,
+      "seconds": 19.3
+    },
+    {
+      "step": 31,
+      "loss": 0.10515,
+      "seconds": 27.2
+    },
+    {
+      "step": 41,
+      "loss": 0.0776,
+      "seconds": 34.3
+    },
+    {
+      "step": 51,
+      "loss": 0.02422,
+      "seconds": 41.4
+    },
+    {
+      "step": 61,
+      "loss": 0.01487,
+      "seconds": 48.3
+    },
+    {
+      "step": 71,
+      "loss": 0.02728,
+      "seconds": 56.1
+    },
+    {
+      "step": 80,
+      "loss": 0.00793,
+      "seconds": 62.7
+    }
+  ],
+  "limitation": "Behavior checks on the known component do not establish unseen-family accuracy.",
+  "source_weights_sha256": "367ff23497749ec736443620cb91369dee931cc1bbf7a83784905abba56f376e",
+  "learning_rate": 0.0001,
+  "seed": 42
+}

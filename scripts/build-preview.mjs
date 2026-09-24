@@ -1,0 +1,12 @@
+import {createRequire} from 'node:module';
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const require=createRequire(new URL('../frontend/package.json',import.meta.url));
+const {build}=require('esbuild');
+const [source,out]=process.argv.slice(2);
+if(!source||!out)throw new Error('Usage: node scripts/build-preview.mjs source out');
+fs.mkdirSync(out,{recursive:true});
+const frontendNodeModules = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../frontend/node_modules');
+await build({entryPoints:[path.join(source,'preview.jsx')],bundle:true,outfile:path.join(out,'app.js'),platform:'browser',format:'iife',jsx:'automatic',alias:{'react-native':'react-native-web','react':path.join(frontendNodeModules,'react'),'react-dom':path.join(frontendNodeModules,'react-dom'),'react/jsx-runtime':path.join(frontendNodeModules,'react/jsx-runtime.js'),'react/jsx-dev-runtime':path.join(frontendNodeModules,'react/jsx-dev-runtime.js')},nodePaths:[frontendNodeModules],resolveExtensions:['.web.jsx','.web.js','.jsx','.js','.json'],define:{'process.env.NODE_ENV':'"production"'},logLevel:'warning',loader:{'.js':'jsx'},minify:true});
+fs.writeFileSync(path.join(out,'index.html'),'<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Jinie app preview</title><style>html,body,#root{height:100%;margin:0}body{font-family:system-ui;overflow:hidden}#root{display:flex;flex-direction:column}*{box-sizing:border-box}</style></head><body><div id="root"><p style="padding:24px">Loading app…</p></div><pre id="preview-error" hidden style="white-space:pre-wrap;padding:24px;color:#922;background:#fff3f0"></pre><script>function reportPreviewError(message){var box=document.getElementById("preview-error");box.hidden=false;box.textContent="Preview could not start: "+message+". Open Jinie build logs or rebuild the project.";document.getElementById("root").style.display="none";}window.addEventListener("error",function(e){reportPreviewError(e.message||"Preview script failed to load");});window.addEventListener("unhandledrejection",function(e){reportPreviewError(String(e.reason&&e.reason.message||e.reason));});</script><script src="./app.js" onerror="reportPreviewError(&quot;Could not load app.js&quot;)"></script></body></html>');

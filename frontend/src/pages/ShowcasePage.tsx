@@ -109,17 +109,26 @@ export default function ShowcasePage() {
                                         <span className="mockup-dot dot-green" />
                                         <span className="mockup-url">https://shopvibe.jinie.app</span>
                                     </div>
-                                    <div className="mockup-screen-preview">
-                                        <div className="mockup-navbar">
-                                            <span className="mockup-brand">ShopVibe</span>
-                                            <span className="mockup-cart-badge">Cart (3)</span>
+                                    <div className="mockup-screen-preview" style={{ padding: 12, background: "#faf8fc" }}>
+                                        <div className="mockup-navbar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                                            <span className="mockup-brand" style={{ fontWeight: 800, color: "#221d32" }}>ShopVibe</span>
+                                            <span className="mockup-cart-badge" style={{ background: "#7c5ce0", color: "#fff", padding: "3px 8px", borderRadius: 12, fontSize: 10, fontWeight: 700 }}>Cart (3)</span>
                                         </div>
-                                        <div className="mockup-hero-banner">
-                                            <span>Summer Luxury Collection</span>
+                                        <div className="mockup-hero-banner" style={{ background: "linear-gradient(135deg, #7c5ce0, #5c3eb8)", color: "#fff", padding: "12px 14px", borderRadius: 12, marginBottom: 12 }}>
+                                            <span style={{ fontSize: 10, letterSpacing: 1, opacity: 0.9 }}>SUMMER EDIT</span>
+                                            <h4 style={{ margin: "4px 0", fontSize: 14 }}>Luxury Essentials</h4>
                                         </div>
-                                        <div className="mockup-grid">
-                                            <div className="mockup-card">Product A</div>
-                                            <div className="mockup-card">Product B</div>
+                                        <div className="mockup-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                                            <div className="mockup-card" style={{ background: "#fff", borderRadius: 10, padding: 6, border: "1px solid #eee", boxShadow: "0 2px 6px rgba(0,0,0,0.04)" }}>
+                                                <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=300&auto=format&fit=crop&q=80" alt="Linen Shirt" style={{ width: "100%", height: 65, objectFit: "cover", borderRadius: 6 }} />
+                                                <div style={{ fontSize: 10, fontWeight: 700, marginTop: 4 }}>Linen Overshirt</div>
+                                                <div style={{ fontSize: 10, color: "#7c5ce0", fontWeight: 800 }}>Rs. 3,990</div>
+                                            </div>
+                                            <div className="mockup-card" style={{ background: "#fff", borderRadius: 10, padding: 6, border: "1px solid #eee", boxShadow: "0 2px 6px rgba(0,0,0,0.04)" }}>
+                                                <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&auto=format&fit=crop&q=80" alt="Leather Jacket" style={{ width: "100%", height: 65, objectFit: "cover", borderRadius: 6 }} />
+                                                <div style={{ fontSize: 10, fontWeight: 700, marginTop: 4 }}>Classic Jacket</div>
+                                                <div style={{ fontSize: 10, color: "#7c5ce0", fontWeight: 800 }}>Rs. 7,490</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -132,35 +141,69 @@ export default function ShowcasePage() {
                 <section className="showcase-grid-section">
                     <h2 className="section-title">More Generated Showcase Apps</h2>
                     <div className="showcase-grid">
-                        {apps.map((app, idx) => (
-                            <div key={idx} className="showcase-card">
-                                <div className="showcase-mockup">
-                                    <div className="mockup-header">
-                                        <span className="mockup-dot dot-red" />
-                                        <span className="mockup-dot dot-yellow" />
-                                        <span className="mockup-dot dot-green" />
-                                    </div>
-                                    <div className="mockup-content-placeholder">
-                                        <div className="mockup-app-icon">✦</div>
-                                        <span className="mockup-app-name">{app.name}</span>
-                                    </div>
-                                </div>
+                        {apps.map((app, idx) => {
+                            const demoImages = [
+                                "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&auto=format&fit=crop&q=80", // food
+                                "https://images.unsplash.com/photo-1507925921958-8a62f3d1a50d?w=400&auto=format&fit=crop&q=80", // kanban
+                                "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=400&auto=format&fit=crop&q=80", // fitness
+                                "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&auto=format&fit=crop&q=80", // real estate
+                                "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80", // ai chat
+                            ];
+                            const previewImg = demoImages[idx % demoImages.length];
 
-                                <div className="showcase-card-body">
-                                    <span className="showcase-category">{app.category}</span>
-                                    <h3 className="showcase-card-title">{app.name}</h3>
-                                    <p className="showcase-prompt-text">{app.prompt}</p>
-                                    <p className="showcase-card-desc">{app.description}</p>
-                                    <div className="showcase-tags">
-                                        {app.tags.map((t, tIdx) => (
-                                            <span key={tIdx} className="showcase-tag">
-                                                {t}
-                                            </span>
-                                        ))}
+                            return (
+                                <div key={idx} className="showcase-card">
+                                    <div className="showcase-mockup" style={{ position: "relative", overflow: "hidden", height: 160 }}>
+                                        <div className="mockup-header" style={{ position: "relative", zIndex: 2, background: "rgba(255,255,255,0.9)" }}>
+                                            <span className="mockup-dot dot-red" />
+                                            <span className="mockup-dot dot-yellow" />
+                                            <span className="mockup-dot dot-green" />
+                                            <span style={{ fontSize: 9, color: "#888", marginLeft: 4 }}>app preview</span>
+                                        </div>
+                                        <img
+                                            src={previewImg}
+                                            alt={app.name}
+                                            style={{
+                                                position: "absolute",
+                                                top: 24,
+                                                left: 0,
+                                                width: "100%",
+                                                height: "calc(100% - 24px)",
+                                                objectFit: "cover",
+                                            }}
+                                        />
+                                        <div
+                                            style={{
+                                                position: "absolute",
+                                                bottom: 0,
+                                                left: 0,
+                                                right: 0,
+                                                background: "linear-gradient(transparent, rgba(15,23,42,0.85))",
+                                                padding: "16px 12px 6px",
+                                                color: "#fff",
+                                                zIndex: 2,
+                                            }}
+                                        >
+                                            <span style={{ fontSize: 11, fontWeight: 700 }}>{app.name}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="showcase-card-body">
+                                        <span className="showcase-category">{app.category}</span>
+                                        <h3 className="showcase-card-title">{app.name}</h3>
+                                        <p className="showcase-prompt-text">{app.prompt}</p>
+                                        <p className="showcase-card-desc">{app.description}</p>
+                                        <div className="showcase-tags">
+                                            {app.tags.map((t, tIdx) => (
+                                                <span key={tIdx} className="showcase-tag">
+                                                    {t}
+                                                </span>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </section>
 

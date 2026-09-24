@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {validate} from './validate-product-card.mjs';
+const valid=fs.readFileSync(new URL('../backend/studio/templates/ProductCard.jsx',import.meta.url),'utf8');
+assert.equal(validate(valid).passed,true);
+assert.throws(()=>validate(valid.replace('onPress={onAdd}','onPress={()=>{}}')));
+assert.throws(()=>validate(valid.replace('onPress={onOpen}','onPress={unknownCallback}')));
+assert.throws(()=>validate(valid.replace('product.price.toLocaleString()','0')));
+assert.throws(()=>validate('export default function ProductCard({product,product}) { return <View>; }'));
+console.log('5 ProductCard validator regression checks passed');

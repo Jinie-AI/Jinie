@@ -17,3 +17,22 @@ frontend/build/
 *.log
 .DS_Store
 Thumbs.db
+
+# Local Studio data and training runs
+runtime/
+runtime-browser-test/
+training/checkpoints/
+.venv/
+.pytest_cache/
+
+# Large model binaries (>100MB exceeds GitHub limit)
+*.safetensors
+*.safetensors.*
+
+# Third-party cloned sources
+backend/component_library/raw_sources/
+
+# Backups & local tooling
+jinie-update-backups/
+Jinie-Fixes-Update/
+.vscode/
