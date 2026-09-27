@@ -6,10 +6,16 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   resolve: { alias: { 'react-native': fileURLToPath(new URL('./node_modules/react-native-web/dist/index.js', import.meta.url)) }, dedupe: ['react', 'react-dom'] },
-  build: { rollupOptions: { input: { main: fileURLToPath(new URL('./index.html', import.meta.url)), screen: fileURLToPath(new URL('./screen-preview.html', import.meta.url)) } } },
   server: {
     fs: { allow: [fileURLToPath(new URL('..', import.meta.url))] },
     host: true,
     port: 5173,
+    allowedHosts: true,
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+    },
   },
 })

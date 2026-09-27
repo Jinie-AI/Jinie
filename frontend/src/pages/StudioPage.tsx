@@ -1,3 +1,4 @@
+import SrsDocument from "../components/studio/SrsDocument";
 import { useEffect, useRef, useState } from "react";
 import "../styles/studio.css";
 import "../styles/appearance.css";
@@ -27,8 +28,14 @@ import "prismjs/components/prism-jsx";
 import "prismjs/components/prism-json";
 import "prismjs/themes/prism.css";
 const API =
-  (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "") +
-  "/api";
+  (
+    import.meta.env.VITE_API_URL ||
+    (typeof window !== "undefined" &&
+    window.location.hostname !== "localhost" &&
+    window.location.hostname !== "127.0.0.1"
+      ? ""
+      : "http://127.0.0.1:8000")
+  ).replace(/\/$/, "") + "/api";
 async function request<T>(
   path: string,
   method = "GET",
@@ -1282,6 +1289,11 @@ export default function StudioPage() {
                       </div>
                     </div>
 
+                    <SrsDocument
+                      url={API + endpoint("/srs.json")}
+                      revision={project.revision}
+                      dirty={reviewDirty}
+                    />
                     {/* Bottom Actions */}
                     <div
                       className="panel-actions"

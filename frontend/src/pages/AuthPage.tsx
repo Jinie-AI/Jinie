@@ -4,8 +4,14 @@ import "../styles/studio.css";
 import "../styles/appearance.css";
 
 const API =
-  (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "") +
-  "/api";
+  (
+    import.meta.env.VITE_API_URL ||
+    (typeof window !== "undefined" &&
+    window.location.hostname !== "localhost" &&
+    window.location.hostname !== "127.0.0.1"
+      ? ""
+      : "http://127.0.0.1:8000")
+  ).replace(/\/$/, "") + "/api";
 
 export default function AuthPage({
   defaultMode = "login",
