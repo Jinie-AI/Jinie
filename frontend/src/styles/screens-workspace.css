@@ -1,0 +1,405 @@
+.screens-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.screens-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.screens-toolbar h2 {
+  margin: 8px 0;
+}
+.screens-toolbar p {
+  margin-bottom: 0;
+  line-height: 1.6;
+  max-width: 580px;
+}
+.screens-toolbar .primary {
+  flex-shrink: 0;
+}
+.screens-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 350px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.studio-shell .screens-controls {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  min-width: 0;
+}
+.screens-controls fieldset {
+  min-width: 0;
+  padding: 22px 0 0;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--edge);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.screens-controls legend {
+  padding: 0 8px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.screens-controls .subtle {
+  font-size: 11px;
+  line-height: 1.7;
+  margin: 0;
+}
+.screen-refinement {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.screen-refinement h3 {
+  margin: 0;
+  font-size: 20px;
+}
+.screen-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--soft);
+}
+.screens-controls
+  :is(input:not([type="color"]):not([type="checkbox"]), select, textarea) {
+  width: 100%;
+  min-width: 0;
+  border-radius: 10px;
+  padding: 11px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.screens-controls textarea {
+  resize: vertical;
+}
+.screen-color-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.screen-color-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--soft);
+}
+.screen-color-grid input[type="color"] {
+  width: 100%;
+  height: 38px;
+  padding: 3px;
+  border-radius: 9px;
+  cursor: pointer;
+  border: 1px solid var(--edge);
+  background: var(--raised);
+}
+.screen-color-grid small {
+  font-size: 9px;
+}
+.screen-field-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.screen-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border: 1px solid var(--edge);
+  border-radius: 10px;
+  background: var(--raised);
+  color: var(--ink);
+  font-size: 12px;
+}
+.screen-toggle input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--accent);
+}
+.screen-requirement summary {
+  cursor: pointer;
+  font-size: 11px;
+  padding: 8px 0;
+}
+.screen-requirement textarea {
+  margin: 8px 0;
+}
+.screens-save {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 10px;
+  color: var(--soft);
+  border-top: 1px solid var(--edge);
+  padding-top: 18px;
+}
+.screens-canvas {
+  min-width: 0;
+  position: sticky;
+  top: 18px;
+}
+.screens-canvas-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: flex-start;
+}
+.screen-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.screen-tabs button {
+  padding: 9px 12px;
+  border: 1px solid var(--edge);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--soft);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.screen-tabs button span {
+  font-size: 9px;
+  opacity: 0.65;
+}
+.screen-tabs button.chosen {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--raised);
+}
+.screen-preview-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 28px 16px;
+  border: 1px solid var(--edge);
+  border-radius: 22px;
+  background:
+    radial-gradient(ellipse at center, #9a7ec51a, transparent 70%),
+    var(--raised);
+}
+.screen-preview-stage > p {
+  max-width: 340px;
+  text-align: center;
+  line-height: 1.7;
+  font-size: 11px;
+}
+.screen-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 28px;
+}
+.screen-gallery-item {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+.screen-gallery-item > div:first-child {
+  width: min(320px, 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.screen-gallery-item h3 {
+  margin: 0;
+  font-size: 14px;
+}
+@media (max-width: 1100px) {
+  .screens-layout {
+    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+    gap: 16px;
+  }
+  .studio-shell .screens-controls {
+    padding: 18px;
+  }
+}
+@media (max-width: 850px) {
+  .screens-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .screens-canvas {
+    position: static;
+  }
+  .screens-controls {
+    order: 2;
+  }
+  .screens-canvas {
+    order: 1;
+  }
+  .screens-toolbar .primary {
+    width: 100%;
+  }
+}
+@media (max-width: 480px) {
+  .screen-preview-stage {
+    padding: 20px 8px;
+  }
+  .screen-preview-stage .screen-phone {
+    max-width: 100%;
+  }
+  .screens-toolbar {
+    padding: 20px !important;
+  }
+}
+
+/* The planning mock follows the selected navigation placement. */
+.screen-phone[data-navigation="top"] .screen-status {
+  order: 0;
+}
+.screen-phone[data-navigation="top"] .screen-app-header {
+  order: 1;
+}
+.screen-phone[data-navigation="top"] .screen-navigation {
+  order: 2;
+}
+.screen-phone[data-navigation="top"] .screen-content {
+  order: 3;
+  min-height: 0;
+}
+.screen-phone[data-navigation="top"] .screen-home-indicator {
+  order: 4;
+}
+.screen-phone[data-navigation="sidebar"] {
+  display: grid !important;
+  grid-template-columns: 64px minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+.screen-phone[data-navigation="sidebar"] .screen-status {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+.screen-phone[data-navigation="sidebar"] .screen-app-header {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+.screen-phone[data-navigation="sidebar"] .screen-content {
+  grid-column: 2;
+  grid-row: 3;
+  min-height: 0;
+}
+.screen-phone[data-navigation="sidebar"] .screen-navigation {
+  grid-column: 1;
+  grid-row: 3;
+  flex-direction: column;
+  justify-content: flex-start !important;
+  gap: 12px;
+  overflow-y: auto;
+}
+.screen-phone[data-navigation="sidebar"] .screen-home-indicator {
+  grid-column: 1 / -1;
+  grid-row: 4;
+}
+
+.accepted-screen-frame {
+  width: 375px;
+  height: 640px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 9px solid #24202c;
+  border-radius: 30px;
+  overflow: hidden;
+  background: #fcfaf7;
+  flex-shrink: 0;
+  text-align: left;
+  color-scheme: light;
+}
+.accepted-screen-frame > div {
+  min-height: 0;
+}
+.device-frame.tablet {
+  width: 820px;
+  max-width: none;
+}
+.device-frame.desktop {
+  width: 1280px;
+  max-width: none;
+}
+.preview-stage {
+  justify-content: safe center;
+}
+.device-frame.tablet iframe {
+  height: 1024px;
+}
+.device-frame.desktop iframe {
+  height: 800px;
+}
+
+.mobile-deployment {
+  text-align: left;
+  margin-top: 24px;
+}
+.mobile-deployment p {
+  max-width: 75ch;
+}
+.mobile-deployment label {
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+  margin: 12px 0;
+}
+.mobile-deployment input[type="checkbox"] {
+  width: auto;
+  align-self: flex-start;
+}
+.mobile-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.mobile-deployment input,
+.mobile-deployment select {
+  padding: 10px;
+  border: 1px solid var(--edge);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.mobile-deployment button {
+  margin: 12px 12px 12px 0;
+}
+
+.accepted-screen-frame {
+  height: 686px;
+  border: 0;
+  padding: 9px;
+  background: #24202c;
+}
+.accepted-screen-frame iframe {
+  width: 100%;
+  height: 640px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 28px;
+  background: #fcfaf7;
+}
+
+.accepted-screen-frame {width:393px;}
+
+/* Keep the original phone chrome and pin navigation below the scrolling content. */
+.screen-phone .screen-status,.screen-phone .screen-app-header,.screen-phone .screen-navigation,.screen-phone .screen-home-indicator {flex-shrink:0;}
+.screen-phone .screen-content {min-height:0;flex:1 1 0%;overflow-y:auto;}
+.screen-phone .screen-navigation {margin-top:auto;width:100%;justify-content:space-evenly!important;}
+.screen-phone .screen-navigation > div {flex:1;min-width:0;padding:4px 2px!important;text-align:center;}
+.screen-phone[data-navigation="sidebar"] .screen-navigation {margin-top:0;width:auto;}
+.screen-phone[data-navigation="sidebar"] .screen-navigation > div {flex:0 0 auto;}

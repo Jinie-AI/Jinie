@@ -43,4 +43,3 @@ for family in CATALOG:
     for j,d in enumerate(descriptions):rows.append({'id':family+'-'+str(j),'group_id':family,'split':splits[family],'description':d,'code':code,'component':family,'provenance':'synthetic_template','reviewed':False})
 write('code.jsonl',rows)
 (OUT/'labels.json').write_text(json.dumps(LABELS,indent=2))
-print('Created 720 intake, 400 layout, 180 code records. All synthetic and awaiting human review.')

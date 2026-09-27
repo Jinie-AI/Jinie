@@ -16,3 +16,7 @@ safetensors>=0.4
 # Optional OpenAI requirements planner
 openai>=1.68,<3
 python-dotenv>=1,<2
+
+# SRS export and account validation
+reportlab>=4,<5
+email-validator>=2,<3

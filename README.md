@@ -12,3 +12,7 @@ React web workspace → traceable React Native / Expo commerce application.
 - [Verification evidence](docs/VERIFICATION.md)
 
 The active app runs through `backend/main.py`, `backend/studio/` and `frontend/src/pages/StudioPage.tsx`. Older modules and `.docs/` are retained as historical source; their earlier capability claims may not describe the active implementation.
+
+## Preview workflow
+
+Screens and Preview share the original visual design preview. Use Run generated app in Preview to test the compiled React Native output. Store deployment is disabled; its source is retained in archive/mobile-deployment-disabled. ZIP export and Firebase hosting remain available.

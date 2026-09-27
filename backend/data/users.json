@@ -1,0 +1,29 @@
+[
+  {
+    "id": "usr_demo",
+    "username": "developer",
+    "email": "dev@jinie.ai",
+    "full_name": "Lead Developer",
+    "password_hash": "4e142ede32419b9dad1aaec33c202a815f738660f442030008ad87289fc6ec69",
+    "salt": "700807b2676024445f837e0f91db446a",
+    "created_at": 1790338966.4701295
+  },
+  {
+    "id": "usr_7b4b68ba8f0b",
+    "username": "sconnor",
+    "email": "sarah@example.com",
+    "full_name": "Sarah Connor",
+    "password_hash": "7c3b9c52be463e551d7b4e612b93754c3ed1c6c1b963d9dafa07b0984b61ffa2",
+    "salt": "0275da0de5a0179428b1f930b4ca8025",
+    "created_at": 1790338973.3038335
+  },
+  {
+    "id": "usr_0706f767fc92",
+    "username": "alisher",
+    "email": "itsalisher2005@gmail.com",
+    "full_name": "Ali Sher",
+    "password_hash": "7f9e1ccb422f51fc3cf972085ccc7d3353b772b89fbbbb1cc23cf3c2e580710e",
+    "salt": "8450dfd59ed75cdcb2c6cacaf944dc77",
+    "created_at": 1790451821.1612017
+  }
+]

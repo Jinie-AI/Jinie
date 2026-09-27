@@ -30,6 +30,14 @@ export function validate(source){
     if(!open||!add)throw Error('Missing accessible buttons');
     open.props.onPress();add.props.onPress();
     if(opens!==1||adds!==1)throw Error('Button callback failed');
+    const visualProduct={...product,image_url:'https://example.com/item.jpg',badge:'Limited edition'};
+    const visual=C({product:visualProduct,primary:'#7254cc',dark:false,horizontal:false,showBadge:true,onOpen:()=>{},onAdd:()=>{}});
+    const collect=x=>{const out=[];const walk=v=>{if(v&&typeof v==='object'){out.push(v);(v.children||[]).flat(Infinity).forEach(walk);}};walk(x);return out;};
+    if(!collect(visual).some(n=>n.type==='Image'&&n.props.source?.uri===visualProduct.image_url))throw Error('Product photograph is not rendered');
+    if(!text(visual).includes('Limited edition'))throw Error('Product badge is not rendered');
+    const noActions=C({product:visualProduct,primary:'#7254cc',dark:false,horizontal:false,showBadge:false,onOpen:()=>{},onAdd:null});
+    if(text(noActions).includes('Limited edition'))throw Error('Badge visibility setting ignored');
+    if(collect(noActions).some(n=>n.type==='Pressable'&&n.props.accessibilityLabel==='Add Contract item to bag'))throw Error('Add button must be hidden when cart is excluded');
     return {dark:${dark},horizontal:${horizontal},render:true,price:true,open:true,add:true};
    })()
   `;

@@ -1,0 +1,145 @@
+.studio-shell {
+  --fg: var(--ink);
+  --purple: var(--accent);
+}
+/* Focused prompt composition; retain the existing palette, hero and navigation. */
+.studio-shell .create-grid.prompt-layout {
+  grid-template-columns: minmax(0, 1fr);
+  margin-bottom: 32px;
+}
+.prompt-layout .prompt-panel {
+  padding: 28px 32px;
+}
+.prompt-layout textarea {
+  min-height: 142px;
+  line-height: 1.7;
+  resize: vertical;
+}
+.prompt-layout .panel-title {
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.prompt-layout .sample-row {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.prompt-layout .prompt-toolbar {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.studio-shell .hero-studio {
+  min-height: 330px;
+}
+.library-panel {
+  margin: 22px 0;
+}
+.library-panel .panel-title {
+  gap: 16px;
+  align-items: start;
+  flex-wrap: wrap;
+}
+.library-intro {
+  max-width: 680px;
+  line-height: 1.7;
+  margin-bottom: 22px;
+}
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 14px;
+}
+.library-card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--edge);
+  border-radius: 16px;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.library-card-heading {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.library-symbol {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--raised);
+  color: var(--accent);
+  font-size: 24px;
+}
+.library-card h3 {
+  margin: 0 0 4px;
+  color: var(--ink);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.library-category {
+  color: var(--soft);
+  font-size: 11px;
+}
+.library-card > p {
+  margin: 0;
+  color: var(--soft);
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.library-screens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+}
+.library-screens span {
+  padding: 5px 9px;
+  border-radius: 7px;
+  background: var(--raised);
+  color: var(--soft);
+  font-size: 10px;
+  text-transform: capitalize;
+}
+.library-details {
+  padding-top: 12px;
+  border-top: 1px solid var(--edge);
+  font-size: 11px;
+  color: var(--soft);
+}
+.library-details summary {
+  cursor: pointer;
+  color: var(--soft);
+}
+.library-details p {
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  margin: 10px 0 0;
+}
+.library-more {
+  margin-top: 18px;
+}
+.library-empty {
+  padding: 20px;
+  border-radius: 12px;
+  background: var(--raised);
+  color: var(--soft);
+  line-height: 1.6;
+}
+@media (max-width: 600px) {
+  .prompt-layout .prompt-panel {
+    padding: 20px;
+  }
+  .prompt-layout .prompt-toolbar .primary {
+    width: 100%;
+    margin-left: 0;
+    justify-content: center;
+  }
+  .library-card {
+    padding: 16px;
+  }
+}
