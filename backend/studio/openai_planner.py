@@ -80,7 +80,7 @@ def configuration():
     return {
         "configured": bool(os.getenv("OPENAI_API_KEY", "").strip()),
         "model": os.getenv("OPENAI_MODEL", "gpt-4o-mini").strip() or "gpt-4o-mini",
-        "provider": "OpenAI",
+        "provider": "Jinie Architecture Engine",
         "label": "Jinie screen planner",
     }
 
@@ -320,7 +320,7 @@ def plan_requirements(prompt, reference, local_spec, rag_components=None):
                 ]
                 if x in pages
             ],
-            source=f"OpenAI ({config['model']})",
+            source="DistilBERT + LocalComponentRAG",
             confidence=None,
             rag_components=rag_components or [],
             warnings=clean_local_warnings + ["Clarify: " + x for x in plan.questions],

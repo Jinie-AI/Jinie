@@ -36,3 +36,8 @@ backend/component_library/raw_sources/
 jinie-update-backups/
 Jinie-Fixes-Update/
 .vscode/
+
+# Disposable caches and verification artifacts
+.ruff_cache/
+__pycache__/
+tmp/

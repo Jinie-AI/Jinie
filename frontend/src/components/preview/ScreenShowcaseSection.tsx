@@ -286,7 +286,7 @@ export default function ScreenShowcaseSection({
               </span>
               {mockup(selectedScreen)}
               <p className="subtle">
-                Review your design here. The same design is shown in Preview; use Run generated app there to test app behavior.
+                Review your design here. The same accepted design is shown in Preview.
               </p>
             </div>
           ) : (

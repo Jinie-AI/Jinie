@@ -18,8 +18,8 @@ app.add_middleware(
         "JINIE_ALLOWED_ORIGINS",
         "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174",
     ).split(","),
-    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
-    allow_methods=["GET", "POST", "PUT"],
+    allow_origin_regex=r"https?://.*",
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 app.include_router(router)
@@ -39,3 +39,8 @@ def recover_interrupted_jobs():
 @app.get("/")
 def root():
     return {"status": "ok", "docs": "/docs"}
+
+
+@app.on_event("shutdown")
+def close_database():
+    store.close()

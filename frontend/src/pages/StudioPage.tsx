@@ -41,7 +41,11 @@ async function request<T>(
   method = "GET",
   data?: unknown,
 ): Promise<T> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), method === "GET" ? 20000 : 120000);
+  try {
   const response = await fetch(API + path, {
+    signal: controller.signal,
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
@@ -59,7 +63,13 @@ async function request<T>(
     }
     throw new Error(message);
   }
-  return response.json();
+  return await response.json();
+  } catch (error) {
+    if (controller.signal.aborted) throw new Error("The server took too long to respond. Check recent projects before trying again; the server may still finish saving your request.");
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
+  }
 }
 const samples = [
   {
@@ -128,39 +138,21 @@ export default function StudioPage() {
     [code, setCode] = useState(""),
     [dirty, setDirty] = useState(false);
   const [component, setComponent] = useState("");
-  const [showWorkingApp, setShowWorkingApp] = useState(false);
+  const [focusedRequirement, setFocusedRequirement] = useState("");
+  useEffect(() => {
+    if (tab === "Requirements" && focusedRequirement) {
+      document
+        .getElementById("requirement-" + focusedRequirement)
+        ?.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+  }, [tab, focusedRequirement]);
+  const showWorkingApp = Boolean(component);
   const [device, setDevice] = useState("mobile"),
-    [tilt, setTilt] = useState(false),
-    [feedback, setFeedback] = useState(""),
-    [feedbackReq, setFeedbackReq] = useState(""),
     [previewScreen, setPreviewScreen] = useState("");
   const [notice, setNotice] = useState(""),
     [reviewDirty, setReviewDirty] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
   const actionRunning = useRef(false);
-  useEffect(() => {
-    const receive = (event: MessageEvent) => {
-      const frame = document.querySelector(
-        'iframe[title="Generated React Native app"]',
-      ) as HTMLIFrameElement | null;
-      if (
-        event.source !== frame?.contentWindow ||
-        event.data?.type !== "jinie-annotation" ||
-        !project
-      )
-        return;
-      const req = project.requirements.find((r) => r.page === event.data.page);
-      if (req) {
-        setFeedbackReq(req.id);
-        setFeedback(
-          "Element “" + String(event.data.text).slice(0, 100) + "”: ",
-        );
-        setNotice("Element selected. Add your feedback below the preview.");
-      }
-    };
-    window.addEventListener("message", receive);
-    return () => window.removeEventListener("message", receive);
-  }, [project]);
   const active =
     project?.status === "building" || project?.status === "deploying";
   const current =
@@ -184,7 +176,7 @@ export default function StudioPage() {
   }
   function accept(p: Project) {
     setProject(p);
-    localStorage.setItem("jinie_project_id", p.id);
+    try { localStorage.setItem("jinie_project_id", p.id); } catch { /* Project is still available in this session. */ }
     const cfgs = (p.screen_configs ||
       (p.spec && p.spec.screen_configs) ||
       {}) as Record<string, ScreenConfigData>;
@@ -759,8 +751,10 @@ export default function StudioPage() {
                             { prompt, name, reference_text: reference },
                           );
                           accept(p);
-                          setProjects(await request("/projects"));
                           setTab("Requirements");
+                          void request<Summary[]>("/projects").then(setProjects).catch(() => {
+                            setNotice("Requirements are ready. The recent-project list could not refresh.");
+                          });
                         })
                       }
                     >
@@ -848,16 +842,6 @@ export default function StudioPage() {
                   </button>
                 )}
               </div>
-              {tab === "Evidence" && project.model_warnings?.length > 0 && (
-                <div className="alert" role="status">
-                  <strong>Technical notes</strong>
-                  <div>
-                    {project.model_warnings.map((w, i) => (
-                      <p key={i}>{w}</p>
-                    ))}
-                  </div>
-                </div>
-              )}
               {project.api_plan && tab === "Requirements" && (
                 <section className="panel" style={{ marginBottom: 18 }}>
                   <span className="eyebrow">REQUIREMENTS PLAN</span>
@@ -1068,6 +1052,7 @@ export default function StudioPage() {
                           <div
                             className="requirement"
                             key={r.id}
+                            id={"requirement-" + r.id}
                             style={{
                               padding: "14px 16px",
                               background: "var(--canvas, #f7f8fa)",
@@ -1375,14 +1360,6 @@ export default function StudioPage() {
                 <>
                   <div className="preview-toolbar">
                     <button
-                      className="secondary"
-                      onClick={() => setShowWorkingApp(!showWorkingApp)}
-                    >
-                      {showWorkingApp
-                        ? "Show accepted design"
-                        : "Run generated app"}
-                    </button>
-                    <button
                       className="make-changes-btn"
                       onClick={() => setTab("Screens")}
                       title="Refine prompt or modify design tokens"
@@ -1394,7 +1371,6 @@ export default function StudioPage() {
                       value={component}
                       onChange={(e) => {
                         setComponent(e.target.value);
-                        setShowWorkingApp(true);
                       }}
                     >
                       <option value="">Full app</option>
@@ -1439,12 +1415,6 @@ export default function StudioPage() {
                         </button>
                       ))}
                     </div>
-                    <button
-                      className="secondary"
-                      onClick={() => setTilt(!tilt)}
-                    >
-                      {tilt ? "Flatten preview" : "✧ 3D perspective"}
-                    </button>
                     <button
                       className="secondary"
                       onClick={() => setTab("Screens")}
@@ -1526,7 +1496,7 @@ export default function StudioPage() {
                   {project.build_revision !== null ? (
                     <>
                       <div
-                        className={"preview-stage " + (tilt ? "is-3d" : "")}
+                        className="preview-stage"
                         onPointerMove={appearance.move}
                         onPointerLeave={appearance.reset}
                       >
@@ -1609,55 +1579,6 @@ export default function StudioPage() {
                       </p>
                     </div>
                   )}
-                  <section className="panel">
-                    <h3>Refine the experience</h3>
-                    <p className="subtle">
-                      Alt-click an element in the app to select it, or choose a
-                      screen below. Add a note, review its requirement, then
-                      rebuild.
-                    </p>
-                    <div className="feedback-row">
-                      <select
-                        aria-label="Feedback requirement"
-                        value={feedbackReq}
-                        onChange={(e) => setFeedbackReq(e.target.value)}
-                      >
-                        <option value="">Select screen</option>
-                        {project.requirements.map((r) => (
-                          <option key={r.id} value={r.id}>
-                            {r.page}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        aria-label="Feedback note"
-                        value={feedback}
-                        onChange={(e) => setFeedback(e.target.value)}
-                        placeholder="What would you like to improve?"
-                      />
-                      <button
-                        className="secondary"
-                        disabled={
-                          !feedbackReq || feedback.length < 3 || active || busy
-                        }
-                        onClick={() =>
-                          action(async () => {
-                            accept(
-                              await request(endpoint("/feedback"), "POST", {
-                                requirement_id: feedbackReq,
-                                text: feedback,
-                                rating: 3,
-                              }),
-                            );
-                            setFeedback("");
-                            setTab("Requirements");
-                          })
-                        }
-                      >
-                        Save feedback
-                      </button>
-                    </div>
-                  </section>
                 </>
               )}
               {tab === "Code" && (
@@ -1707,6 +1628,38 @@ export default function StudioPage() {
                         Rebuild source ↗
                       </button>
                     </div>
+                  </div>
+                  <div
+                    className="button-row"
+                    aria-label="Requirements linked to this file"
+                  >
+                    {project.traceability
+                      .filter((link) => link.files.includes(file))
+                      .map((link) => (
+                        <button
+                          key={link.requirement}
+                          className="id-badge"
+                          onClick={() => {
+                            if (
+                              dirty &&
+                              !confirm("Discard unsaved file edits?")
+                            )
+                              return;
+                            setDirty(false);
+                            setFocusedRequirement(link.requirement);
+                            setTab("Requirements");
+                          }}
+                        >
+                          {link.requirement} · {link.page}
+                        </button>
+                      ))}
+                    {!project.traceability.some((link) =>
+                      link.files.includes(file),
+                    ) && (
+                      <small className="subtle">
+                        No requirement link recorded for this file.
+                      </small>
+                    )}
                   </div>
                   <div className="code-layout">
                     <div className="file-tree">
@@ -1807,13 +1760,34 @@ export default function StudioPage() {
                               <td>
                                 <button
                                   className="id-badge"
-                                  onClick={() => setTab("Requirements")}
+                                  onClick={() => {
+                                    setFocusedRequirement(r.requirement);
+                                    setTab("Requirements");
+                                  }}
                                 >
                                   {r.requirement}
                                 </button>
                               </td>
                               <td>{r.page}</td>
-                              <td>{r.files.join(", ")}</td>
+                              <td>
+                                {r.files.map((path) => (
+                                  <button
+                                    key={path}
+                                    className="text-button"
+                                    onClick={() => {
+                                      if (
+                                        dirty &&
+                                        !confirm("Discard unsaved file edits?")
+                                      )
+                                        return;
+                                      setFile(path);
+                                      setTab("Code");
+                                    }}
+                                  >
+                                    {path}
+                                  </button>
+                                ))}
+                              </td>
                               <td>{r.test}</td>
                             </tr>
                           ))}

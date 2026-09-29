@@ -73,12 +73,14 @@ def test_complete_pipeline_and_edit():
     p = wait(p["id"])
     assert p["status"] == "ready", p.get("error")
     assert len(p["traceability"]) == 8
+    assert all("src/components/AppView.jsx" in t["files"] for t in p["traceability"])
+    assert any(t["id"] == "FILES-001" and t["status"] == "passed" for t in p["tests"])
     assert client.get(url + "/preview/index.html").status_code == 200
     archive = client.get(url + "/download")
     assert archive.status_code == 200
     with zipfile.ZipFile(io.BytesIO(archive.content)) as z:
-        assert "jinie-app/App.jsx" in z.namelist()
-        package = json.loads(z.read("jinie-app/package.json"))
+        assert "Test shop-jinie/App.jsx" in z.namelist()
+        package = json.loads(z.read("Test shop-jinie/package.json"))
         assert package["dependencies"]["react-native"] == "0.81.5"
     original = client.get(url + "/file", params={"path": "src/config.json"}).json()[
         "content"
@@ -93,6 +95,8 @@ def test_complete_pipeline_and_edit():
         ).status_code
         == 200
     )
+    saved = client.get(url).json()
+    assert set(saved["edits"][-1]["affected_requirements"]) == {r["id"] for r in saved["requirements"]}
     assert client.get(url + "/download").status_code == 409
     assert client.post(url + "/rebuild").status_code == 200
     p = wait(p["id"])

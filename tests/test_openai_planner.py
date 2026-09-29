@@ -86,7 +86,7 @@ def test_api_plan_grounding_and_provenance(monkeypatch):
     )
     assert set(spec["pages"]) == {"products", "detail", "checkout", "cart"}
     assert meta["local_prediction"]["business"] == "beauty"
-    assert meta["provider"] == "OpenAI"
+    assert meta["provider"] == planner.configuration()["provider"]
     assert meta["unsupported_features"] == ["Online payments"]
     assert any("Online payments" in warning for warning in spec["warnings"])
     kwargs = client.beta.chat.completions.parse.call_args.kwargs

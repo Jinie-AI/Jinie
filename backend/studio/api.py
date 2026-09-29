@@ -22,6 +22,8 @@ from .compiler import bundle, compile_project
 from .domain import products
 from .retrieval import retrieve_for_screens
 from .composition import default_composition
+from .build_checks import check_artifacts
+from .srs_document import build_srs, srs_markdown
 from .screen_contract import (
     CAPABILITIES,
     BusinessId,
@@ -505,9 +507,12 @@ def run_job(pid, cancel, rebuild_only=False):
                 "kind": "manual",
             },
         ]
+        p["tests"] += check_artifacts(source, store.folder(pid) / p["_pending_preview"], config)
+        store.write(pid, "test-results.json", json.dumps(p["tests"], indent=2))
+        store.save(p)
         if any(t["status"] == "failed" for t in p["tests"]):
             raise RuntimeError(
-                "Generated page checks failed. Review source/configuration and rebuild."
+                "Build validation failed: " + "; ".join(t["name"] for t in p["tests"] if t["status"] == "failed")
             )
         p.update(
             status="ready",
@@ -649,12 +654,13 @@ def edit_file(pid: str, path: str, req: Edit):
                 raise HTTPException(422, "JSON is invalid.")
         previous = f.read_text(encoding="utf-8")
         store.write(pid, path, req.content)
+        affected = [t["requirement"] for t in p.get("traceability", []) if path in t.get("files", [])]
         p.setdefault("edits", []).append(
-            {"file": path, "time": now(), "before": previous, "after": req.content}
+            {"file": path, "time": now(), "before": previous, "after": req.content, "affected_requirements": affected}
         )
         p.update(status="edited", deployment=None)
         p["revision"] += 1
-        log(p, "editor", "Saved " + path + "; rebuild to update preview.")
+        log(p, "editor", "Saved " + path + "; rebuild to update preview." + (" Affected requirements: " + ", ".join(affected) if affected else ""))
         return p
 
 
@@ -711,28 +717,12 @@ def download(pid: str):
     )
 
 
-def srs_markdown(p):
-    return (
-        "# "
-        + p["name"]
-        + " — Software Requirements\n\n"
-        + p["prompt"]
-        + "\n\n## Functional requirements\n\n"
-        + "\n".join(
-            f"- {r['id']} [{'x' if r['approved'] else ' '}] {r['text']} ({r['page']})"
-            for r in p["requirements"]
-        )
-        + "\n\n## Quality requirements\n\n"
-        + "\n".join("- " + r["id"] + " " + r["text"] for r in p["nfr"])
-        + "\n\n## Stack\n"
-        + ", ".join(p["stack"])
-        + "\n\n## Model provenance\n"
-        + json.dumps(p["models"], indent=2)
-        + "\n"
-    )
+@router.get("/projects/{pid}/srs.json")
+def srs_data(pid: str):
+    return build_srs(fetch(pid))
 
 
-@router.get("/projects/{pid}/srs")
+@router.get("/projects/{pid}/srs.md")
 def srs(pid: str):
     return Response(
         srs_markdown(fetch(pid)),
