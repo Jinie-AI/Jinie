@@ -23,7 +23,7 @@ class Composition(BaseModel):
 
 def default_composition(business, page, layout="grid"):
     # Honest deterministic fallback for local-only planning and legacy projects.
-    editorial = business in ("flowers", "furniture", "jewelry")
+    editorial = business in ("flowers", "furniture", "jewellery", "jewelry")
     menu = business in ("restaurant", "food", "bakery")
     kinds = (["hero", "spotlight", "categories", "collection"] if editorial else
              ["search", "categories", "collection", "statement"] if menu else

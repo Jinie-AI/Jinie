@@ -1,12 +1,14 @@
 import json
 import os
 import re
+from threading import Lock
 from pathlib import Path
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 _GLOBAL_RAG = None
+_RAG_LOCK = Lock()
 
 # Search descriptions supplement the imported API docs, which mostly describe props.
 PATTERN_DESCRIPTIONS = {
@@ -84,6 +86,7 @@ class LocalComponentRAG:
 
 def get_rag_components(query: str, top_k: int = 4):
     global _GLOBAL_RAG
-    if _GLOBAL_RAG is None:
-        _GLOBAL_RAG = LocalComponentRAG()
+    with _RAG_LOCK:
+        if _GLOBAL_RAG is None:
+            _GLOBAL_RAG = LocalComponentRAG()
     return _GLOBAL_RAG.retrieve_components(query, top_k)

@@ -2,10 +2,30 @@
 
 import json
 from functools import lru_cache
+from threading import RLock
 
 from .domain import FEATURES, PAGES, ROOT, extract
+from .performance import memoized
 
 MODEL_DIR = ROOT / "models"
+INTAKE_LOCK = RLock()
+CODE_LOCK = RLock()
+
+
+def warmup():
+    """Load request-critical checkpoints ahead of use; keep CodeT5 lazy to save RAM."""
+    import logging
+
+    for name, exists, loader, lock in (
+        ("intake", MODEL_DIR / "intake/config.json", intake_model, INTAKE_LOCK),
+        ("layout", MODEL_DIR / "layout.joblib", layout_model, INTAKE_LOCK),
+    ):
+        if exists.exists():
+            try:
+                with lock:
+                    loader()
+            except Exception as exc:
+                logging.getLogger(__name__).warning("%s warmup unavailable: %s", name, type(exc).__name__)
 
 
 def status():
@@ -40,6 +60,7 @@ def intake_model():
     ), AutoModelForSequenceClassification.from_pretrained(path, local_files_only=True)
 
 
+@memoized(maxsize=64)
 def intake(prompt):
     baseline = extract(prompt)
     if not (MODEL_DIR / "intake/config.json").exists():
@@ -47,14 +68,21 @@ def intake(prompt):
     try:
         import torch
 
-        tok, model = intake_model()
-        model.eval()
-        with torch.no_grad():
-            probs = torch.sigmoid(
-                model(
-                    **tok(prompt, return_tensors="pt", truncation=True, max_length=256)
-                ).logits
-            )[0].tolist()
+        with INTAKE_LOCK, torch.inference_mode():
+            tok, model = intake_model()
+            model.eval()
+            # Overlapping windows retain requirements near the end of long briefs.
+            encoded = tok(prompt, return_tensors="pt", truncation=True,
+                          max_length=256, stride=48, padding=True,
+                          return_overflowing_tokens=True)
+            encoded.pop("overflow_to_sample_mapping", None)
+            windows = []
+            for start in range(0, encoded["input_ids"].shape[0], 4):
+                batch = {key: value[start:start + 4] for key, value in encoded.items()}
+                windows.append(torch.sigmoid(model(**batch).logits))
+            predictions = torch.cat(windows)
+            probs = predictions.amax(dim=0).tolist()
+            category_probs = predictions.mean(dim=0).tolist()
         labels = json.loads(
             (MODEL_DIR / "intake/labels.json").read_text(encoding="utf-8")
         )
@@ -66,12 +94,17 @@ def intake(prompt):
             else {"default": 0.5}
         )
         pairs = dict(zip(labels, probs))
+        category_pairs = dict(zip(labels, category_probs))
         for kind, key in [("business", "business"), ("style", "style")]:
             candidates = {
-                k.split(":")[1]: v for k, v in pairs.items() if k.startswith(kind + ":")
+                k.split(":")[1]: v for k, v in category_pairs.items() if k.startswith(kind + ":")
             }
             if candidates:
-                baseline[key] = max(candidates, key=candidates.get)
+                ranked = sorted(candidates, key=candidates.get, reverse=True)
+                winner = ranked[0]
+                margin = candidates[winner] - (candidates[ranked[1]] if len(ranked) > 1 else 0)
+                if candidates[winner] >= 0.5 and margin >= 0.1:
+                    baseline[key] = winner
         selected = [
             k
             for k, v in pairs.items()
@@ -106,6 +139,7 @@ def layout_model():
     )  # trusted project-owned checkpoint only
 
 
+@memoized(maxsize=128)
 def recommend(business, page, style):
     if (MODEL_DIR / "layout.joblib").exists():
         try:
@@ -130,7 +164,7 @@ def recommend(business, page, style):
             ]
         except Exception:
             pass
-    first = {"minimal": "grid", "luxury": "editorial", "playful": "cards"}[style]
+    first = {"minimal": "grid", "luxury": "editorial", "playful": "cards"}.get(style, "grid")
     return [
         {"id": x, "score": None, "source": "rules"}
         for x in [first] + [v for v in ["grid", "editorial", "cards"] if v != first]
@@ -149,14 +183,15 @@ def code_model():
     ), AutoModelForSeq2SeqLM.from_pretrained(p, local_files_only=True)
 
 
+@memoized(maxsize=8, ttl=3600)
 def code_candidate(description):
     if not (MODEL_DIR / "code/config.json").exists():
         return None
-    tok, model = code_model()
-    model.eval()
     import torch
 
-    with torch.no_grad():
+    with CODE_LOCK, torch.inference_mode():
+        tok, model = code_model()
+        model.eval()
         output = model.generate(
             **tok(description, return_tensors="pt", truncation=True, max_length=256),
             max_new_tokens=1024,

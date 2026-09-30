@@ -1,3 +1,4 @@
+import BrandLogo from "../BrandLogo";
 import { useState } from "react";
 
 export interface User {
@@ -116,7 +117,7 @@ export default function AuthModal({
         </button>
 
         <div className="auth-modal-header">
-          <span className="auth-logo-gem">✦</span>
+          <BrandLogo />
           <h2>{mode === "login" ? "Welcome Back" : "Create an Account"}</h2>
           <p className="subtle">
             {mode === "login"

@@ -1,3 +1,4 @@
+import BrandLogo from "../components/BrandLogo";
 import SrsDocument from "../components/studio/SrsDocument";
 import { useEffect, useRef, useState } from "react";
 import "../styles/studio.css";
@@ -483,8 +484,7 @@ export default function StudioPage() {
       />
       <aside className="studio-sidebar">
         <a className="studio-logo" href="/" aria-label="Jinie home">
-          <span className="logo-gem">✦</span> jinie
-          <span className="logo-dot">.</span>
+          <BrandLogo />
         </a>
         <div className="sidebar-caption">YOUR CREATIVE WORKSPACE</div>
         <button
@@ -1944,7 +1944,7 @@ export default function StudioPage() {
           )}
           <footer className="studio-footer">
             <span>
-              jinie. <small>Ideas deserve to become real.</small>
+              <BrandLogo /> <small>Ideas deserve to become real.</small>
             </span>
             <small>
               React Native · Local-first workspace · Built with intention

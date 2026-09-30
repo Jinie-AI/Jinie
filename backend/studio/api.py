@@ -168,17 +168,25 @@ def projects():
 
 @router.post("/projects", status_code=201)
 def create(req: Create):
+    started = time.perf_counter()
+    timings = {}
     if not req.prompt.strip():
         raise HTTPException(422, "Describe your app first.")
     from .brief import normalize_brief
 
     canonical = normalize_brief(req.prompt)
     spec = models.intake(canonical + "\n" + req.reference_text)
+    timings["intake_ms"] = round((time.perf_counter() - started) * 1000, 2)
+    stage_started = time.perf_counter()
     spec["pages"] = normalize_pages(spec["pages"], canonical)
     spec["page_requirements"] = {page: CAPABILITIES[page] for page in spec["pages"]}
     recommendations = models.recommend(spec["business"], "home", spec["style"])
     spec["layout_recommendations"] = recommendations
+    timings["layout_ms"] = round((time.perf_counter() - stage_started) * 1000, 2)
+    stage_started = time.perf_counter()
     rag_comps = retrieve_for_screens(canonical, spec["pages"])
+    timings["retrieval_ms"] = round((time.perf_counter() - stage_started) * 1000, 2)
+    stage_started = time.perf_counter()
     spec["rag_components"] = rag_comps
     api_plan = None
     if openai_planner.configuration()["configured"]:
@@ -188,6 +196,16 @@ def create(req: Create):
             )
         except openai_planner.PlannerError as exc:
             raise HTTPException(502, str(exc))
+    timings["planning_ms"] = round((time.perf_counter() - stage_started) * 1000, 2)
+    # Planning can introduce screens missed by the classifier; retrieve their references too.
+    planned_refs = retrieve_for_screens(canonical, spec["pages"])
+    previous_refs = {item["name"]: item for item in rag_comps}
+    for item in planned_refs:
+        previous = previous_refs.get(item["name"])
+        if previous:
+            previous["screens"] = list(dict.fromkeys(previous["screens"] + item["screens"]))
+        else:
+            rag_comps.append(item)
     # Associate only actual selected screens; never claim catalog references are executable imports.
     for item in rag_comps:
         item["screens"] = [
@@ -299,6 +317,7 @@ def create(req: Create):
         "revision": 1,
         "build_revision": None,
         "deployment": None,
+        "performance": timings,
     }
     p["api_plan"] = api_plan
     if api_plan:
@@ -311,6 +330,7 @@ def create(req: Create):
     p["recommendations"] = models.recommend(spec["business"], "home", spec["style"])
     if not spec.get("design", {}).get("layout"):
         p["design"]["layout"] = p["recommendations"][0]["id"]
+    timings["total_ms"] = round((time.perf_counter() - started) * 1000, 2)
     log(
         p,
         "requirements",
@@ -453,6 +473,9 @@ def review(pid: str, req: Review):
 def run_job(pid, cancel, rebuild_only=False):
     try:
         p = fetch(pid)
+        build_started = time.perf_counter()
+        timing = p.setdefault("performance", {})
+        timing["assembly_ms"] = 0
         if not rebuild_only:
             if cancel.is_set():
                 raise InterruptedError()
@@ -463,6 +486,7 @@ def run_job(pid, cancel, rebuild_only=False):
                 "Assembling React Native components and requirement trace links.",
             )
             p = compile_project(p)
+            timing["assembly_ms"] = round((time.perf_counter() - build_started) * 1000, 2)
             store.save(p)
         if cancel.is_set():
             raise InterruptedError()
@@ -472,7 +496,10 @@ def run_job(pid, cancel, rebuild_only=False):
             "compilation",
             "Bundling actual React Native source for the browser preview.",
         )
+        stage_started = time.perf_counter()
         bundle(p)
+        timing["bundle_ms"] = round((time.perf_counter() - stage_started) * 1000, 2)
+        stage_started = time.perf_counter()
         if cancel.is_set():
             raise InterruptedError()
         p["stage"] = "testing"
@@ -508,6 +535,8 @@ def run_job(pid, cancel, rebuild_only=False):
             },
         ]
         p["tests"] += check_artifacts(source, store.folder(pid) / p["_pending_preview"], config)
+        timing["checks_ms"] = round((time.perf_counter() - stage_started) * 1000, 2)
+        timing["build_total_ms"] = round((time.perf_counter() - build_started) * 1000, 2)
         store.write(pid, "test-results.json", json.dumps(p["tests"], indent=2))
         store.save(p)
         if any(t["status"] == "failed" for t in p["tests"]):

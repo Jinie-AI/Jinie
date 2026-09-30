@@ -82,8 +82,8 @@ def normalize_pages(pages, prompt):
         for page in dict.fromkeys(pages)
         if page in CAPABILITIES and page not in excluded
     ]
-    # Explicit optional screens must survive a local classifier's incomplete label set.
-    for page in ("settings", "profile", "search", "contact", "about"):
+    # Explicit screens must survive a classifier's incomplete or uncertain labels.
+    for page in CAPABILITIES:
         if (
             page not in excluded
             and re.search(r"\b(?:" + PAGE_ALIASES[page] + r")\b", prompt.casefold())

@@ -1,3 +1,4 @@
+import BrandLogo from "../components/BrandLogo";
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import "../styles/studio.css";
@@ -121,18 +122,7 @@ export default function AuthPage({
               textDecoration: "none",
             }}
           >
-            <span className="auth-logo-gem">✦</span>
-            <span
-              style={{
-                fontFamily: "Manrope",
-                fontSize: 26,
-                fontWeight: 800,
-                letterSpacing: -1,
-                color: "#302a3d",
-              }}
-            >
-              jinie<span style={{ color: "#8059c4" }}>.</span>
-            </span>
+            <BrandLogo />
           </Link>
           <h2
             style={{

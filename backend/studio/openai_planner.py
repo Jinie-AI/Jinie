@@ -147,7 +147,8 @@ def plan_requirements(prompt, reference, local_spec, rag_components=None):
         user_payload = {
             "prompt": prompt,
             "reference": reference,
-            "local_suggestions": local_spec,
+            # References have their own field; avoid sending the same catalogue twice.
+            "local_suggestions": {k: v for k, v in local_spec.items() if k != "rag_components"},
             "supported_screen_behaviors": CAPABILITIES,
             "available_sample_photography": {
                 business: [item["image_url"] for item in products(business)]

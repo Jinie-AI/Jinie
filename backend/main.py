@@ -1,6 +1,7 @@
 """Run from backend/: python -m uvicorn main:app --reload --host 127.0.0.1"""
 
 import os
+import threading
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -8,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent / ".env", override=False)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from studio import store
+from studio import models, store
 from studio.api import router
 
 app = FastAPI(title="Jinie Studio", version="2.0.0")
@@ -34,6 +35,8 @@ def recover_interrupted_jobs():
                 error="Server restarted during this job. Retry the build or deployment.",
             )
             store.save(p)
+    if os.getenv("JINIE_WARM_MODELS", "1") == "1":
+        threading.Thread(target=models.warmup, name="jinie-model-warmup", daemon=True).start()
 
 
 @app.get("/")
