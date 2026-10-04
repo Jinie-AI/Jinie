@@ -15,6 +15,8 @@ _MONGO_CLIENT = None
 def mongo_collection():
     """Reuse a connection pool; never silently switch databases on failure."""
     global _MONGO_CLIENT
+    if os.getenv("JINIE_STORAGE", "").strip().lower() == "sqlite":
+        return None
     uri = os.getenv("MONGODB_URI", "").strip()
     if not uri:
         return None

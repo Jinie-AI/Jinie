@@ -192,10 +192,10 @@ export default function PlannedCommerce({
           return (
             <ScrollView
               key={key}
-              horizontal
+              horizontal={plan.category_style !== "tiles"}
               showsHorizontalScrollIndicator={false}
               style={{ flexGrow: 0 }}
-              contentContainerStyle={{ gap: 6 }}
+              contentContainerStyle={{ gap: 6, ...(plan.category_style === "tiles" ? { flexDirection: "row", flexWrap: "wrap" } : {}) }}
             >
               {categories.map((c) => (
                 <Pressable
@@ -207,6 +207,7 @@ export default function PlannedCommerce({
                     borderRadius: 20,
                     paddingHorizontal: 12,
                     paddingVertical: 10,
+                    ...(plan.category_style === "tiles" ? { width: (width - 6) / 2, minHeight: 64, justifyContent: "center", alignItems: "center", borderRadius: radius, borderWidth: 1, borderColor: "#88888833" } : {}),
                   }}
                 >
                   <Text
@@ -282,26 +283,31 @@ export default function PlannedCommerce({
               </View>
             </View>
           ) : null;
-        const list = block.layout !== "grid";
+        const rail = block.layout === "rail";
+        const mosaic = block.layout === "mosaic";
+        const list = block.layout === "cards" || block.layout === "editorial";
+        const collectionColumns = mosaic ? 2 : columns;
         const cardWidth = list
           ? width
-          : Math.max(0, (width - (columns - 1) * 12) / columns);
+          : rail ? Math.min(300, width * 0.72)
+          : Math.max(0, (width - (collectionColumns - 1) * 12) / collectionColumns);
+        const Collection = rail ? ScrollView : View;
         return (
           <View key={key} style={{ gap: 12 }}>
             <Text style={heading}>
               {block.title || "Explore the collection"}
             </Text>
             {!!block.body && <Text style={body}>{block.body}</Text>}
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
-              {products.map((product) => (
-                <View key={product.id} style={{ width: cardWidth }}>
+            <Collection {...(rail ? { horizontal: true, showsHorizontalScrollIndicator: false, contentContainerStyle: { gap: 12 }, style: { flexGrow: 0 } } : { style: { flexDirection: "row", flexWrap: "wrap", gap: 12 } })}>
+              {products.map((product, productIndex) => (
+                <View key={product.id} style={{ width: mosaic && productIndex === 0 ? width : cardWidth }}>
                   <ProductCard
                     product={product}
                     primary={config.primary}
                     dark={dark}
                     horizontal={block.layout === "cards"}
                     spacious={width >= 600}
-                    imageRatio={plan.image_ratio}
+                    imageRatio={mosaic && productIndex === 0 ? "landscape" : plan.image_ratio}
                     cardStyle={plan.card_style}
                     cornerRadius={radius}
                     showBadge={screen.show_badges !== false}
@@ -314,7 +320,7 @@ export default function PlannedCommerce({
                   />
                 </View>
               ))}
-            </View>
+            </Collection>
             {!products.length && (
               <Text style={body}>No products match your search.</Text>
             )}

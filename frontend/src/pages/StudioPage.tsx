@@ -7,7 +7,6 @@ import "../styles/workbench.css";
 import { useStudioAppearance } from "../hooks/useStudioAppearance";
 import PreviewDevice from "../components/preview/PreviewDevice";
 import ScreenShowcaseSection from "../components/preview/ScreenShowcaseSection";
-import RetrievedComponents from "../components/studio/RetrievedComponents";
 import type {
   Requirement,
   Design,
@@ -285,7 +284,7 @@ export default function StudioPage() {
       .catch(() => {
         if (alive)
           setError(
-            "Backend is offline. Start it using the commands in START_HERE.md, then refresh.",
+            "Backend is offline. Please try again.",
           );
       });
     request<Summary[]>("/projects")
@@ -690,7 +689,6 @@ export default function StudioPage() {
                       <span className="eyebrow">✦ CREATE SOMETHING NEW</span>
                       <h2>What would you like to build?</h2>
                     </div>
-                    <span className="pill">English · Urdu · Roman Urdu</span>
                   </div>
                   <label className="field-label" htmlFor="project-name">
                     PROJECT NAME
@@ -1795,13 +1793,6 @@ export default function StudioPage() {
                       </table>
                     </div>
                   </section>
-                  <RetrievedComponents
-                    components={
-                      project.rag_components ||
-                      project.spec.rag_components ||
-                      []
-                    }
-                  />
                   <section className="panel">
                     <h2>Validation, with context.</h2>
                     <p className="subtle">

@@ -44,6 +44,10 @@ def build_srs(p):
         entities += ["Customer details: customer name and address in local application state. This does not represent authenticated user accounts."]
     if "settings" in pages:
         entities += ["Preferences: notification preference and local application settings."]
+    for page in pages:
+        if page.startswith("custom_"):
+            fields = [f["label"] for section in configs.get(page, {}).get("sections", []) for f in section.get("fields", [])]
+            entities.append(f"{configs.get(page, {}).get('title') or page}: " + ", ".join(fields) + ". Read-only display fields; no remote record service is provisioned.")
     add("5. Entities and Relationships", "Conceptual data model of the generated application; no server database schema is implied.", entities or ["No structured domain entities are defined for the selected screens."])
     sitemap = [f"Application -> {page} | {next((r.get('id', '') for r in requirements if r['page'] == page), '')}" for page in pages]
     for source, target, action in [("products", "detail", "Select product"), ("home", "detail", "Select product"), ("search", "detail", "Select result"), ("detail", "cart", "Add/view cart"), ("cart", "checkout", "Proceed to checkout"), ("checkout", "orders", "View local orders")]:

@@ -1,14 +1,20 @@
 # Dataset provenance and research limits
 
-These are AI-authored, programmatically expanded SYNTHETIC STARTER DATASETS. They are not 720 human-written briefs, 400 inspected Figma designs, or 180 manually verified components. Do not describe them that way in your report.
+Expanded on 4 October 2026. These are programmatically generated SYNTHETIC STARTER DATASETS, not independently collected human examples. All 6,000 records remain reviewed=false. Existing trained checkpoints were not modified or retrained.
 
-| File | Records | Unit / split grouping | Labels |
+| File | Records | Train / validation / test | Actual diversity |
 |---|---:|---|---|
-| data/intake.jsonl | 720 | 240 base briefs, each in English, Roman Urdu, and mixed Urdu-script; translations stay together | business type, pages, features, style |
-| data/layouts.jsonl | 400 | unique business / page / style / density combinations | one of 3 layout IDs |
-| data/code.jsonl | 180 | 20 implementation families, 9 descriptions each; families stay together | React Native JSX target |
+| data/intake.jsonl | 2,000 | 1,600 / 191 / 209 | 1,229 semantic groups; original multilingual briefs plus varied English and Roman Urdu prompts and explicit exclusions |
+| data/layouts.jsonl | 2,000 | 1,618 / 183 / 199 | 480 unique model-input combinations; 1,520 repeated rows explicitly marked with replica_of |
+| data/code.jsonl | 2,000 | 1,600 / 200 / 200 | 20 component families; original examples plus spacing, typography and colour variants |
 
-Splits are train/validation/test at 80/10/10 by group (576/72/72 NLP, 320/40/40 layout, 144/18/18 code). All rows start with reviewed=false. NLP wording and language coverage are narrow. Urdu-script examples retain English domain/page words; they do NOT establish formal Urdu fluency. Code test holds out two entire component families, so small-data results can be poor. Layout targets come from a simple style/page rule. A high or perfect layout score therefore measures recovery of that rule, not human design quality.
+The current layout label vocabulary permits only 480 distinct business/page/style/density combinations. Repeated rows meet the requested record count but do not create new design knowledge or independent evaluation evidence. Human-rated layouts and richer model input features are needed for meaningful further expansion. The target remains a simple synthetic rule.
+
+Intake retains the existing labels.json vocabulary to remain compatible with existing checkpoints. It does not add arbitrary custom-screen classes, profile/settings classes, or new business classes. Mixed Urdu-script examples still contain English domain/page words. Roman Urdu wording is synthetic and has not been linguistically reviewed.
+
+Code variants retain the same props and component structure. They increase visual variation, not behavioural capability. All variants of a component family stay in its original split. JSX transformation checks syntax only, not runtime behaviour, accessibility, or training token-length suitability. The short-code training limit should be reviewed before training on longer components.
+
+Original records are preserved. Backups are in tmp/dataset-backup-before-2000. Run python training/expand_datasets.py to reproduce expansion from the original data; rerunning on expanded data makes no further additions. Run python training/audit_data.py to check labels, exclusions, grouped splits and exact cross-split duplicates. Near-duplicate phrasing still exists and independent real-world evaluation remains necessary.
 
 ## Before a defensible final experiment
 

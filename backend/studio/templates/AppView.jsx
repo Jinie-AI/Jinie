@@ -293,7 +293,7 @@ export default function AppView({
               textTransform: "capitalize",
             }}
           >
-            {TAB_LABELS[p] || p}
+            {TAB_LABELS[p] || config.screen_configs?.[p]?.title || p.replace(/^custom_/, "").replace(/_/g, " ")}
           </Text>
         </Pressable>
       ))}
@@ -384,6 +384,23 @@ export default function AppView({
                 </Text>
               )}
 
+              {page.startsWith("custom_") && (
+                <View style={{ padding: 18, gap: 16 }}>
+                  <Text style={{ color: fg, fontSize: 24, fontWeight: "700" }}>{sc.title || page.replace(/^custom_/, "").replace(/_/g, " ")}</Text>
+                  {!!sc.subtitle && <Text style={{ color: muted }}>{sc.subtitle}</Text>}
+                  {(sc.sections || []).map((section, i) => (
+                    <View key={i} style={{ backgroundColor: dark ? "#211c2d" : "#fff", borderRadius: 14, borderWidth: 1, borderColor: "#88888833", padding: 16, gap: 12 }}>
+                      <Text style={{ color: config.primary, fontSize: 18, fontWeight: "700" }}>{section.title}</Text>
+                      {section.fields.map((field, j) => (
+                        <View key={j} style={{ paddingVertical: 12, borderBottomWidth: 1, borderColor: "#88888822", gap: 6 }}>
+                          <Text style={{ color: muted, fontSize: 12 }}>{field.label}</Text>
+                          <Text style={{ color: fg, fontSize: 14 }}>{field.value || "Not provided"}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  ))}
+                </View>
+              )}
               {(page === "home" || page === "products") && sc.composition && (
                 <PlannedCommerce
                   config={config}
@@ -1663,7 +1680,7 @@ export default function AppView({
                 "search",
                 "settings",
                 "profile",
-              ].includes(page) && (
+              ].includes(page) && !page.startsWith("custom_") && (
                 <View style={{ paddingVertical: 12 }}>
                   <Text style={[s.heading, { color: fg }]}>
                     {sc.title || page.charAt(0).toUpperCase() + page.slice(1)}

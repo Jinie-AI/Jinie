@@ -1,7 +1,8 @@
 """Shared, executable scope for planning, review and generated screens."""
 
 import re
-from typing import Literal
+from typing import Literal, Annotated
+from pydantic import StringConstraints
 
 PageId = Literal[
     "home",
@@ -14,7 +15,7 @@ PageId = Literal[
     "search",
     "settings",
     "profile",
-]
+] | Annotated[str, StringConstraints(pattern=r"^custom_[a-z][a-z0-9_]{0,39}$")]
 BusinessId = Literal[
     "clothing",
     "food",
@@ -43,7 +44,7 @@ CAPABILITIES = {
 }
 
 PAGE_ALIASES = {
-    "home": r"home(?:page)?",
+    "home": r"home(?:page|screen)?",
     "products": r"products?|catalog(?:ue)?|shop|menu",
     "detail": r"(?:product )?details?",
     "cart": r"cart|shopping bag|basket",
@@ -59,7 +60,7 @@ PAGE_ALIASES = {
 def excluded_pages(prompt):
     text = prompt.casefold().replace("’", "'")
     excluded = set()
-    negative = r"(?:no|without|do not want|don't want|do not need|don't need|not need|exclude|omit|remove)"
+    negative = r"(?:no|without|(?:do not|don'?t)\s+(?:want|need|add|include|show|create)|not need|exclude|omit|remove)"
     for page, aliases in PAGE_ALIASES.items():
         target = r"(?:" + aliases + r")"
         if re.search(
@@ -77,22 +78,30 @@ def excluded_pages(prompt):
 
 def normalize_pages(pages, prompt):
     excluded = excluded_pages(prompt)
+    explicit = [page for page, aliases in PAGE_ALIASES.items()
+                if page not in excluded and re.search(r"\b(?:" + aliases + r")\s*(?:screen|page)\b", prompt.casefold())]
+    if re.search(r"\buser profile\b", prompt, re.I) and "profile" not in excluded:
+        explicit.append("profile")
+    explicit = list(dict.fromkeys(explicit))
+    listed = len(explicit) >= 2
+    if listed:
+        pages = explicit + [page for page in pages if page.startswith("custom_")]
     result = [
         page
         for page in dict.fromkeys(pages)
-        if page in CAPABILITIES and page not in excluded
+        if (page in CAPABILITIES or re.fullmatch(r"custom_[a-z][a-z0-9_]{0,39}", page)) and page not in excluded
     ]
     # Explicit screens must survive a classifier's incomplete or uncertain labels.
     for page in CAPABILITIES:
         if (
-            page not in excluded
+            page not in excluded and (not listed or page in explicit)
             and re.search(r"\b(?:" + PAGE_ALIASES[page] + r")\b", prompt.casefold())
             and page not in result
         ):
             result.append(page)
     if "checkout" in result and "cart" not in result:
         result.insert(result.index("checkout"), "cart")
-    if "products" in result and "detail" not in result and "detail" not in excluded:
+    if not listed and "products" in result and "detail" not in result and "detail" not in excluded:
         result.insert(result.index("products") + 1, "detail")
     if not result:
         result = [next((page for page in CAPABILITIES if page not in excluded), "home")]

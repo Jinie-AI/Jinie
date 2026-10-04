@@ -15,6 +15,11 @@
 .brand-logo .brand-logo-purple { display: none; }
 :root[data-studio-theme="dark"] .brand-logo-dark { display: none; }
 :root[data-studio-theme="dark"] .brand-logo-purple { display: block; }
+.studio-sidebar .brand-logo {
+  width: 128px;
+  position: relative;
+  top: 8px;
+}
 .studio-footer .brand-logo { width: 85px; }
 .auth-modal-header .brand-logo { margin-bottom: 12px; }
 @media (max-width: 900px) {

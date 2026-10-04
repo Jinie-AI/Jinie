@@ -147,6 +147,35 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: 12px;
 }
+.plan-products.rail {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.plan-products.rail .plan-product {
+  flex: 0 0 72%;
+  max-width: 300px;
+  scroll-snap-align: start;
+}
+.plan-products.mosaic .plan-product:first-child {
+  grid-column: 1 / -1;
+}
+.plan-products.mosaic .plan-product:first-child .plan-product-photo {
+  aspect-ratio: 16 / 9 !important;
+}
+.plan-categories.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: visible;
+}
+.plan-categories.tiles button {
+  min-height: 64px;
+  white-space: normal;
+  border-radius: var(--plan-radius);
+  border: 1px solid #8883;
+  font-weight: 700;
+}
 .plan-products.editorial,
 .plan-products.cards {
   grid-template-columns: minmax(0, 1fr);

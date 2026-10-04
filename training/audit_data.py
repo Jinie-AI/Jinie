@@ -18,6 +18,11 @@ for name in ['intake','layouts','code']:
         digest_text=hashlib.sha256(' '.join(text.split()).encode()).hexdigest();splits[digest_text].add(r['split'])
     leaked=sum(len(v)>1 for v in splits.values())
     result[name]={'rows':len(rows),'groups':len(set(r['group_id'] for r in rows)),'splits':dict(collections.Counter(r['split'] for r in rows)),'unreviewed':sum(not r.get('reviewed') for r in rows),'cross_split_exact_duplicates':leaked,'sha256':digest}
+    result[name]['unique_payloads'] = len(splits)
+    result[name]['repeated_payload_rows'] = len(rows) - len(splits)
+    if name == 'intake':
+        for r in rows:
+            assert not set(r.get('excluded_pages', [])) & set(r['pages']), r['id'] + ' excluded page included'
     assert not leaked,f'{name}: exact duplicates across splits'
 report(ROOT/'training/data/audit.json',result)
 print(json.dumps(result,indent=2))

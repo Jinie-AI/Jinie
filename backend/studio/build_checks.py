@@ -2,6 +2,8 @@
 import json
 from .composition import Composition
 from .screen_contract import CAPABILITIES
+from .custom_screens import InformationSection
+import re
 
 def check_artifacts(source, preview, config):
     results = []
@@ -17,12 +19,21 @@ def check_artifacts(source, preview, config):
            all((preview / f).is_file() and (preview / f).stat().st_size > 0 for f in ("index.html", "app.js")))
     pages = config.get("pages", [])
     record("ROUTES-001", "Screen IDs are supported, unique and include checkout dependencies",
-           bool(pages) and all(p in CAPABILITIES for p in pages)
+           bool(pages) and all(p in CAPABILITIES or re.fullmatch(r"custom_[a-z][a-z0-9_]{0,39}", p) for p in pages)
            and len(pages) == len(set(pages))
            and ("checkout" not in pages or "cart" in pages))
     valid = True
     configs = config.get("screen_configs") or {}
     for page in pages:
+        if page.startswith("custom_"):
+            sections = configs.get(page, {}).get("sections", [])
+            try:
+                if not sections:
+                    valid = False
+                for section in sections:
+                    InformationSection.model_validate(section)
+            except (ValueError, TypeError):
+                valid = False
         composition = configs.get(page, {}).get("composition")
         if composition:
             try:

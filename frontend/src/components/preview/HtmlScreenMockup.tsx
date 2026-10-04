@@ -1,5 +1,6 @@
 import PlannedScreen, { type Composition } from "./PlannedScreen";
 export interface ScreenConfigData {
+  sections?: { title: string; fields: { label: string; value: string }[] }[];
   composition?: Composition | null;
   title?: string;
   subtitle?: string;
@@ -267,6 +268,23 @@ export default function HtmlScreenMockup({
           gap: 12,
         }}
       >
+        {page.startsWith("custom_") && (
+          <section style={{ padding: 18, color: ink }}>
+            <h2>{screenConfig.title || page.replace(/^custom_/, "").replaceAll("_", " ")}</h2>
+            {screenConfig.subtitle && <p style={{ color: muted }}>{screenConfig.subtitle}</p>}
+            {(screenConfig.sections || []).map((section, i) => (
+              <section key={i} style={{ background: surface, border: "1px solid #8883", borderRadius: 14, padding: 16, marginTop: 16 }}>
+                <h3 style={{ color: primaryColor }}>{section.title}</h3>
+                <dl style={{ margin: 0 }}>
+                  {section.fields.map((field, j) => <div key={j} style={{ padding: "12px 0", borderBottom: "1px solid #8882" }}>
+                    <dt style={{ fontSize: 12, color: muted }}>{field.label}</dt>
+                    <dd style={{ margin: "6px 0 0", fontSize: 14, overflowWrap: "anywhere" }}>{field.value || "Not provided"}</dd>
+                  </div>)}
+                </dl>
+              </section>
+            ))}
+          </section>
+        )}
         {(page === "home" || page === "products") &&
           screenConfig.composition && (
             <PlannedScreen
@@ -1680,7 +1698,7 @@ export default function HtmlScreenMockup({
                     color: isCurrent ? primaryColor : "#887d99",
                   }}
                 >
-                  {navPage === "products" ? "Shop" : navPage}
+                  {navPage === "products" ? "Shop" : navPage.replace(/^custom_/, "").replaceAll("_", " ")}
                 </span>
               </div>
             );

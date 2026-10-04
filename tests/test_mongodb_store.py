@@ -5,6 +5,18 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
 from studio import store
 
+def test_explicit_sqlite_bypasses_configured_mongo(monkeypatch, tmp_path):
+    monkeypatch.setenv("JINIE_STORAGE", "sqlite")
+    monkeypatch.setenv("MONGODB_URI", "mongodb://unused.invalid")
+    monkeypatch.setattr(store, "DATA", tmp_path)
+    client = MagicMock()
+    monkeypatch.setattr(store, "_MONGO_CLIENT", client)
+    project = {"id": "local", "name": "Local project"}
+    store.save(project)
+    assert store.get("local") == project
+    assert store.listing() == [project]
+    assert client.mock_calls == []
+
 def test_mongo_save_get_and_list(monkeypatch):
     collection = MagicMock()
     monkeypatch.setattr(store, "mongo_collection", lambda: collection)

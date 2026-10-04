@@ -23,6 +23,7 @@ from .domain import products
 from .retrieval import retrieve_for_screens
 from .composition import default_composition
 from .build_checks import check_artifacts
+from .custom_screens import complete_custom_screens
 from .srs_document import build_srs, srs_markdown
 from .screen_contract import (
     CAPABILITIES,
@@ -101,7 +102,7 @@ class Create(BaseModel):
 class Requirement(BaseModel):
     id: str
     page: PageId
-    text: str = Field(min_length=5, max_length=1000)
+    text: str = Field(min_length=5, max_length=12000)
     approved: bool = True
 
 
@@ -223,6 +224,11 @@ def create(req: Create):
     spec.setdefault("products", products(spec["business"]))
     pid = uuid.uuid4().hex
     custom_reqs = spec.get("page_requirements", {})
+    try:
+        complete_custom_screens(canonical, spec["pages"], spec.setdefault("screen_configs", {}), custom_reqs)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from None
+    spec["page_requirements"] = custom_reqs
     req_list = [
         {
             "id": f"REQ-{i + 1:03}",
@@ -256,7 +262,7 @@ def create(req: Create):
         )
     for page, screen in screen_cfgs.items():
         if page in ("home", "products") and not screen.get("composition"):
-            screen["composition"] = default_composition(spec["business"], page, screen.get("layout", design_tokens["layout"]))
+            screen["composition"] = default_composition(spec["business"], page, screen.get("layout", design_tokens["layout"]), canonical)
     default_nfr = [
         {
             "id": "NFR-001",

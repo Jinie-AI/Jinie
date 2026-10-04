@@ -27,7 +27,7 @@ def _retrieve_cached(prompt, pages):
     matches = {}
     for page in pages:
         # The complete brief contributes context without overwhelming the screen's purpose.
-        screen_query = SCREEN_QUERIES.get(page, page) + " " + CAPABILITIES.get(page, "")
+        screen_query = SCREEN_QUERIES.get(page, "Card ListItem Text labelled information sections " + page) + " " + CAPABILITIES.get(page, "")
         ranked = {}
         for query, weight in ((screen_query, 0.8), (prompt, 0.2)):
             for item in _query_cached(query):

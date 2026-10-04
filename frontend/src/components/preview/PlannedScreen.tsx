@@ -9,6 +9,7 @@ export type Composition = {
   image_ratio: "portrait" | "square" | "landscape";
   density: "airy" | "balanced" | "compact";
   corners: "sharp" | "soft" | "round";
+  category_style?: "chips" | "tiles";
   blocks: {
     kind:
       | "hero"
@@ -19,7 +20,7 @@ export type Composition = {
       | "statement";
     title: string;
     body: string;
-    layout: "grid" | "cards" | "editorial";
+    layout: "grid" | "cards" | "editorial" | "rail" | "mosaic";
     reference_component: string;
   }[];
 };
@@ -135,7 +136,7 @@ export default function PlannedScreen({
           ) : null;
         if (block.kind === "categories")
           return (
-            <div key={key} className="plan-categories">
+            <div key={key} className={"plan-categories " + (plan.category_style || "chips")}>
               {categories.map((c) => (
                 <button
                   key={c}

@@ -59,6 +59,21 @@ def test_no_key(monkeypatch):
         planner.plan_requirements("clothing store", "", BASE)
 
 
+def test_api_custom_screen_survives_with_requested_fields(monkeypatch):
+    response = make_plan(pages=["home", "products", "profile", "settings", "custom_medical_record"], screen_configs=[{
+        "page": "custom_medical_record", "title": "Medical Record",
+        "sections": [{"title": "Record", "fields": [{"label": "Patient name", "value": "Invented person"}]}]
+    }])
+    mock_response(monkeypatch, response)
+    spec, _ = planner.plan_requirements(
+        "Makeup app with homescreen, menu screen, user profile. Dont add settings. Medical record with patient name, patient id, patient condition, skin colour.", "", BASE)
+    assert set(spec["pages"]) == {"home", "products", "profile", "custom_medical_record"}
+    fields = [f for s in spec["screen_configs"]["custom_medical_record"]["sections"] for f in s["fields"]]
+    assert {f["label"] for f in fields} == {"Patient name", "Patient ID", "Patient condition", "Skin colour"}
+    assert all(f["value"] == "" for f in fields)
+    assert "skin colour" in spec["page_requirements"]["custom_medical_record"].lower()
+
+
 def test_api_plan_grounding_and_provenance(monkeypatch):
     plan = make_plan(unsupported_features=["Online payments"])
     client = mock_response(monkeypatch, plan)

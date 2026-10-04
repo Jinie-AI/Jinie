@@ -1,38 +1,44 @@
 {
   "intake": {
-    "rows": 720,
-    "groups": 240,
+    "rows": 2000,
+    "groups": 1229,
     "splits": {
-      "train": 576,
-      "validation": 72,
-      "test": 72
+      "train": 1600,
+      "validation": 191,
+      "test": 209
     },
-    "unreviewed": 720,
+    "unreviewed": 2000,
     "cross_split_exact_duplicates": 0,
-    "sha256": "e1492b49f6e25289c8b2cd6bd583c5263611835a8dfe9b1eca8e87eb15133c27"
+    "sha256": "477ef1a3a87e1ccb112d0b5d0915e2bc005f26ea84f6b0e924be07bb0ae7136f",
+    "unique_payloads": 2000,
+    "repeated_payload_rows": 0
   },
   "layouts": {
-    "rows": 400,
-    "groups": 400,
+    "rows": 2000,
+    "groups": 480,
     "splits": {
-      "train": 320,
-      "test": 40,
-      "validation": 40
+      "train": 1618,
+      "test": 199,
+      "validation": 183
     },
-    "unreviewed": 400,
+    "unreviewed": 2000,
     "cross_split_exact_duplicates": 0,
-    "sha256": "353e02882b2245f778efab70179d7822a17479470a9e2045e9b4adefe90e3ffd"
+    "sha256": "8b95b2ede7f06e03c18acb0c4d6ecb4cf5bde32852ea32657997c8402d8dea5e",
+    "unique_payloads": 480,
+    "repeated_payload_rows": 1520
   },
   "code": {
-    "rows": 180,
+    "rows": 2000,
     "groups": 20,
     "splits": {
-      "train": 144,
-      "test": 18,
-      "validation": 18
+      "train": 1600,
+      "test": 200,
+      "validation": 200
     },
-    "unreviewed": 180,
+    "unreviewed": 2000,
     "cross_split_exact_duplicates": 0,
-    "sha256": "f9b7836c5948acba2703e0d8f960e04dd78bfe38cc14d4874518f10dfead5bf8"
+    "sha256": "7a922c8d1d26e3b6e01dee0fbdd549e7e29c80543ffece90aa6f0db4ee07906c",
+    "unique_payloads": 1678,
+    "repeated_payload_rows": 322
   }
 }

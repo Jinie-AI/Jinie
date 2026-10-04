@@ -43,6 +43,22 @@ def new():
     return r.json()
 
 
+def test_custom_record_build_and_export():
+    response = client.post("/api/projects", json={"name": "Skin care", "prompt": "Makeup app with homescreen, menu screen, user profile, dont add settings. Include a medical record with patient name, patient id, patient condition, skin colour."})
+    assert response.status_code == 201, response.text
+    p = response.json()
+    assert "settings" not in p["spec"]["pages"]
+    assert "custom_medical_record" in p["screen_configs"]
+    p = approve(p)
+    assert client.post(f"/api/projects/{p['id']}/build").status_code == 200
+    built = wait(p["id"])
+    assert built["status"] == "ready", built.get("error")
+    archive = zipfile.ZipFile(io.BytesIO(client.get(f"/api/projects/{p['id']}/download").content))
+    config_path = next(n for n in archive.namelist() if n.endswith("src/config.json"))
+    config = json.loads(archive.read(config_path))
+    assert config["screen_configs"]["custom_medical_record"]["sections"][0]["fields"][0]["label"] == "Patient name"
+
+
 def approve(p):
     for r in p["requirements"]:
         r["approved"] = True
