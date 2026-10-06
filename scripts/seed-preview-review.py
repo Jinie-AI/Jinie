@@ -6,8 +6,10 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"backend"))
 os.environ["JINIE_DATA_DIR"]=str(ROOT/"runtime/preview-parity")
 os.environ["OPENAI_API_KEY"]=""
-from studio import api, compiler, store
-from studio.domain import extract, products
+from modules.engine import api
+from modules.compiler import compiler
+from modules.utilities import store
+from modules.engine.domain import extract, products
 api.models.intake=extract
 api.models.recommend=lambda *_:[{"id":"grid","source":"review fixture","score":None}]
 compiler.code_candidate=lambda _:None

@@ -5,8 +5,8 @@ from pathlib import Path
 from time import perf_counter
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
-from studio import models
-from studio.retrieval import retrieve_for_screens
+from modules.engine import models
+from modules.component_generator.retrieval import retrieve_for_screens
 
 
 def main():

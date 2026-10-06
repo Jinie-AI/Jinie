@@ -2,7 +2,7 @@ import json
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
-from studio.build_checks import check_artifacts
+from modules.tester.build_checks import check_artifacts
 
 def test_missing_files_and_invalid_navigation_are_reported(tmp_path):
     results = check_artifacts(tmp_path, tmp_path, {"pages": ["checkout"]})

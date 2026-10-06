@@ -27,7 +27,7 @@ interface Props {
 const labelFor = (page: string) =>
   page === "products"
     ? "Catalog"
-    : page.charAt(0).toUpperCase() + page.slice(1);
+    : page.replace(/^custom_/, "").replaceAll("_", " ").replace(/\b\w/g, c => c.toUpperCase());
 
 export default function ScreenShowcaseSection({
   project,

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import PlannedScreen, { type Composition } from "./PlannedScreen";
 export interface ScreenConfigData {
   sections?: { title: string; fields: { label: string; value: string }[] }[];
@@ -138,7 +139,8 @@ export default function HtmlScreenMockup({
           },
         ];
 
-  const selectedProduct = demoProducts[0];
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const selectedProduct = demoProducts.find(product => product.id === selectedProductId) || demoProducts[0];
   const navPages = pages.filter((p) => p !== "detail" && p !== "checkout");
 
   return (
@@ -274,11 +276,11 @@ export default function HtmlScreenMockup({
             {screenConfig.subtitle && <p style={{ color: muted }}>{screenConfig.subtitle}</p>}
             {(screenConfig.sections || []).map((section, i) => (
               <section key={i} style={{ background: surface, border: "1px solid #8883", borderRadius: 14, padding: 16, marginTop: 16 }}>
-                <h3 style={{ color: primaryColor }}>{section.title}</h3>
-                <dl style={{ margin: 0 }}>
+                <h3 style={{ color: ink }}>{section.title}</h3>
+                <dl style={{ margin: 0, display: "grid", gridTemplateColumns: screenConfig.layout === "grid" ? "repeat(2, minmax(0, 1fr))" : "1fr", gap: 12 }}>
                   {section.fields.map((field, j) => <div key={j} style={{ padding: "12px 0", borderBottom: "1px solid #8882" }}>
                     <dt style={{ fontSize: 12, color: muted }}>{field.label}</dt>
-                    <dd style={{ margin: "6px 0 0", fontSize: 14, overflowWrap: "anywhere" }}>{field.value || "Not provided"}</dd>
+                    <dd style={{ margin: "6px 0 0", fontSize: 14, overflowWrap: "anywhere", color: field.value ? ink : muted }}>{field.value || "No information added yet"}</dd>
                   </div>)}
                 </dl>
               </section>
@@ -302,6 +304,7 @@ export default function HtmlScreenMockup({
               showSearch={showSearch}
               showBadges={showBadges}
               onSelect={(next) => onSelectScreen?.(next)}
+              onProductSelect={setSelectedProductId}
               pages={pages}
             />
           )}

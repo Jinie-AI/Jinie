@@ -6,9 +6,9 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
-from studio.performance import memoized
-from studio.screen_contract import normalize_pages
-from studio import retrieval
+from modules.utilities.performance import memoized
+from modules.component_generator.screen_contract import normalize_pages
+from modules.component_generator import retrieval
 
 
 def test_cached_results_are_independent_and_misses_are_serialized():
@@ -89,7 +89,7 @@ def test_retrieval_reuses_queries_and_keeps_page_associations_independent(monkey
 def test_intake_reads_later_windows_and_reuses_result(monkeypatch, tmp_path):
     import json
     import torch
-    from studio import models
+    from modules.engine import models
 
     checkpoint = tmp_path / "intake"
     checkpoint.mkdir()

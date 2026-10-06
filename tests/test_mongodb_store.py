@@ -3,7 +3,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
-from studio import store
+from modules.utilities import store
 
 def test_explicit_sqlite_bypasses_configured_mongo(monkeypatch, tmp_path):
     monkeypatch.setenv("JINIE_STORAGE", "sqlite")

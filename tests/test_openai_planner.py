@@ -9,8 +9,8 @@ from unittest.mock import MagicMock
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
-from studio import openai_planner as planner
-from studio.screen_contract import normalize_pages
+from modules.engine import openai_planner as planner
+from modules.component_generator.screen_contract import normalize_pages
 
 BASE = {
     "business": "beauty",
@@ -67,7 +67,7 @@ def test_api_custom_screen_survives_with_requested_fields(monkeypatch):
     mock_response(monkeypatch, response)
     spec, _ = planner.plan_requirements(
         "Makeup app with homescreen, menu screen, user profile. Dont add settings. Medical record with patient name, patient id, patient condition, skin colour.", "", BASE)
-    assert set(spec["pages"]) == {"home", "products", "profile", "custom_medical_record"}
+    assert set(spec["pages"]) == {"home", "products", "detail", "profile", "custom_medical_record"}
     fields = [f for s in spec["screen_configs"]["custom_medical_record"]["sections"] for f in s["fields"]]
     assert {f["label"] for f in fields} == {"Patient name", "Patient ID", "Patient condition", "Skin colour"}
     assert all(f["value"] == "" for f in fields)
@@ -135,8 +135,8 @@ def test_error_redaction(monkeypatch):
 
 
 def test_screen_schema_matches_renderer():
-    from studio.api import Requirement, Review
-    from studio.screen_contract import CAPABILITIES
+    from modules.engine.api import Requirement, Review
+    from modules.component_generator.screen_contract import CAPABILITIES
 
     plan = make_plan(business="flowers", pages=list(CAPABILITIES))
     assert len(plan.pages) == 10
@@ -208,7 +208,7 @@ def test_product_urls_use_catalog_not_invented_photography(monkeypatch):
 def test_route_passes_both_models_and_retrieval(monkeypatch):
     from fastapi import FastAPI
     from fastapi.testclient import TestClient
-    from studio import api
+    from modules.engine import api
 
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.setattr(api.models, "intake", lambda _: dict(BASE))
@@ -253,7 +253,8 @@ def test_route_passes_both_models_and_retrieval(monkeypatch):
 
 
 def test_custom_catalog_and_references_reach_export(monkeypatch, tmp_path):
-    from studio import compiler, store
+    from modules.compiler import compiler
+    from modules.utilities import store
 
     monkeypatch.setattr(store, "DATA", tmp_path)
     monkeypatch.setattr(compiler, "code_candidate", lambda _: None)
@@ -304,7 +305,7 @@ def test_custom_catalog_and_references_reach_export(monkeypatch, tmp_path):
 
 
 def test_refine_design_updates_existing_project(monkeypatch):
-    from studio import api
+    from modules.engine import api
 
     project = {
         "id": "x",

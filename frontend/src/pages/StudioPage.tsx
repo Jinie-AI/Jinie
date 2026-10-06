@@ -663,7 +663,7 @@ export default function StudioPage() {
         <main className="studio-body">
           {error && (
             <div role="alert" className="alert error">
-              <strong>Something needs attention</strong>
+              <strong>Something went wrong!</strong>
               <span>{error}</span>
               <button onClick={() => setError("")} aria-label="Dismiss error">
                 ×
@@ -1085,7 +1085,7 @@ export default function StudioPage() {
                                 >
                                   {r.page === "products"
                                     ? "Catalog / Menu"
-                                    : r.page}{" "}
+                                    : r.page.replace(/^custom_/, "").replaceAll("_", " ")}{" "}
                                   Screen
                                 </strong>
                                 <span

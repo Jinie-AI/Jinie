@@ -29,5 +29,5 @@ trainer=Seq2SeqTrainer(model=model,args=Seq2SeqTrainingArguments(output_dir=str(
 trainer.train();prediction=trainer.predict(prepare('test'));trainer.save_model(str(out));tok.save_pretrained(out)
 outputs=tok.batch_decode(np.where(prediction.predictions!=-100,prediction.predictions,tok.pad_token_id),skip_special_tokens=True)
 testrows=[r for r in rows if r['split']=='test'];report(out/'predictions.json',[{'id':r['id'],'description':r['description'],'target':r['code'],'generated':g} for r,g in zip(testrows,outputs)])
-report(out/'metrics.json',{'base_model':base,'dataset_sha256':digest,'synthetic_bootstrap':any(r.get('provenance','').startswith('synthetic') for r in rows),'test':prediction.metrics,'note':'Exact match is not functional correctness. Run node scripts/check-code-predictions.mjs models/code/predictions.json, then test accepted components in Expo.'})
+report(out/'metrics.json',{'base_model':base,'dataset_sha256':digest,'synthetic_bootstrap':any(r.get('provenance','').startswith(('synthetic', 'generated_')) for r in rows),'test':prediction.metrics,'note':'Exact match is not functional correctness. Run node scripts/check-code-predictions.mjs models/code/predictions.json, then test accepted components in Expo.'})
 print('Saved',out)

@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 ROOT = Path(__file__).resolve().parents[1]
 load_dotenv(ROOT / "backend/.env")
 sys.path.insert(0, str(ROOT / "backend"))
-from studio import store
+from modules.utilities import store
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--migrate", action="store_true")

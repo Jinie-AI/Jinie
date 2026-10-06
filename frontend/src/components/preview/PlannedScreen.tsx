@@ -38,6 +38,7 @@ type Props = {
   showSearch: boolean;
   showBadges: boolean;
   onSelect: (page: string) => void;
+  onProductSelect?: (id: string) => void;
   pages: string[];
 };
 export default function PlannedScreen({
@@ -54,6 +55,7 @@ export default function PlannedScreen({
   showSearch,
   showBadges,
   onSelect,
+  onProductSelect,
   pages,
 }: Props) {
   const [query, setQuery] = useState("");
@@ -193,9 +195,10 @@ export default function PlannedScreen({
                 >
                   <button
                     className="plan-product-open"
-                    onClick={() =>
-                      pages.includes("detail") && onSelect("detail")
-                    }
+                    onClick={() => {
+                      onProductSelect?.(product.id);
+                      if (pages.includes("detail")) onSelect("detail");
+                    }}
                     aria-label={"View " + product.name}
                   >
                     <div
@@ -226,6 +229,14 @@ export default function PlannedScreen({
                       <strong>Rs. {product.price.toLocaleString()}</strong>
                     </div>
                   </button>
+                  {pages.includes("cart") && (
+                    <button
+                      type="button"
+                      onClick={() => { onProductSelect?.(product.id); onSelect("cart"); }}
+                      aria-label={"Add " + product.name + " to cart"}
+                      style={{ background: primary, color: primaryInk, border: 0, borderRadius: 10, minHeight: 44, margin: 10, padding: "10px 14px", fontWeight: 700 }}
+                    >Add to cart</button>
+                  )}
                 </article>
               ))}
             </div>

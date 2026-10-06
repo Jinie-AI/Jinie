@@ -1,0 +1,26 @@
+{
+  "intake": {
+    "records": 2000,
+    "reviewed": 2000,
+    "pending": 0,
+    "issues": {}
+  },
+  "layouts": {
+    "records": 2000,
+    "reviewed": 0,
+    "pending": 2000,
+    "issues": {
+      "No independent human design-quality judgement": 2000,
+      "Repeated model-input record": 1520
+    }
+  },
+  "code": {
+    "records": 2000,
+    "reviewed": 0,
+    "pending": 2000,
+    "issues": {
+      "Component behaviour and description-to-code acceptance tests pending": 2000,
+      "Description depends on an unspecified base component": 1820
+    }
+  }
+}

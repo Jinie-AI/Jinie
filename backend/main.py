@@ -9,8 +9,9 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent / ".env", override=False)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from studio import models, store
-from studio.api import router
+from modules.engine import models
+from modules.utilities import store
+from modules.engine.api import router
 
 app = FastAPI(title="Jinie Studio", version="2.0.0")
 app.add_middleware(

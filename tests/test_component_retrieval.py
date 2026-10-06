@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
 from component_library.retrieverRAG import LocalComponentRAG
-from studio.retrieval import retrieve_for_screens
+from modules.component_generator.retrieval import retrieve_for_screens
 
 
 def test_empty_and_unrelated_queries_do_not_return_fake_matches():

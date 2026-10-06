@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
-from studio.composition import Composition, default_composition, ground_composition
+from modules.component_generator.composition import Composition, default_composition, ground_composition
 
 def test_domain_fallbacks_have_different_structure():
     flowers = default_composition("flowers", "home")
@@ -41,7 +41,7 @@ def test_same_business_can_have_different_prompt_driven_structures(prompt, layou
 
 
 def test_layout_examples_use_training_split_and_matching_screens():
-    from studio.design_retrieval import retrieve_layout_examples
+    from modules.component_generator.design_retrieval import retrieve_layout_examples
     examples = retrieve_layout_examples("luxury jewellery", {
         "business": "jewellery", "style": "luxury", "pages": ["home", "products"]
     })

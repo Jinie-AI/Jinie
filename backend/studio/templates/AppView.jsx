@@ -390,13 +390,15 @@ export default function AppView({
                   {!!sc.subtitle && <Text style={{ color: muted }}>{sc.subtitle}</Text>}
                   {(sc.sections || []).map((section, i) => (
                     <View key={i} style={{ backgroundColor: dark ? "#211c2d" : "#fff", borderRadius: 14, borderWidth: 1, borderColor: "#88888833", padding: 16, gap: 12 }}>
-                      <Text style={{ color: config.primary, fontSize: 18, fontWeight: "700" }}>{section.title}</Text>
+                      <Text style={{ color: fg, fontSize: 18, fontWeight: "700" }}>{section.title}</Text>
+                      <View style={{ flexDirection: sc.layout === "grid" ? "row" : "column", flexWrap: "wrap", gap: 12 }}>
                       {section.fields.map((field, j) => (
-                        <View key={j} style={{ paddingVertical: 12, borderBottomWidth: 1, borderColor: "#88888822", gap: 6 }}>
+                        <View key={j} style={{ width: sc.layout === "grid" ? "46%" : "100%", paddingVertical: 12, borderBottomWidth: 1, borderColor: "#88888822", gap: 6 }}>
                           <Text style={{ color: muted, fontSize: 12 }}>{field.label}</Text>
-                          <Text style={{ color: fg, fontSize: 14 }}>{field.value || "Not provided"}</Text>
+                          <Text style={{ color: field.value ? fg : muted, fontSize: 14 }}>{field.value || "No information added yet"}</Text>
                         </View>
                       ))}
+                      </View>
                     </View>
                   ))}
                 </View>

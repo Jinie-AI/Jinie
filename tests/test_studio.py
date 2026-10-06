@@ -17,8 +17,10 @@ client = TestClient(app)
 
 @pytest.fixture(autouse=True)
 def isolated_project_runtime(monkeypatch, tmp_path):
-    from studio import api, compiler, store
-    from studio.domain import extract
+    from modules.engine import api
+    from modules.compiler import compiler
+    from modules.utilities import store
+    from modules.engine.domain import extract
 
     monkeypatch.setattr(store, "DATA", tmp_path)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
@@ -57,6 +59,21 @@ def test_custom_record_build_and_export():
     config_path = next(n for n in archive.namelist() if n.endswith("src/config.json"))
     config = json.loads(archive.read(config_path))
     assert config["screen_configs"]["custom_medical_record"]["sections"][0]["fields"][0]["label"] == "Patient name"
+
+
+def test_domain_catalog_screen_keeps_clickable_product_flow():
+    response = client.post(
+        "/api/projects",
+        json={
+            "name": "Clothes",
+            "prompt": "Create a clothing store with home screen and clothes screen.",
+        },
+    )
+    assert response.status_code == 201, response.text
+    project = response.json()
+    assert {"home", "products", "detail"} <= set(project["spec"]["pages"])
+    assert "custom_clothes" not in project["spec"]["pages"]
+    assert any(item["page"] == "products" for item in project["requirements"])
 
 
 def approve(p):
@@ -205,7 +222,8 @@ def test_dataset_split_groups():
 
 
 def test_export_preserves_reviewed_components(monkeypatch):
-    from studio import compiler, store
+    from modules.compiler import compiler
+    from modules.utilities import store
     p = approve(new())
     reviewed = (compiler.TEMPLATES / "ProductCard.jsx").read_text(encoding="utf-8")
     candidate = reviewed.replace('borderRadius: 16', 'borderRadius: 0')

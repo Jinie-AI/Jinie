@@ -126,7 +126,7 @@ export default function ProductCard({
             onPress={onAdd}
             style={[styles.add, { backgroundColor: primary }]}
           >
-            <Text style={[styles.addIcon, { color: primaryInk }]}>+</Text>
+            <Text style={[styles.addIcon, { color: primaryInk }]}>Add to cart</Text>
           </Pressable>
         )}
       </View>
@@ -219,15 +219,16 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   add: {
-    width: 22,
-    height: 22,
+    minWidth: 86,
+    minHeight: 44,
+    paddingHorizontal: 10,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
   },
   addIcon: {
     color: "white",
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: "700",
     lineHeight: 16,
   },
