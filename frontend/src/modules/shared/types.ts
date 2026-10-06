@@ -1,4 +1,4 @@
-import type { ScreenConfigData } from "../preview/HtmlScreenMockup";
+import type { ScreenConfigData } from "../live_review_panel/HtmlScreenMockup";
 import type { RetrievedComponent } from "./RetrievedComponents";
 
 export type Requirement = {

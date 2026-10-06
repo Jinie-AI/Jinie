@@ -1,8 +1,8 @@
 import { useState } from "react";
 import type { ScreenConfigData } from "./HtmlScreenMockup";
 import DesignPreview from "./DesignPreview";
-import DesignControls from "../studio/DesignControls";
-import type { Design, Project } from "../studio/types";
+import DesignControls from "../design_preferences_panel/DesignControls";
+import type { Design, Project } from "../shared/types";
 import "../../styles/screens-workspace.css";
 
 interface Props {
@@ -27,7 +27,10 @@ interface Props {
 const labelFor = (page: string) =>
   page === "products"
     ? "Catalog"
-    : page.replace(/^custom_/, "").replaceAll("_", " ").replace(/\b\w/g, c => c.toUpperCase());
+    : page
+        .replace(/^custom_/, "")
+        .replaceAll("_", " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
 
 export default function ScreenShowcaseSection({
   project,
@@ -54,7 +57,17 @@ export default function ScreenShowcaseSection({
   );
   const disabled = busy || active;
   const invalidPrompt = !!refinement.trim() && refinement.trim().length < 8;
-  const mockup = (page: string) => <DesignPreview project={project} page={page} configs={screenConfigs} onSelect={next=>{setSelected(next);setView('single');}}/>;
+  const mockup = (page: string) => (
+    <DesignPreview
+      project={project}
+      page={page}
+      configs={screenConfigs}
+      onSelect={(next) => {
+        setSelected(next);
+        setView("single");
+      }}
+    />
+  );
 
   return (
     <div className="screens-workspace">
@@ -286,7 +299,8 @@ export default function ScreenShowcaseSection({
               </span>
               {mockup(selectedScreen)}
               <p className="subtle">
-                Review your design here. The same accepted design is shown in Preview.
+                Review your design here. The same accepted design is shown in
+                Preview.
               </p>
             </div>
           ) : (

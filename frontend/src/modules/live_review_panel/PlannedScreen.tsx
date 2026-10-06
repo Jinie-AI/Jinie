@@ -138,7 +138,10 @@ export default function PlannedScreen({
           ) : null;
         if (block.kind === "categories")
           return (
-            <div key={key} className={"plan-categories " + (plan.category_style || "chips")}>
+            <div
+              key={key}
+              className={"plan-categories " + (plan.category_style || "chips")}
+            >
               {categories.map((c) => (
                 <button
                   key={c}
@@ -232,10 +235,24 @@ export default function PlannedScreen({
                   {pages.includes("cart") && (
                     <button
                       type="button"
-                      onClick={() => { onProductSelect?.(product.id); onSelect("cart"); }}
+                      onClick={() => {
+                        onProductSelect?.(product.id);
+                        onSelect("cart");
+                      }}
                       aria-label={"Add " + product.name + " to cart"}
-                      style={{ background: primary, color: primaryInk, border: 0, borderRadius: 10, minHeight: 44, margin: 10, padding: "10px 14px", fontWeight: 700 }}
-                    >Add to cart</button>
+                      style={{
+                        background: primary,
+                        color: primaryInk,
+                        border: 0,
+                        borderRadius: 10,
+                        minHeight: 44,
+                        margin: 10,
+                        padding: "10px 14px",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Add to cart
+                    </button>
                   )}
                 </article>
               ))}

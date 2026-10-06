@@ -1,4 +1,4 @@
-import type { Design, Project } from "./types";
+import type { Design, Project } from "../shared/types";
 
 interface Props {
   design: Design;

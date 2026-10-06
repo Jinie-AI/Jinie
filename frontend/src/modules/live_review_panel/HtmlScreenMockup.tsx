@@ -139,8 +139,12 @@ export default function HtmlScreenMockup({
           },
         ];
 
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const selectedProduct = demoProducts.find(product => product.id === selectedProductId) || demoProducts[0];
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null,
+  );
+  const selectedProduct =
+    demoProducts.find((product) => product.id === selectedProductId) ||
+    demoProducts[0];
   const navPages = pages.filter((p) => p !== "detail" && p !== "checkout");
 
   return (
@@ -272,16 +276,59 @@ export default function HtmlScreenMockup({
       >
         {page.startsWith("custom_") && (
           <section style={{ padding: 18, color: ink }}>
-            <h2>{screenConfig.title || page.replace(/^custom_/, "").replaceAll("_", " ")}</h2>
-            {screenConfig.subtitle && <p style={{ color: muted }}>{screenConfig.subtitle}</p>}
+            <h2>
+              {screenConfig.title ||
+                page.replace(/^custom_/, "").replaceAll("_", " ")}
+            </h2>
+            {screenConfig.subtitle && (
+              <p style={{ color: muted }}>{screenConfig.subtitle}</p>
+            )}
             {(screenConfig.sections || []).map((section, i) => (
-              <section key={i} style={{ background: surface, border: "1px solid #8883", borderRadius: 14, padding: 16, marginTop: 16 }}>
+              <section
+                key={i}
+                style={{
+                  background: surface,
+                  border: "1px solid #8883",
+                  borderRadius: 14,
+                  padding: 16,
+                  marginTop: 16,
+                }}
+              >
                 <h3 style={{ color: ink }}>{section.title}</h3>
-                <dl style={{ margin: 0, display: "grid", gridTemplateColumns: screenConfig.layout === "grid" ? "repeat(2, minmax(0, 1fr))" : "1fr", gap: 12 }}>
-                  {section.fields.map((field, j) => <div key={j} style={{ padding: "12px 0", borderBottom: "1px solid #8882" }}>
-                    <dt style={{ fontSize: 12, color: muted }}>{field.label}</dt>
-                    <dd style={{ margin: "6px 0 0", fontSize: 14, overflowWrap: "anywhere", color: field.value ? ink : muted }}>{field.value || "No information added yet"}</dd>
-                  </div>)}
+                <dl
+                  style={{
+                    margin: 0,
+                    display: "grid",
+                    gridTemplateColumns:
+                      screenConfig.layout === "grid"
+                        ? "repeat(2, minmax(0, 1fr))"
+                        : "1fr",
+                    gap: 12,
+                  }}
+                >
+                  {section.fields.map((field, j) => (
+                    <div
+                      key={j}
+                      style={{
+                        padding: "12px 0",
+                        borderBottom: "1px solid #8882",
+                      }}
+                    >
+                      <dt style={{ fontSize: 12, color: muted }}>
+                        {field.label}
+                      </dt>
+                      <dd
+                        style={{
+                          margin: "6px 0 0",
+                          fontSize: 14,
+                          overflowWrap: "anywhere",
+                          color: field.value ? ink : muted,
+                        }}
+                      >
+                        {field.value || "No information added yet"}
+                      </dd>
+                    </div>
+                  ))}
                 </dl>
               </section>
             ))}
@@ -1701,7 +1748,9 @@ export default function HtmlScreenMockup({
                     color: isCurrent ? primaryColor : "#887d99",
                   }}
                 >
-                  {navPage === "products" ? "Shop" : navPage.replace(/^custom_/, "").replaceAll("_", " ")}
+                  {navPage === "products"
+                    ? "Shop"
+                    : navPage.replace(/^custom_/, "").replaceAll("_", " ")}
                 </span>
               </div>
             );

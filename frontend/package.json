@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "format:studio": "prettier --write src/pages/StudioPage.tsx src/components/studio src/styles/studio-refinements.css"
+    "format:studio": "prettier --write src/pages/StudioPage.tsx src/modules src/styles/studio-refinements.css"
   },
   "dependencies": {
     "prismjs": "^1.30.0",

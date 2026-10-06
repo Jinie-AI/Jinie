@@ -1,0 +1,42 @@
+import HtmlScreenMockup, { type ScreenConfigData } from "./HtmlScreenMockup";
+import type { Project } from "../shared/types";
+export default function DesignPreview({
+  project,
+  page,
+  configs,
+  onSelect,
+  device = "mobile",
+}: {
+  project: Project;
+  page: string;
+  configs: Record<string, ScreenConfigData>;
+  onSelect: (page: string) => void;
+  device?: string;
+}) {
+  return (
+    <HtmlScreenMockup
+      page={page}
+      screenConfig={
+        configs[page] || {
+          layout: project.design.layout as ScreenConfigData["layout"],
+        }
+      }
+      projectName={project.name}
+      business={project.spec.business_label || project.spec.business}
+      products={project.spec.products}
+      primaryColor={project.design.primary}
+      secondaryColor={project.design.secondary}
+      accentColor={project.design.accent}
+      theme={project.design.theme}
+      headingFont={project.design.font}
+      bodyFont={project.design.bodyFont}
+      navigation={project.design.navigation}
+      pages={project.requirements.map((r) => r.page)}
+      onSelectScreen={onSelect}
+      previewWidth={
+        device === "desktop" ? 1000 : device === "tablet" ? 720 : 320
+      }
+      previewHeight={device === "tablet" ? 900 : 640}
+    />
+  );
+}
