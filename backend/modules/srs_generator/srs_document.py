@@ -6,6 +6,7 @@ from .technology_stack_identifier import technology_stack_entries
 from .component_tree_generator import generate_component_tree
 from .entity_generator import generate_entities
 
+# Shared SRS document: builds structured sections used by the website and document exports from saved project data.
 def build_srs(p):
     requirements = p.get("requirements", [])
     configs = p.get("screen_configs") or p.get("spec", {}).get("screen_configs", {})

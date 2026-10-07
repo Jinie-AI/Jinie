@@ -1,5 +1,6 @@
 """Module 03: map approved requirements to generated artifacts and checks."""
 
+# Traceability matrix: links requirements to screens, generated files and components so their origin can be explained.
 def build_traceability(p, config, components, screen_configs, rag_comps):
     rag_by_page = {
         page: [c["id"] for c in components if page in c.get("screens", [])]

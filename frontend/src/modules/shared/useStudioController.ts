@@ -3,7 +3,8 @@ import { useStudioAppearance } from "../../hooks/useStudioAppearance";
 import type { Requirement, Design, Project, Summary } from "./types";
 import { type User } from "../../components/auth/AuthModal";
 import type { ScreenConfigData } from "../live_review_panel/HtmlScreenMockup";
-import { API, request, samples } from "./studioApi";
+import { API, request, samples, authHeaders, ensureGuest } from "./studioApi";
+// Shared controller: owns project state, approvals, API actions and polling; panel components reuse these callbacks.
 export default function useStudioController() {
   const appearance = useStudioAppearance();
   const [project, setProject] = useState<Project | null>(null),
@@ -21,6 +22,14 @@ export default function useStudioController() {
     }),
     [authOpen, setAuthOpen] = useState(false);
   const [refinePrompt, setRefinePrompt] = useState("");
+  useEffect(() => {
+    const requireLogin = (event: Event) => {
+      setNotice((event as CustomEvent<string>).detail);
+      setAuthOpen(true);
+    };
+    window.addEventListener("jinie-login-required", requireLogin);
+    return () => window.removeEventListener("jinie-login-required", requireLogin);
+  }, []);
   const [screenConfigs, setScreenConfigs] = useState<
     Record<string, ScreenConfigData>
   >({});
@@ -44,9 +53,17 @@ export default function useStudioController() {
         ?.scrollIntoView({ block: "center", behavior: "smooth" });
     }
   }, [tab, focusedRequirement]);
-  const showWorkingApp = Boolean(component);
-  const [device, setDevice] = useState("mobile"),
+  const showWorkingApp = project?.build_revision != null;
+  const [device, setDevice] = useState(() => {
+      try {
+      const saved = localStorage.getItem("jinie_preview_device");
+      return saved === "tablet" || saved === "desktop" ? saved : "mobile";
+      } catch { return "mobile"; }
+    }),
     [previewScreen, setPreviewScreen] = useState("");
+  useEffect(() => {
+    try { localStorage.setItem("jinie_preview_device", device); } catch { /* Preferences still work for this session. */ }
+  }, [device]);
   const [notice, setNotice] = useState(""),
     [reviewDirty, setReviewDirty] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -141,6 +158,7 @@ export default function useStudioController() {
       setRefinePrompt("");
     }
   }
+  // Acceptance flow: saves approved requirements and refinements, starts the build, then opens Preview.
   async function handleApproveAndBuild() {
     await action(async () => {
       await applyScreenRefinement();
@@ -168,6 +186,14 @@ export default function useStudioController() {
           .then((r) => r.json())
           .then((d) => {
             if (alive && d.user) setUser(d.user);
+            else if (alive) {
+              setUser(null);
+              setProject(null);
+              setProjects([]);
+              localStorage.removeItem("jinie_user");
+              localStorage.removeItem("jinie_auth_token");
+              localStorage.removeItem("jinie_asset_token");
+            }
           })
           .catch(() => {});
       }
@@ -211,9 +237,21 @@ export default function useStudioController() {
       }).catch(() => {});
     localStorage.removeItem("jinie_user");
     localStorage.removeItem("jinie_auth_token");
+    localStorage.removeItem("jinie_asset_token");
+    localStorage.removeItem("jinie_project_id");
+    setProject(null); setProjects([]);
     setUser(null);
+    setTab("Prompt");
     setNotice("Signed out successfully.");
   }
+  useEffect(() => {
+    if (!user) return;
+    let alive = true;
+    request<Summary[]>("/projects").then((items) => {
+      if (alive) setProjects(items);
+    }).catch(() => {});
+    return () => { alive = false; };
+  }, [user?.id]);
   useEffect(() => {
     if (!project?.id || !active) return;
     const id = project.id;
@@ -317,6 +355,7 @@ export default function useStudioController() {
     accept(p);
     return p;
   }
+  // Speech input: uses the browser SpeechRecognition API and appends the recognized transcript to the prompt.
   function dictate() {
     type Recognition = {
       lang: string;
@@ -351,9 +390,11 @@ export default function useStudioController() {
   }
   async function upload(f: File) {
     await action(async () => {
+      if (!localStorage.getItem("jinie_auth_token")) await ensureGuest();
       const data = new FormData();
       data.append("file", f);
       const r = await fetch(API + "/references", {
+        headers: authHeaders(),
         method: "POST",
         body: data,
       });

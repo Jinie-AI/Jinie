@@ -1,6 +1,7 @@
 """Identify the implementation stack required by the saved application plan."""
 
 
+# Stack identification: reports the implemented React Native/Expo stack and adds storage when selected screens need it.
 def identify_technology_stack(spec=None):
     """Return technologies actually used by the generated project."""
     spec = spec or {}

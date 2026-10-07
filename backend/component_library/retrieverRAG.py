@@ -32,6 +32,7 @@ PATTERN_DESCRIPTIONS = {
 }
 
 
+# Retrieval index: TF-IDF represents catalogue text; cosine similarity ranks components against the search query.
 class LocalComponentRAG:
     def __init__(self, catalog_path=None):
         if not catalog_path or not os.path.exists(catalog_path):

@@ -1,5 +1,9 @@
+import { authHeaders } from "../../modules/shared/studioApi";
+import GoogleSignIn, { type AuthSession } from "./GoogleSignIn";
+import VerificationNotice from "./VerificationNotice";
+import AuthRecovery from "./AuthRecovery";
 import BrandLogo from "../BrandLogo";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface User {
   id: string;
@@ -7,6 +11,9 @@ export interface User {
   email: string;
   full_name: string;
   initials: string;
+  email_verified?: boolean;
+  photo_url?: string;
+  sign_in_methods?: string[];
 }
 
 interface AuthModalProps {
@@ -31,13 +38,27 @@ export default function AuthModal({
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [verificationTicket, setVerificationTicket] = useState("");
+  useEffect(() => {
+    if (!isOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previous; };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
+  function finishSession(session: AuthSession) {
+    localStorage.setItem("jinie_asset_token", session.asset_token || "");
+    setVerificationTicket("");
+    onAuthSuccess(session.user, session.token);
+    onClose();
+  }
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     if (!emailOrUser.trim() || !password) {
-      setError("Please provide your username/email and password.");
+      setError("Please provide your email and password.");
       return;
     }
     setError("");
@@ -45,7 +66,7 @@ export default function AuthModal({
     try {
       const res = await fetch(`${apiBase}/auth/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify({
           email_or_username: emailOrUser.trim(),
           password,
@@ -53,6 +74,7 @@ export default function AuthModal({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Login failed");
+      localStorage.setItem("jinie_asset_token", data.asset_token || "");
       onAuthSuccess(data.user, data.token);
       onClose();
     } catch (err: unknown) {
@@ -68,8 +90,8 @@ export default function AuthModal({
       setError("Please fill out all required fields.");
       return;
     }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long.");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
       return;
     }
     if (password !== confirmPassword) {
@@ -81,7 +103,7 @@ export default function AuthModal({
     try {
       const res = await fetch(`${apiBase}/auth/signup`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify({
           full_name: fullName.trim(),
           username: username.trim(),
@@ -91,6 +113,8 @@ export default function AuthModal({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Registration failed");
+      if (data.verification_required) { setNotice(""); setVerificationTicket(data.verification_ticket); setPassword(""); setConfirmPassword(""); return; }
+      localStorage.setItem("jinie_asset_token", data.asset_token || "");
       onAuthSuccess(data.user, data.token);
       onClose();
     } catch (err: unknown) {
@@ -133,6 +157,7 @@ export default function AuthModal({
             onClick={() => {
               setMode("login");
               setError("");
+              setVerificationTicket("");
             }}
           >
             Sign In
@@ -143,6 +168,7 @@ export default function AuthModal({
             onClick={() => {
               setMode("signup");
               setError("");
+              setVerificationTicket("");
             }}
           >
             Create Account
@@ -150,11 +176,14 @@ export default function AuthModal({
         </div>
 
         {error && <div className="auth-error-banner">{error}</div>}
+        {notice && <p className="subtle" role="status">{notice}</p>}
+        {verificationTicket ? <VerificationNotice apiBase={apiBase} ticket={verificationTicket} onVerified={finishSession} /> : <GoogleSignIn apiBase={apiBase} onSuccess={finishSession} onError={setError} disabled={loading} />}
+        {verificationTicket && <button type="button" className="text-button" onClick={() => { setVerificationTicket(""); setNotice(""); setMode("login"); setEmailOrUser(email || emailOrUser); }}>Back to sign in</button>}
 
-        {mode === "login" ? (
+        {!verificationTicket && (mode === "login" ? (
           <form onSubmit={handleLogin} className="auth-form">
-            <label className="field-label" htmlFor="login-credential">
-              EMAIL OR USERNAME
+<div className="auth-field">            <label className="field-label" htmlFor="login-credential">
+              EMAIL ADDRESS
             </label>
             <input
               id="login-credential"
@@ -162,11 +191,11 @@ export default function AuthModal({
               required
               value={emailOrUser}
               onChange={(e) => setEmailOrUser(e.target.value)}
-              placeholder="e.g. dev@jinie.ai or developer"
+              placeholder="you@example.com"
               autoFocus
-            />
+            /></div>
 
-            <label className="field-label" htmlFor="login-password">
+<div className="auth-field">            <label className="field-label" htmlFor="login-password">
               PASSWORD
             </label>
             <input
@@ -176,14 +205,9 @@ export default function AuthModal({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
-            />
+            /></div>
 
-            <div className="auth-demo-hint">
-              <small>
-                Demo account: <code>dev@jinie.ai</code> /{" "}
-                <code>password123</code>
-              </small>
-            </div>
+            <AuthRecovery apiBase={apiBase} email={emailOrUser} password={password} onMessage={setNotice} onError={setError} onVerification={(ticket) => { setVerificationTicket(ticket); setNotice(""); }} />
 
             <button
               type="submit"
@@ -194,8 +218,8 @@ export default function AuthModal({
             </button>
           </form>
         ) : (
-          <form onSubmit={handleSignup} className="auth-form">
-            <label className="field-label" htmlFor="signup-name">
+          <form onSubmit={handleSignup} className="auth-form auth-signup-form">
+<div className="auth-field">            <label className="field-label" htmlFor="signup-name">
               FULL NAME
             </label>
             <input
@@ -206,9 +230,9 @@ export default function AuthModal({
               onChange={(e) => setFullName(e.target.value)}
               placeholder="e.g. Sarah Connor"
               autoFocus
-            />
+            /></div>
 
-            <label className="field-label" htmlFor="signup-user">
+<div className="auth-field">            <label className="field-label" htmlFor="signup-user">
               USERNAME
             </label>
             <input
@@ -218,9 +242,9 @@ export default function AuthModal({
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="e.g. sconnor"
-            />
+            /></div>
 
-            <label className="field-label" htmlFor="signup-email">
+<div className="auth-field">            <label className="field-label" htmlFor="signup-email">
               EMAIL ADDRESS
             </label>
             <input
@@ -230,10 +254,10 @@ export default function AuthModal({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="e.g. sarah@example.com"
-            />
+            /></div>
 
-            <label className="field-label" htmlFor="signup-pass">
-              PASSWORD (MIN 6 CHARACTERS)
+<div className="auth-field">            <label className="field-label" htmlFor="signup-pass">
+              PASSWORD (MIN 8 CHARACTERS)
             </label>
             <input
               id="signup-pass"
@@ -242,9 +266,9 @@ export default function AuthModal({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Create a secure password"
-            />
+            /></div>
 
-            <label className="field-label" htmlFor="signup-confirm">
+<div className="auth-field">            <label className="field-label" htmlFor="signup-confirm">
               CONFIRM PASSWORD
             </label>
             <input
@@ -254,17 +278,17 @@ export default function AuthModal({
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm your password"
-            />
+            /></div>
 
             <button
               type="submit"
               className="primary auth-submit-btn"
               disabled={loading}
             >
-              {loading ? "Creating Account…" : "Create Account & Sign In ↗"}
+              {loading ? "Creating Account…" : "Create Account ↗"}
             </button>
           </form>
-        )}
+        ))}
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
+import { assetUrl } from "../shared/studioApi";
 import { API, request } from "../shared/studioApi";
 import type { StudioContext } from "../shared/useStudioController";
+// Deployment dashboard: downloads the generated project or requests configured Firebase web hosting deployment.
 export default function DeployDashboard({
   project,
   busy,
@@ -38,7 +40,7 @@ export default function DeployDashboard({
             build checks.
           </p>
           {current ? (
-            <a className="primary" href={API + endpoint("/download")}>
+            <a className="primary" href={assetUrl(API + endpoint("/download"))}>
               Download ZIP ↓
             </a>
           ) : (

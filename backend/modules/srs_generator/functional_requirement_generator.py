@@ -22,6 +22,7 @@ def _acceptance_check(page, config):
     return f"Open {page}, verify the {title} content renders, and exercise every visible control described by this requirement."
 
 
+# Functional requirements: describe selected-screen behavior and acceptance checks linked to the originating requirement.
 def generate_functional_requirements(requirements, screen_configs=None):
     """Keep traceability IDs while grounding checks in the accepted screen plan."""
     screen_configs = screen_configs or {}

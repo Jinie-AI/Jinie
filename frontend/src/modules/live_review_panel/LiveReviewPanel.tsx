@@ -1,7 +1,9 @@
+import { assetUrl, previewAssetToken } from "../shared/studioApi";
 import PreviewDevice from "./PreviewDevice";
 import DesignPreview from "./DesignPreview";
 import { API, request } from "../shared/studioApi";
 import type { StudioContext } from "../shared/useStudioController";
+// Module 14 - Live Review: hosts the compiled application in a sandboxed iframe and offers device-size controls.
 export default function LiveReviewPanel({
   appearance,
   project,
@@ -112,7 +114,7 @@ export default function LiveReviewPanel({
         {current && (
           <a
             className="primary"
-            href={API + endpoint("/download")}
+            href={assetUrl(API + endpoint("/download"))}
             title="Download complete native & web source"
           >
             Download project ↓
@@ -203,7 +205,9 @@ export default function LiveReviewPanel({
                   }
                   src={
                     API +
-                    endpoint("/preview/index.html") +
+                    endpoint(previewAssetToken()
+                      ? "/preview/~" + encodeURIComponent(previewAssetToken()) + "/index.html"
+                      : "/preview/index.html") +
                     "?v=" +
                     project.build_revision +
                     "&component=" +
@@ -213,6 +217,7 @@ export default function LiveReviewPanel({
                       : "")
                   }
                   sandbox="allow-scripts"
+                  referrerPolicy="no-referrer"
                   style={{
                     height:
                       device === "tablet"

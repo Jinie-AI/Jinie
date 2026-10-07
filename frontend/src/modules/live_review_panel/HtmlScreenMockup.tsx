@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PlannedScreen, { type Composition } from "./PlannedScreen";
 export interface ScreenConfigData {
+  interaction?: "information" | "form";
   sections?: { title: string; fields: { label: string; value: string }[] }[];
   composition?: Composition | null;
   title?: string;
@@ -23,6 +24,7 @@ export interface HtmlScreenMockupProps {
     name: string;
     price: number;
     image_url?: string;
+    image_credit?: { name: string; url: string; source_url: string };
     icon?: string;
     badge?: string;
     rating?: number;
@@ -142,6 +144,16 @@ export default function HtmlScreenMockup({
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null,
   );
+  const [productPopup, setProductPopup] = useState(false);
+  const [customDrafts, setCustomDrafts] = useState<
+    Record<string, Record<string, string>>
+  >({});
+  const [formMessage, setFormMessage] = useState("");
+  function openProduct(id: string) {
+    setSelectedProductId(id);
+    if (pages.includes("detail")) onSelectScreen?.("detail");
+    else setProductPopup(true);
+  }
   const selectedProduct =
     demoProducts.find((product) => product.id === selectedProductId) ||
     demoProducts[0];
@@ -325,13 +337,75 @@ export default function HtmlScreenMockup({
                           color: field.value ? ink : muted,
                         }}
                       >
-                        {field.value || "No information added yet"}
+                        {screenConfig.interaction === "form" ? (
+                          <input
+                            aria-label={field.label}
+                            value={
+                              customDrafts[page]?.[`${i}:${j}`] ?? field.value
+                            }
+                            onChange={(event) => {
+                              setFormMessage("");
+                              setCustomDrafts((previous) => ({
+                                ...previous,
+                                [page]: {
+                                  ...previous[page],
+                                  [`${i}:${j}`]: event.target.value,
+                                },
+                              }));
+                            }}
+                            style={{
+                              width: "100%",
+                              boxSizing: "border-box",
+                              padding: 10,
+                              borderRadius: 8,
+                              border: "1px solid #8885",
+                              background: surface,
+                              color: ink,
+                            }}
+                          />
+                        ) : (
+                          field.value || "No information added yet"
+                        )}
                       </dd>
                     </div>
                   ))}
                 </dl>
               </section>
             ))}
+            {screenConfig.interaction === "form" && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const complete = (screenConfig.sections || []).every(
+                      (section, i) =>
+                        section.fields.every((field, j) =>
+                          (
+                            customDrafts[page]?.[`${i}:${j}`] ?? field.value
+                          ).trim(),
+                        ),
+                    );
+                    setFormMessage(
+                      complete
+                        ? "Fields validated. Accept and build to save records on your device."
+                        : "Complete each field before saving.",
+                    );
+                  }}
+                  style={{
+                    background: primaryColor,
+                    color: primaryInk,
+                    padding: 12,
+                    borderRadius: 10,
+                    border: 0,
+                  }}
+                >
+                  Save record
+                </button>
+                <p role="status" style={{ color: ink }}>
+                  {formMessage}
+                </p>
+              </>
+            )}
           </section>
         )}
         {(page === "home" || page === "products") &&
@@ -351,7 +425,7 @@ export default function HtmlScreenMockup({
               showSearch={showSearch}
               showBadges={showBadges}
               onSelect={(next) => onSelectScreen?.(next)}
-              onProductSelect={setSelectedProductId}
+              onProductSelect={openProduct}
               pages={pages}
             />
           )}
@@ -516,7 +590,7 @@ export default function HtmlScreenMockup({
               {demoProducts.map((prod) => (
                 <div
                   key={prod.id}
-                  onClick={() => onSelectScreen && onSelectScreen("detail")}
+                  onClick={() => openProduct(prod.id)}
                   style={{
                     background: surface,
                     borderRadius: 16,
@@ -744,7 +818,7 @@ export default function HtmlScreenMockup({
               {demoProducts.map((prod) => (
                 <div
                   key={prod.id}
-                  onClick={() => onSelectScreen && onSelectScreen("detail")}
+                  onClick={() => openProduct(prod.id)}
                   style={{
                     background: surface,
                     borderRadius: 16,
@@ -1685,6 +1759,91 @@ export default function HtmlScreenMockup({
         )}
       </div>
 
+      {products.some((product) => product.image_credit) && (
+        <div
+          style={{
+            padding: "4px 12px",
+            fontSize: 9,
+            background: surface,
+            color: muted,
+          }}
+        >
+          Photos:{" "}
+          {products
+            .filter((product) => product.image_credit)
+            .map((product, index) => (
+              <span key={product.id}>
+                {index > 0 && ", "}
+                <a
+                  href={product.image_credit!.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: "inherit" }}
+                >
+                  {product.image_credit!.name}
+                </a>
+                {" on "}
+                <a
+                  href={product.image_credit!.source_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: "inherit" }}
+                >
+                  Unsplash
+                </a>
+              </span>
+            ))}
+        </div>
+      )}
+      {productPopup && selectedProduct && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={selectedProduct.name}
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 30,
+            background: "#0008",
+            display: "flex",
+            alignItems: "center",
+            padding: 16,
+          }}
+        >
+          <section
+            style={{
+              background: surface,
+              color: ink,
+              borderRadius: 18,
+              padding: 18,
+              width: "100%",
+            }}
+          >
+            {selectedProduct.image_url && (
+              <img
+                src={selectedProduct.image_url}
+                alt={selectedProduct.name}
+                style={{
+                  width: "100%",
+                  height: 170,
+                  objectFit: "cover",
+                  borderRadius: 10,
+                }}
+              />
+            )}
+            <h2>{selectedProduct.name}</h2>
+            <p>{selectedProduct.description}</p>
+            <strong>Rs. {selectedProduct.price.toLocaleString()}</strong>
+            <button
+              type="button"
+              onClick={() => setProductPopup(false)}
+              style={{ display: "block", marginTop: 12, padding: 12 }}
+            >
+              Close
+            </button>
+          </section>
+        </div>
+      )}
       {/* Bottom App Navigation Bar */}
       {navPages.length > 1 && (
         <div

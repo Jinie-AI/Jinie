@@ -19,6 +19,7 @@ python-dotenv>=1,<2
 
 # SRS export and account validation
 reportlab>=4,<5
+pillow>=11,<13
 email-validator>=2,<3
 
 # Optional MongoDB project storage

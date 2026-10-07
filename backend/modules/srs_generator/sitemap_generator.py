@@ -1,6 +1,7 @@
 """Describe selected screens and supported navigation between them."""
 
 
+# Sitemap: derives the application routes and navigation structure from its selected requirements.
 def generate_sitemap(requirements):
     pages = list(dict.fromkeys(r["page"] for r in requirements))
     sitemap = [f"Application -> {page} | {next((r.get('id', '') for r in requirements if r['page'] == page), '')}" for page in pages]

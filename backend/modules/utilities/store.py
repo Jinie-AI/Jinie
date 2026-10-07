@@ -112,6 +112,7 @@ def folder(pid):
     return path
 
 
+# File-path protection: checks generated-file paths stay within the project workspace before reading or writing.
 def safe_file(pid, name):
     base = (folder(pid) / "source").resolve()
     path = (base / name).resolve()

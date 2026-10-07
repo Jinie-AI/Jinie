@@ -12,6 +12,7 @@ import "prismjs/components/prism-json";
 import "prismjs/themes/prism.css";
 import { request } from "../shared/studioApi";
 import type { StudioContext } from "../shared/useStudioController";
+// Module 15 - Code Explorer: browses generated files, saves edits, shows requirement links and rebuilds edited source.
 export default function CodeExplorer({
   project,
   setTab,

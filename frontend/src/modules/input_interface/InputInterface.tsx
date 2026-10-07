@@ -1,7 +1,9 @@
 import type { Project, Summary } from "../shared/types";
+import { useEffect, useState } from "react";
 import PromptHero from "./PromptHero";
-import { request, samples } from "../shared/studioApi";
+import { ensureGuest, request, samples } from "../shared/studioApi";
 import type { StudioContext } from "../shared/useStudioController";
+// Module 10 - Input Interface: collects the project name, prompt and references, then requests the requirements plan.
 export default function InputInterface({
   appearance,
   setProjects,
@@ -20,6 +22,8 @@ export default function InputInterface({
   accept,
   dictate,
   upload,
+  user,
+  setAuthOpen,
 }: Pick<
   StudioContext,
   | "appearance"
@@ -44,7 +48,15 @@ export default function InputInterface({
   | "accept"
   | "dictate"
   | "upload"
+  | "user"
+  | "setAuthOpen"
 >) {
+  const [remaining, setRemaining] = useState(2);
+  useEffect(() => {
+    let alive = true;
+    if (!user) ensureGuest(true).then((session) => { if (alive) setRemaining(session.remaining); }).catch(() => {});
+    return () => { alive = false; };
+  }, [user?.id]);
   return (
     <>
       <PromptHero
@@ -107,12 +119,22 @@ export default function InputInterface({
               }
               onClick={() =>
                 action(async () => {
+                  if (!user) {
+                    const guest = await ensureGuest(true);
+                    setRemaining(guest.remaining);
+                    if (guest.remaining === 0) {
+                      setNotice("You’ve used your 2 free prompts. Log in or create an account to continue.");
+                      setAuthOpen(true);
+                      return;
+                    }
+                  }
                   const p = await request<Project>("/projects", "POST", {
                     prompt,
                     name,
                     reference_text: reference,
                   });
                   accept(p);
+                  if (!user) void ensureGuest(true).then((session) => setRemaining(session.remaining)).catch(() => {});
                   setTab("Requirements");
                   void request<Summary[]>("/projects")
                     .then(setProjects)
@@ -127,6 +149,7 @@ export default function InputInterface({
               {busy ? "Understanding…" : "Create my app"} <span>↗</span>
             </button>
           </div>
+          {!user && <p className="subtle" role="status">{remaining} of 2 free prompts remaining. <button type="button" className="text-button" onClick={() => setAuthOpen(true)}>Sign in for more</button></p>}
           <div className="sample-row">
             <small>TRY AN IDEA</small>
             {samples.map((s) => (

@@ -20,6 +20,23 @@ def test_mixed_screen_list_does_not_turn_instructions_into_pages():
 PROMPT = "Create me a makeup application with homescreen, menu screen, user profile, and dont add settings. Give me a screen where there is a medical record that the doctor gave to the patient, it should include patient name, patient id, patient condition, skin colour"
 
 
+def test_requested_custom_form_has_local_save_behavior():
+    pages = ["custom_warranty"]
+    configs, requirements = {}, {}
+    complete_custom_screens("Add a warranty page with fields: warranty number, expiry date and allow editing and save on this device.", pages, configs, requirements)
+    assert configs["custom_warranty"]["interaction"] == "form"
+    assert "save the record on this device" in requirements["custom_warranty"]
+    assert all(not field["value"] for section in configs["custom_warranty"]["sections"] for field in section["fields"])
+
+
+def test_readonly_custom_record_does_not_become_form():
+    pages = ["custom_medical_record"]
+    configs, requirements = {}, {}
+    complete_custom_screens("Add a read-only medical record page with patient name and patient ID. Do not invent data.", pages, configs, requirements)
+    assert configs["custom_medical_record"]["interaction"] == "information"
+    assert "read-only" in requirements["custom_medical_record"]
+
+
 @pytest.mark.parametrize("exclusion", ["dont add settings", "don't include settings", "do not show settings", "without settings"])
 def test_exclusions(exclusion):
     assert "settings" in excluded_pages(exclusion)

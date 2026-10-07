@@ -17,7 +17,7 @@ import zipfile
 from typing import Literal
 from urllib.parse import quote
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, Response, StreamingResponse
 from pydantic import BaseModel, Field
 
@@ -26,6 +26,7 @@ from modules.utilities import store
 from modules.compiler.compiler import bundle, compile_project
 from modules.engine.domain import products
 from modules.component_generator.retrieval import retrieve_for_screens
+from modules.component_generator.images import assign_product_images
 from modules.component_generator.composition import default_composition
 from modules.tester.tester import Tester
 from modules.component_generator.custom_screens import complete_custom_screens
@@ -42,7 +43,7 @@ from component_library.retrieverRAG import get_rag_components
 
 from modules.utilities import auth
 
-router = APIRouter(prefix="/api")
+router = APIRouter(prefix="/api", dependencies=[Depends(auth.authorize_workspace)])
 router.include_router(auth.router)
 JOBS = {}
 
@@ -130,7 +131,7 @@ def rag_search(query: str = "", top_k: int = 5):
 
 
 @router.get("/projects")
-def projects():
+def projects(request: Request = None):
     return [
         {
             "id": p["id"],
@@ -139,11 +140,13 @@ def projects():
             "updated_at": p["updated_at"],
         }
         for p in store.listing()
+        if not auth.firebase_enabled() or (request is not None and p.get("owner_id") == request.state.user["id"])
     ]
 
 
-@router.post("/projects", status_code=201)
-def create(req: Create):
+@router.post("/projects", status_code=201, dependencies=[Depends(auth.prompt_budget)])
+# Prompt-to-plan coordinator: runs intake, layout recommendations, RAG and planning, then saves requirements for review.
+def create(req: Create, request: Request = None):
     started = time.perf_counter()
     timings = {}
     if not req.prompt.strip():
@@ -167,6 +170,7 @@ def create(req: Create):
     timings["layout_ms"] = round((time.perf_counter() - stage_started) * 1000, 2)
     stage_started = time.perf_counter()
     rag_comps = retrieve_for_screens(canonical, spec["pages"])
+    retrieved_pages = tuple(spec["pages"])
     timings["retrieval_ms"] = round((time.perf_counter() - stage_started) * 1000, 2)
     stage_started = time.perf_counter()
     spec["rag_components"] = rag_comps
@@ -180,7 +184,10 @@ def create(req: Create):
             raise HTTPException(502, str(exc))
     timings["planning_ms"] = round((time.perf_counter() - stage_started) * 1000, 2)
     # Planning can introduce screens missed by the classifier; retrieve their references too.
-    planned_refs = retrieve_for_screens(canonical, spec["pages"])
+    planned_refs = (
+        retrieve_for_screens(canonical, spec["pages"])
+        if tuple(spec["pages"]) != retrieved_pages else []
+    )
     previous_refs = {item["name"]: item for item in rag_comps}
     for item in planned_refs:
         previous = previous_refs.get(item["name"])
@@ -203,6 +210,11 @@ def create(req: Create):
     if api_plan:
         api_plan["rag_components"] = rag_comps
     spec.setdefault("products", products(spec["business"]))
+    stage_started = time.perf_counter()
+    imagery = assign_product_images(spec)
+    timings["images_ms"] = round((time.perf_counter() - stage_started) * 1000, 2)
+    if api_plan:
+        api_plan["products"] = spec["products"]
     pid = uuid.uuid4().hex
     custom_reqs = spec.get("page_requirements", {})
     try:
@@ -241,6 +253,7 @@ def create(req: Create):
             screen["composition"] = default_composition(spec["business"], page, screen.get("layout", design_tokens["layout"]), canonical)
     default_nfr = generate_non_functional_requirements(spec, design_tokens)
     p = {
+        "owner_id": request.state.user["id"] if request is not None and auth.firebase_enabled() else None,
         "id": pid,
         "name": req.name,
         "prompt": req.prompt,
@@ -268,6 +281,7 @@ def create(req: Create):
         "build_revision": None,
         "deployment": None,
         "performance": timings,
+        "imagery": imagery,
     }
     p["api_plan"] = api_plan
     if api_plan:
@@ -293,7 +307,7 @@ class RefineDesign(BaseModel):
     instructions: str = Field(min_length=8, max_length=4000)
 
 
-@router.post("/projects/{pid}/refine-design")
+@router.post("/projects/{pid}/refine-design", dependencies=[Depends(auth.prompt_budget)])
 def refine_design(pid: str, req: RefineDesign):
     with store.LOCK:
         p = mutable(pid)
@@ -367,6 +381,7 @@ def get_srs_pdf(pid: str):
 
 
 @router.put("/projects/{pid}/review")
+# Requirement approval: validates and saves the selected screens and design; building is a separate step.
 def review(pid: str, req: Review):
     with store.LOCK:
         p = mutable(pid)
@@ -420,6 +435,7 @@ def review(pid: str, req: Review):
         return p
 
 
+# Build worker: assembles source, bundles the preview and runs structural checks; failures are recorded on the project.
 def run_job(pid, cancel, rebuild_only=False):
     try:
         p = fetch(pid)
@@ -525,6 +541,7 @@ def run_job(pid, cancel, rebuild_only=False):
                 JOBS.pop(pid, None)
 
 
+# Background execution: requires approved requirements and starts a cancellable build thread without blocking the UI.
 def launch(pid, rebuild_only=False):
     with store.LOCK:
         p = mutable(pid)
@@ -645,6 +662,8 @@ def edit_file(pid: str, path: str, req: Edit):
 
 @router.get("/projects/{pid}/preview/{asset:path}")
 def preview(pid: str, asset: str):
+    if asset.startswith("~"):
+        asset = asset.partition("/")[2]
     p = fetch(pid)
     if p["build_revision"] is None:
         raise HTTPException(409, "Build the project first.")
@@ -661,12 +680,14 @@ def preview(pid: str, asset: str):
         }.get(path.suffix),
         headers={
             "Cache-Control": "no-store",
+            "Referrer-Policy": "no-referrer",
             "Content-Security-Policy": "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: https://images.unsplash.com; connect-src 'none'; font-src data:;",
         },
     )
 
 
 @router.get("/projects/{pid}/download")
+# Project export: packages a current successful build, generated source and SRS in a customer-name-jinie ZIP.
 def download(pid: str):
     p = fetch(pid)
     if p["status"] != "ready" or p["build_revision"] != p["revision"]:

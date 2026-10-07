@@ -2,9 +2,11 @@
 
 import json
 import os
+from hashlib import sha256
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
+from modules.utilities.performance import memoized
 
 from modules.engine.domain import PRODUCTS, products
 from modules.component_generator.composition import Composition, default_composition, ground_composition
@@ -49,6 +51,7 @@ class ScreenConfig(BaseModel):
     composition: Composition | None = None
     reference_components: list[str] = Field(default_factory=list, max_length=6)
     sections: list[InformationSection] = Field(default_factory=list, max_length=6)
+    interaction: Literal["information", "form"] = "information"
 
 
 class Plan(BaseModel):
@@ -137,7 +140,29 @@ def repair_code_candidate(raw_code: str, error_info: str) -> str:
         return raw_code
 
 
+# API planner: combines customer instructions, local predictions and retrieved references into a structured plan; identical requests are briefly cached.
 def plan_requirements(prompt, reference, local_spec, rag_components=None):
+    """Reuse identical successful plans briefly; changed inputs always get a new plan."""
+    config = configuration()
+    if not config["configured"]:
+        return _plan_requirements(prompt, reference, local_spec, rag_components)
+    # Scope reuse to the configured credentials/model without retaining the key itself.
+    credential = sha256(os.environ["OPENAI_API_KEY"].encode()).hexdigest()
+    return _cached_plan(
+        prompt, reference,
+        json.dumps(local_spec, sort_keys=True, ensure_ascii=False),
+        json.dumps(rag_components or [], sort_keys=True, ensure_ascii=False),
+        config["model"], credential,
+    )
+
+
+@memoized(maxsize=16, ttl=300)
+def _cached_plan(prompt, reference, local_json, rag_json, model, credential):
+    # The last two arguments invalidate reuse when backend configuration changes.
+    return _plan_requirements(prompt, reference, json.loads(local_json), json.loads(rag_json))
+
+
+def _plan_requirements(prompt, reference, local_spec, rag_components=None):
     config = configuration()
     if not config["configured"]:
         raise PlannerError(
@@ -157,7 +182,11 @@ def plan_requirements(prompt, reference, local_spec, rag_components=None):
                 business: [item["image_url"] for item in products(business)]
                 for business in PRODUCTS
             },
-            "retrieved_ui_components": rag_components or [],
+            # Keep relevance evidence, omit backend-only import metadata.
+            "retrieved_ui_components": [
+                {key: item[key] for key in ("name", "category", "description", "props", "screens", "score") if key in item}
+                for item in rag_components or []
+            ],
             "retrieved_layout_examples": retrieve_layout_examples(prompt, local_spec),
         }
         with OpenAI(
@@ -174,7 +203,9 @@ def plan_requirements(prompt, reference, local_spec, rag_components=None):
                             "Use supported_screen_behaviors for standard screens. For a requested custom read-only information screen, "
                             "use a custom_ prefixed snake_case page ID and supply sections with titles and labelled fields in screen_configs. "
                             "Include every requested field. Leave values empty; never invent patient records or diagnoses. "
-                            "Custom screens support read-only information, not saving forms or remote data integrations. "
+                            "Custom screens support read-only information or local editable forms. Set interaction=form only when "
+                            "the user explicitly requests entering, editing, submitting or saving fields. Values start empty; "
+                            "saved forms stay on the user's device. Remote data integrations are not implemented. "
                             "When the user lists screens, avoid unrequested commerce screens. "
                             "Interpret dont add, don't include, without and remove as exclusions. Include requested screens; "
                             "strictly omit excluded screens. Checkout requires cart. Settings and profile are local demo screens. "
@@ -208,7 +239,9 @@ def plan_requirements(prompt, reference, local_spec, rag_components=None):
                             "Use dark-enough primary colors for white button text. Honor requested colors, theme and navigation. "
                             "Honor requested grid, editorial or cards layouts per screen; otherwise consider local layout recommendations. "
                             "If search is excluded, set show_search false on every screen. "
-                            "Generate 4 to 8 illustrative products with PKR prices. Use ONLY image URLs from "
+                            "Keep output concise without omitting requested screens, fields or behaviors. "
+                            "Use a summary of at most 60 words, concise testable page requirements, and short product descriptions. "
+                            "Generate 4 illustrative products with PKR prices unless the brief requests more (up to 12). Use ONLY image URLs from "
                             "available_sample_photography for the matching business, or leave image_url empty. "
                             "Do not invent image URLs, genuine ratings, endorsements or factual company claims. "
                             "Use short titles, readable descriptions and purposeful badges; avoid repetitive marketing filler."
@@ -216,7 +249,7 @@ def plan_requirements(prompt, reference, local_spec, rag_components=None):
                     },
                     {
                         "role": "user",
-                        "content": json.dumps(user_payload, ensure_ascii=False),
+                        "content": json.dumps(user_payload, ensure_ascii=False, separators=(",", ":")),
                     },
                 ],
                 response_format=Plan,

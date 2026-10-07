@@ -18,6 +18,7 @@ SCREEN_QUERIES = {
 }
 
 
+# Component RAG: combines screen-specific and prompt relevance to select catalogue references, not executable code.
 def retrieve_for_screens(prompt, pages):
     return _retrieve_cached(prompt, tuple(dict.fromkeys(pages)))
 

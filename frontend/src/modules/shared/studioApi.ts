@@ -18,10 +18,11 @@ export async function request<T>(
     method === "GET" ? 20000 : 120000,
   );
   try {
+    if (path !== "/health" && !path.startsWith("/auth/") && !localStorage.getItem("jinie_auth_token")) await ensureGuest();
     const response = await fetch(API + path, {
       signal: controller.signal,
       method,
-      headers: data ? { "Content-Type": "application/json" } : {},
+      headers: { ...authHeaders(), ...(data ? { "Content-Type": "application/json" } : {}) },
       body: data ? JSON.stringify(data) : undefined,
     });
     if (!response.ok) {
@@ -35,6 +36,9 @@ export async function request<T>(
       } catch {
         message = response.statusText;
       }
+      if (response.status === 403 && message.includes("2 free prompts")) {
+        window.dispatchEvent(new CustomEvent("jinie-login-required", { detail: message }));
+      }
       throw new Error(message);
     }
     return await response.json();
@@ -47,6 +51,39 @@ export async function request<T>(
   } finally {
     window.clearTimeout(timeout);
   }
+}
+
+export function authHeaders(): Record<string, string> {
+  const token = localStorage.getItem("jinie_auth_token");
+  const guest = localStorage.getItem("jinie_guest_token");
+  return { ...(token ? { Authorization: "Bearer " + token } : {}), ...(guest ? { "X-Jinie-Guest": guest } : {}) };
+}
+
+let guestPending: Promise<{ remaining: number }> | undefined;
+export async function ensureGuest(refresh = false): Promise<{ remaining: number }> {
+  if (!refresh && localStorage.getItem("jinie_guest_token")) return { remaining: Number(localStorage.getItem("jinie_guest_remaining") ?? 2) };
+  if (!guestPending) guestPending = (async () => {
+    const response = await fetch(API + "/auth/guest", { method: "POST", headers: authHeaders() });
+    const session = await response.json();
+    if (!response.ok) throw new Error(session.detail || "Could not start a guest session.");
+    localStorage.setItem("jinie_guest_token", session.guest_token);
+    localStorage.setItem("jinie_guest_asset_token", session.asset_token);
+    localStorage.setItem("jinie_guest_remaining", String(session.remaining));
+    return session;
+  })().finally(() => { guestPending = undefined; });
+  return guestPending;
+}
+
+export function previewAssetToken(): string {
+  return localStorage.getItem(localStorage.getItem("jinie_auth_token") ? "jinie_asset_token" : "jinie_guest_asset_token") || "";
+}
+
+// Read-only access tokens allow sandboxed previews and downloads without exposing a workspace login token.
+export function assetUrl(url: string): string {
+  const token = previewAssetToken();
+  if (!token) return url;
+  if (url.includes("/preview/")) return url.replace("/preview/", "/preview/~" + encodeURIComponent(token) + "/");
+  return url + (url.includes("?") ? "&" : "?") + "asset_token=" + encodeURIComponent(token);
 }
 export const samples = [
   {

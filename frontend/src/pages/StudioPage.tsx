@@ -2,6 +2,8 @@ import BrandLogo from "../components/BrandLogo";
 import ScreenShowcaseSection from "../modules/live_review_panel/ScreenShowcaseSection";
 import type { Project } from "../modules/shared/types";
 import AuthModal from "../components/auth/AuthModal";
+import UserAvatar from "../components/auth/UserAvatar";
+import AccountSettings from "../modules/account_settings/AccountSettings";
 import "../styles/studio.css";
 import "../styles/appearance.css";
 import "../styles/workbench.css";
@@ -16,6 +18,7 @@ import EvidencePanel from "../modules/shared/EvidencePanel";
 import DeployDashboard from "../modules/deploy_dashboard/DeployDashboard";
 import LiveLogStream from "../modules/progress_and_status_panel/LiveLogStream";
 import useStudioController from "../modules/shared/useStudioController";
+// Workspace shell: connects the separate frontend modules to shared project state and navigation.
 export default function StudioPage() {
   const context = useStudioController();
   const {
@@ -134,10 +137,9 @@ export default function StudioPage() {
         <div className="sidebar-bottom">
           {user ? (
             <div className="sidebar-user-block">
+              <button className="text-button account-open-button" onClick={() => setTab("Account")}>⚙ Profile & settings</button>
               <div className="sidebar-user-info">
-                <div className="avatar" title={user.email}>
-                  {user.initials}
-                </div>
+                <UserAvatar user={user} />
                 <div className="sidebar-user-text">
                   <strong>{user.full_name}</strong>
                   <small>{user.email}</small>
@@ -193,11 +195,11 @@ export default function StudioPage() {
                   border: "1px solid var(--edge)",
                 }}
               >
-                <span
-                  style={{ fontSize: 11, fontWeight: 600, color: "var(--fg)" }}
+                <button type="button" className="text-button" onClick={() => setTab("Account")}
+                  style={{ fontSize: 11, fontWeight: 600, color: "var(--fg)", display: "flex", alignItems: "center", gap: 8 }}
                 >
-                  👤 {user.full_name}
-                </span>
+                  <UserAvatar user={user} size={26} /> {user.full_name}
+                </button>
                 <button
                   className="sidebar-logout-btn"
                   onClick={logout}
@@ -267,7 +269,8 @@ export default function StudioPage() {
             </div>
           )}
           {tab === "Prompt" && <InputInterface {...context} />}
-          {project && tab !== "Prompt" && (
+          {tab === "Account" && user && <AccountSettings {...context} />}
+          {project && tab !== "Prompt" && tab !== "Account" && (
             <>
               <div className="workspace-heading">
                 <div>

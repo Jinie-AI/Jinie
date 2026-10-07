@@ -122,6 +122,7 @@ def excluded_pages(prompt):
     return excluded
 
 
+# Screen contract: reconciles model suggestions with requested screens, exclusions and navigation dependencies.
 def normalize_pages(pages, prompt):
     excluded = excluded_pages(prompt)
     custom = requested_custom_pages(prompt)

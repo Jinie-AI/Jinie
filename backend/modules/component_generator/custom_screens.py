@@ -89,6 +89,7 @@ def generic_screen_request(prompt, page, use_explicit_fields=False):
     }
 
 
+# Custom screens: preserve requested fields and empty initial values; explicit form requests enable local entry and saving.
 def complete_custom_screens(prompt, pages, configs, requirements):
     explicit = medical_record_request(prompt)
     if explicit:
@@ -129,7 +130,16 @@ def complete_custom_screens(prompt, pages, configs, requirements):
             for field in section["fields"]:
                 field["value"] = ""  # Do not fabricate personal or clinical records.
         config["sections"] = sections
+        # Infer behavior from this screen's own sentence, not unrelated screens.
+        title_words = page.removeprefix("custom_").replace("_", " ")
+        context = next((sentence for sentence in re.split(r"[.;\n]", prompt)
+                        if title_words in sentence.casefold()), "")
+        readonly = bool(re.search(r"\bread[- ]only\b|\bview only\b|\bdo not (?:edit|save)\b", context, re.I))
+        editable = bool(re.search(r"\b(?:form|editable|editing|enter|input|submit|save)\b", context, re.I))
+        config["interaction"] = "form" if editable and not readonly else "information"
         labels = [f["label"] for s in sections for f in s["fields"]]
-        requirements[page] = f"Display the {config.get('title') or page} screen with labelled fields: " + ", ".join(labels) + ". Show Not provided for missing values. This screen is read-only."
+        behavior = (" Allow the user to enter these fields, validate non-empty values and save the record on this device. No remote submission occurs."
+                    if config["interaction"] == "form" else " Show Not provided for missing values. This screen is read-only.")
+        requirements[page] = f"Display the {config.get('title') or page} screen with labelled fields: " + ", ".join(labels) + "." + behavior
     if len(pages) > 10:
         raise ValueError("This request exceeds the current limit of ten screens. Reduce the requested screens.")

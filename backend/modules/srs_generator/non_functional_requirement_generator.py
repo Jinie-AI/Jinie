@@ -1,6 +1,7 @@
 """Generate quality requirements from the actual application specification."""
 
 
+# Non-functional requirements: records quality targets for the application; targets are not proof that performance has been measured.
 def generate_non_functional_requirements(spec, design=None):
     """Return measurable targets relevant to the selected screens and features."""
     pages = set(spec.get("pages", []))

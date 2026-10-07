@@ -49,6 +49,7 @@ export type Project = {
       category?: string;
       description?: string;
       image_url?: string;
+      image_credit?: { name: string; url: string; source_url: string };
       icon?: string;
       badge?: string;
       rating?: number;
@@ -80,4 +81,4 @@ export type Project = {
   nfr: { id: string; category?: string; text: string }[];
   rag_components?: RetrievedComponent[];
 };
-export type Summary = { id: string; name: string; status: string };
+export type Summary = { id: string; name: string; status: string; updated_at?: string };

@@ -1,3 +1,7 @@
+import { authHeaders } from "../modules/shared/studioApi";
+import GoogleSignIn, { type AuthSession } from "../components/auth/GoogleSignIn";
+import VerificationNotice from "../components/auth/VerificationNotice";
+import AuthRecovery from "../components/auth/AuthRecovery";
 import BrandLogo from "../components/BrandLogo";
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
@@ -27,6 +31,8 @@ export default function AuthPage({
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [verificationTicket, setVerificationTicket] = useState("");
   const [success, setSuccess] = useState("");
 
   const navigate = useNavigate();
@@ -39,10 +45,18 @@ export default function AuthPage({
         ? "login"
         : defaultMode;
 
+  function finishSession(session: AuthSession) {
+    localStorage.setItem("jinie_asset_token", session.asset_token || "");
+    localStorage.setItem("jinie_user", JSON.stringify(session.user));
+    localStorage.setItem("jinie_auth_token", session.token);
+    setVerificationTicket("");
+    setSuccess("Signed in successfully! Redirecting...");
+    navigate("/");
+  }
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     if (!emailOrUser.trim() || !password) {
-      setError("Please provide your username/email and password.");
+      setError("Please provide your email and password.");
       return;
     }
     setError("");
@@ -50,7 +64,7 @@ export default function AuthPage({
     try {
       const res = await fetch(`${API}/auth/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify({
           email_or_username: emailOrUser.trim(),
           password,
@@ -58,6 +72,7 @@ export default function AuthPage({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Login failed");
+      localStorage.setItem("jinie_asset_token", data.asset_token || "");
       localStorage.setItem("jinie_user", JSON.stringify(data.user));
       localStorage.setItem("jinie_auth_token", data.token);
       setSuccess("Signed in successfully! Redirecting...");
@@ -75,8 +90,8 @@ export default function AuthPage({
       setError("Please fill out all required fields.");
       return;
     }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long.");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
       return;
     }
     if (password !== confirmPassword) {
@@ -88,7 +103,7 @@ export default function AuthPage({
     try {
       const res = await fetch(`${API}/auth/signup`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify({
           full_name: fullName.trim(),
           username: username.trim(),
@@ -98,6 +113,8 @@ export default function AuthPage({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Registration failed");
+      if (data.verification_required) { setNotice(""); setVerificationTicket(data.verification_ticket); setPassword(""); setConfirmPassword(""); return; }
+      localStorage.setItem("jinie_asset_token", data.asset_token || "");
       localStorage.setItem("jinie_user", JSON.stringify(data.user));
       localStorage.setItem("jinie_auth_token", data.token);
       setSuccess("Account created! Redirecting to workspace...");
@@ -148,6 +165,7 @@ export default function AuthPage({
             onClick={() => {
               navigate("/login");
               setError("");
+              setVerificationTicket("");
               setSuccess("");
             }}
           >
@@ -159,6 +177,7 @@ export default function AuthPage({
             onClick={() => {
               navigate("/signup");
               setError("");
+              setVerificationTicket("");
               setSuccess("");
             }}
           >
@@ -167,6 +186,9 @@ export default function AuthPage({
         </div>
 
         {error && <div className="auth-error-banner">{error}</div>}
+        {notice && <p className="subtle" role="status">{notice}</p>}
+        {verificationTicket ? <VerificationNotice apiBase={API} ticket={verificationTicket} onVerified={finishSession} /> : <GoogleSignIn apiBase={API} onSuccess={finishSession} onError={setError} disabled={loading} />}
+        {verificationTicket && <button type="button" className="text-button" onClick={() => { setVerificationTicket(""); setNotice(""); setEmailOrUser(email || emailOrUser); navigate("/login"); }}>Back to sign in</button>}
         {success && (
           <div
             style={{
@@ -183,10 +205,10 @@ export default function AuthPage({
           </div>
         )}
 
-        {mode === "login" ? (
+        {!verificationTicket && (mode === "login" ? (
           <form onSubmit={handleLogin} className="auth-form">
-            <label className="field-label" htmlFor="login-cred">
-              EMAIL OR USERNAME
+<div className="auth-field">            <label className="field-label" htmlFor="login-cred">
+              EMAIL ADDRESS
             </label>
             <input
               id="login-cred"
@@ -194,11 +216,11 @@ export default function AuthPage({
               required
               value={emailOrUser}
               onChange={(e) => setEmailOrUser(e.target.value)}
-              placeholder="e.g. dev@jinie.ai or developer"
+              placeholder="you@example.com"
               autoFocus
-            />
+            /></div>
 
-            <label className="field-label" htmlFor="login-pwd">
+<div className="auth-field">            <label className="field-label" htmlFor="login-pwd">
               PASSWORD
             </label>
             <input
@@ -208,14 +230,9 @@ export default function AuthPage({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
-            />
+            /></div>
 
-            <div className="auth-demo-hint">
-              <small>
-                Demo account: <code>dev@jinie.ai</code> /{" "}
-                <code>password123</code>
-              </small>
-            </div>
+            <AuthRecovery apiBase={API} email={emailOrUser} password={password} onMessage={setNotice} onError={setError} onVerification={(ticket) => { setVerificationTicket(ticket); setNotice(""); }} />
 
             <button
               type="submit"
@@ -226,8 +243,8 @@ export default function AuthPage({
             </button>
           </form>
         ) : (
-          <form onSubmit={handleSignup} className="auth-form">
-            <label className="field-label" htmlFor="signup-fn">
+          <form onSubmit={handleSignup} className="auth-form auth-signup-form">
+<div className="auth-field">            <label className="field-label" htmlFor="signup-fn">
               FULL NAME
             </label>
             <input
@@ -238,9 +255,9 @@ export default function AuthPage({
               onChange={(e) => setFullName(e.target.value)}
               placeholder="e.g. Sarah Connor"
               autoFocus
-            />
+            /></div>
 
-            <label className="field-label" htmlFor="signup-un">
+<div className="auth-field">            <label className="field-label" htmlFor="signup-un">
               USERNAME
             </label>
             <input
@@ -250,9 +267,9 @@ export default function AuthPage({
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="e.g. sconnor"
-            />
+            /></div>
 
-            <label className="field-label" htmlFor="signup-em">
+<div className="auth-field">            <label className="field-label" htmlFor="signup-em">
               EMAIL ADDRESS
             </label>
             <input
@@ -262,10 +279,10 @@ export default function AuthPage({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="e.g. sarah@example.com"
-            />
+            /></div>
 
-            <label className="field-label" htmlFor="signup-pw">
-              PASSWORD (MIN 6 CHARACTERS)
+<div className="auth-field">            <label className="field-label" htmlFor="signup-pw">
+              PASSWORD (MIN 8 CHARACTERS)
             </label>
             <input
               id="signup-pw"
@@ -274,9 +291,9 @@ export default function AuthPage({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Create a password"
-            />
+            /></div>
 
-            <label className="field-label" htmlFor="signup-cpw">
+<div className="auth-field">            <label className="field-label" htmlFor="signup-cpw">
               CONFIRM PASSWORD
             </label>
             <input
@@ -286,7 +303,7 @@ export default function AuthPage({
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm your password"
-            />
+            /></div>
 
             <button
               type="submit"
@@ -296,7 +313,7 @@ export default function AuthPage({
               {loading ? "Creating Account…" : "Create Account ↗"}
             </button>
           </form>
-        )}
+        ))}
 
         <div style={{ textAlign: "center", marginTop: 18 }}>
           <Link

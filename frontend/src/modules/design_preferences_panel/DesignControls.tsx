@@ -7,6 +7,7 @@ interface Props {
   disabled: boolean;
 }
 
+// Module 11 - Design Preferences: edits shared colours, typography, navigation and theme tokens.
 export default function DesignControls({
   design,
   recommendations,

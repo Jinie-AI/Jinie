@@ -1,4 +1,5 @@
 import type { StudioContext } from "../shared/useStudioController";
+// Live activity: displays timestamped backend events so the user can follow the generation process.
 export default function LiveLogStream({
   project,
   active,

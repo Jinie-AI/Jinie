@@ -1,5 +1,6 @@
 import { request } from "../shared/studioApi";
 import type { StudioContext } from "../shared/useStudioController";
+// Module 12 - Progress: displays workflow stages and lets the user request cancellation of an active build.
 export default function StageTracker({
   project,
   tab,

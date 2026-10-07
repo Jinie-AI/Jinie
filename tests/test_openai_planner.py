@@ -22,6 +22,53 @@ BASE = {
 }
 
 
+@pytest.fixture(autouse=True)
+def clear_planner_cache():
+    planner._cached_plan.cache_clear()
+    yield
+    planner._cached_plan.cache_clear()
+
+
+def test_identical_plans_reused_without_sharing_mutable_results(monkeypatch):
+    calls = []
+    monkeypatch.setenv("OPENAI_API_KEY", "test-cache-key")
+
+    def generate(*args):
+        calls.append(args)
+        return {"pages": ["home"]}, {"summary": "Ready"}
+
+    monkeypatch.setattr(planner, "_plan_requirements", generate)
+    first, _ = planner.plan_requirements("shop", "", BASE)
+    first["pages"].append("settings")
+    second, _ = planner.plan_requirements("shop", "", BASE)
+    assert second["pages"] == ["home"]
+    assert len(calls) == 1
+    planner.plan_requirements("shop without settings", "", BASE)
+    planner.plan_requirements("shop", "new reference", BASE)
+    planner.plan_requirements("shop", "", BASE, [{"name": "Button"}])
+    planner.plan_requirements("shop", "", {**BASE, "style": "luxury"})
+    monkeypatch.setenv("OPENAI_MODEL", "different-model")
+    planner.plan_requirements("shop", "", BASE)
+    monkeypatch.setenv("OPENAI_API_KEY", "different-test-key")
+    planner.plan_requirements("shop", "", BASE)
+    assert len(calls) == 7
+
+
+def test_failed_plans_are_retried_instead_of_cached(monkeypatch):
+    calls = []
+    monkeypatch.setenv("OPENAI_API_KEY", "test-cache-key")
+
+    def generate(*args):
+        calls.append(args)
+        raise planner.PlannerError("Connection failed")
+
+    monkeypatch.setattr(planner, "_plan_requirements", generate)
+    for _ in range(2):
+        with pytest.raises(planner.PlannerError):
+            planner.plan_requirements("shop", "", BASE)
+    assert len(calls) == 2
+
+
 def mock_response(monkeypatch, plan=None, refusal=None):
     import openai
 

@@ -1,6 +1,8 @@
+import { assetUrl } from "../shared/studioApi";
 import SrsDocument from "./SrsDocument";
 import { API, pages } from "../shared/studioApi";
 import type { StudioContext } from "../shared/useStudioController";
+// Module 13 - SRS Review: lets users edit, select and approve requirements before accepting the screen design.
 export default function SrsViewerAndEditor({
   project,
   setProject,
@@ -64,7 +66,7 @@ export default function SrsViewerAndEditor({
             }}
           >
             <a
-              href={API + endpoint("/srs.pdf")}
+              href={assetUrl(API + endpoint("/srs.pdf"))}
               target="_blank"
               rel="noreferrer"
               download={`SRS_${project.name}.pdf`}
@@ -437,7 +439,7 @@ export default function SrsViewerAndEditor({
               Screens customizer →
             </button>
             <a
-              href={API + endpoint("/srs.pdf")}
+              href={assetUrl(API + endpoint("/srs.pdf"))}
               target="_blank"
               rel="noreferrer"
               download={`SRS_${project.name}.pdf`}

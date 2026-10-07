@@ -61,6 +61,7 @@ def intake_model():
 
 
 @memoized(maxsize=64)
+# DistilBERT intake: classifies business, style, screens and features; explicit prompt rules reconcile the screen selection.
 def intake(prompt):
     baseline = extract(prompt)
     if not (MODEL_DIR / "intake/config.json").exists():
@@ -140,6 +141,7 @@ def layout_model():
 
 
 @memoized(maxsize=128)
+# Random Forest layout recommendation: ranks layouts from business/page/style inputs; rules are used if inference is unavailable.
 def recommend(business, page, style):
     if (MODEL_DIR / "layout.joblib").exists():
         try:
@@ -184,6 +186,7 @@ def code_model():
 
 
 @memoized(maxsize=8, ttl=3600)
+# CodeT5 candidate: proposes component code for validation; the compiler preserves the accepted working component.
 def code_candidate(description):
     if not (MODEL_DIR / "code/config.json").exists():
         return None

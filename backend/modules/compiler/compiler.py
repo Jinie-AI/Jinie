@@ -13,6 +13,7 @@ TEMPLATES = ROOT / "backend/studio/templates"
 from modules.component_generator.catalog import component_source
 
 
+# Application assembly: writes configuration, screen behavior, reusable components and project scaffolding from the accepted plan.
 def compile_project(p):
     p["renderer_version"] = 2
     pid = p["id"]
@@ -259,6 +260,7 @@ def compile_project(p):
     return p
 
 
+# Preview compilation: esbuild transforms generated React Native Web source into browser assets; it does not interpret the prompt.
 def bundle(p):
     node = shutil.which("node")
     if not node:

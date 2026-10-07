@@ -5,6 +5,7 @@ from pathlib import Path
 from modules.tester.build_checks import check_artifacts
 
 
+# Build testing: verifies generated artifacts and structural coverage; full device and user-flow acceptance still require testing.
 class Tester:
     def generate_tests(self, functional_specs: list[dict]) -> list[dict]:
         return [

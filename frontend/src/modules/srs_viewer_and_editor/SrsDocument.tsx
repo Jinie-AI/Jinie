@@ -1,3 +1,4 @@
+import { authHeaders } from "../shared/studioApi";
 import { useEffect, useState } from "react";
 type Document = {
   name: string;
@@ -16,7 +17,7 @@ export default function SrsDocument({
   const [error, setError] = useState("");
   useEffect(() => {
     const controller = new AbortController();
-    fetch(url, { signal: controller.signal })
+    fetch(url, { signal: controller.signal, headers: authHeaders() })
       .then((r) => {
         if (!r.ok)
           throw new Error(

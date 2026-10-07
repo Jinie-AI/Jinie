@@ -11,6 +11,7 @@
     "format:studio": "prettier --write src/pages/StudioPage.tsx src/modules src/styles/studio-refinements.css"
   },
   "dependencies": {
+    "firebase": "^12.19.0",
     "prismjs": "^1.30.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",

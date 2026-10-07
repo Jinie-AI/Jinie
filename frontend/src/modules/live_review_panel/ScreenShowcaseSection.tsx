@@ -32,6 +32,7 @@ const labelFor = (page: string) =>
         .replaceAll("_", " ")
         .replace(/\b\w/g, (c) => c.toUpperCase());
 
+// Screens workspace: previews proposed layouts and collects design refinements before the working app is built.
 export default function ScreenShowcaseSection({
   project,
   screenConfigs,

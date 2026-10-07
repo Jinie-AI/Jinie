@@ -9,6 +9,8 @@ import {
   TextInput,
   Image,
   StyleSheet,
+  Linking,
+  Modal,
   useColorScheme,
 } from "react-native";
 import ProductCard from "./ProductCard";
@@ -95,6 +97,9 @@ export default function AppView({
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const [selected, setSelected] = useState(config.products[0]);
+  const [productPopup, setProductPopup] = useState(false);
+  const [customRecords, setCustomRecords] = useState({});
+  const [customDrafts, setCustomDrafts] = useState({});
   const [address, setAddress] = useState("");
   const [customer, setCustomer] = useState("");
   const [order, setOrder] = useState(null);
@@ -123,6 +128,7 @@ export default function AppView({
           setCustomer(s.customer || "");
           setAddress(s.address || "");
           setNotifications(s.notifications ?? true);
+          setCustomRecords(s.customRecords || {});
         }
         setReady(true);
       })
@@ -133,11 +139,19 @@ export default function AppView({
   }, []);
   useEffect(() => {
     if (ready)
-      saveState({ cart, orders, customer, address, notifications }).catch(() =>
+      saveState({ cart, orders, customer, address, notifications, customRecords }).catch(() =>
         setMessage("Could not save on this device."),
       );
-  }, [cart, orders, customer, address, notifications, ready]);
+  }, [cart, orders, customer, address, notifications, customRecords, ready]);
 
+  // Product interaction: opens the selected Details screen or a popup when no Details screen was requested.
+  function openProduct(product) {
+    setSelected(product);
+    if (config.pages.includes("detail")) go("detail");
+    else setProductPopup(true);
+  }
+
+  // Cart state: increases the selected product quantity and shows confirmation; device storage persists supported app state.
   function add(p) {
     setCart((c) => ({ ...c, [p.id]: (c[p.id] || 0) + 1 }));
     setMessage(p.name + " added to bag");
@@ -184,6 +198,8 @@ export default function AppView({
     setCustomer("");
     setAddress("");
     setNotifications(true);
+    setCustomRecords({});
+    setCustomDrafts({});
     setMessage("Demo state and order history cleared.");
   }
 
@@ -395,12 +411,27 @@ export default function AppView({
                       {section.fields.map((field, j) => (
                         <View key={j} style={{ width: sc.layout === "grid" ? "46%" : "100%", paddingVertical: 12, borderBottomWidth: 1, borderColor: "#88888822", gap: 6 }}>
                           <Text style={{ color: muted, fontSize: 12 }}>{field.label}</Text>
-                          <Text style={{ color: field.value ? fg : muted, fontSize: 14 }}>{field.value || "No information added yet"}</Text>
+                          {sc.interaction === "form" ? input(field.label,
+                            customDrafts[page]?.[`${i}:${j}`] ?? customRecords[page]?.[`${i}:${j}`] ?? field.value,
+                            (value) => setCustomDrafts((previous) => ({ ...previous, [page]: { ...previous[page], [`${i}:${j}`]: value } }))) :
+                            <Text style={{ color: field.value ? fg : muted, fontSize: 14 }}>{field.value || "No information added yet"}</Text>}
                         </View>
                       ))}
                       </View>
                     </View>
                   ))}
+                  {sc.interaction === "form" && <>
+                    {button("Save record", () => {
+                      const values = { ...customRecords[page], ...customDrafts[page] };
+                      const complete = (sc.sections || []).every((section, i) => section.fields.every((field, j) => (values[`${i}:${j}`] ?? field.value).trim()));
+                      if (!complete) { setMessage("Complete each field before saving."); return; }
+                      setCustomRecords((previous) => ({ ...previous, [page]: values }));
+                      setMessage(Platform.OS === "web" && typeof window !== "undefined" && window.origin === "null"
+                        ? "Record saved for this preview session. No remote submission occurred."
+                        : "Record saved on this device. No remote submission occurred.");
+                    })}
+                    <Text style={{ color: muted, fontSize: 11 }}>Local records only. Sandboxed previews retain records for this session.</Text>
+                  </>}
                 </View>
               )}
               {(page === "home" || page === "products") && sc.composition && (
@@ -412,10 +443,7 @@ export default function AppView({
                   setQuery={setQuery}
                   category={category}
                   setCategory={setCategory}
-                  onOpen={(product) => {
-                    setSelected(product);
-                    if (config.pages.includes("detail")) go("detail");
-                  }}
+                  onOpen={openProduct}
                   onAdd={add}
                   onNavigate={go}
                   dark={dark}
@@ -573,10 +601,7 @@ export default function AppView({
                           product={p}
                           primary={config.primary}
                           dark={dark}
-                          onOpen={() => {
-                            setSelected(p);
-                            if (config.pages.includes("detail")) go("detail");
-                          }}
+                          onOpen={() => openProduct(p)}
                           onAdd={
                             config.pages.includes("cart") ? () => add(p) : null
                           }
@@ -688,10 +713,7 @@ export default function AppView({
                           product={p}
                           primary={config.primary}
                           dark={dark}
-                          onOpen={() => {
-                            setSelected(p);
-                            if (config.pages.includes("detail")) go("detail");
-                          }}
+                          onOpen={() => openProduct(p)}
                           onAdd={
                             config.pages.includes("cart") ? () => add(p) : null
                           }
@@ -794,10 +816,7 @@ export default function AppView({
                           product={p}
                           primary={config.primary}
                           dark={dark}
-                          onOpen={() => {
-                            setSelected(p);
-                            if (config.pages.includes("detail")) go("detail");
-                          }}
+                          onOpen={() => openProduct(p)}
                           onAdd={
                             config.pages.includes("cart") ? () => add(p) : null
                           }
@@ -1701,11 +1720,29 @@ export default function AppView({
               <Text style={[s.footer, { color: muted }]}>
                 Made with Jinie · Responsive React Native & Web Experience
               </Text>
+              {config.products.filter((product) => product.image_credit).map((product) => (
+                <Text key={product.id + "-credit"} style={{ color: muted, fontSize: 10, textAlign: "center", marginBottom: 4 }}>
+                  Photo by <Text accessibilityRole="link" onPress={() => Linking.openURL(product.image_credit.url)}>{product.image_credit.name}</Text>
+                  {" on "}<Text accessibilityRole="link" onPress={() => Linking.openURL(product.image_credit.source_url)}>Unsplash</Text>
+                </Text>
+              ))}
             </ScrollView>
             {config.navigation === "bottom" && navigation}
           </View>
         </View>
       </View>
+      <Modal transparent visible={productPopup} animationType="fade" onRequestClose={() => setProductPopup(false)}>
+        <View style={{ flex: 1, justifyContent: "center", padding: 20, backgroundColor: "#0008" }}>
+          <View style={{ backgroundColor: cardBg, padding: 20, borderRadius: 20, gap: 12 }}>
+            {selected?.image_url && <Image source={{ uri: selected.image_url }} style={{ height: 180, borderRadius: 12 }} resizeMode="cover" />}
+            <Text style={{ color: fg, fontSize: 22, fontWeight: "700" }}>{selected?.name}</Text>
+            <Text style={{ color: muted }}>{selected?.description}</Text>
+            <Text style={{ color: fg, fontWeight: "700" }}>Rs. {selected?.price.toLocaleString()}</Text>
+            {config.pages.includes("cart") && button("Add to cart", () => { add(selected); setProductPopup(false); })}
+            {button("Close", () => setProductPopup(false), true)}
+          </View>
+        </View>
+      </Modal>
     </ConfigContext.Provider>
   );
 }

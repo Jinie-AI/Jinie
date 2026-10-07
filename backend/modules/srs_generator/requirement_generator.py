@@ -3,6 +3,7 @@ from modules.component_generator.screen_contract import CAPABILITIES
 from modules.traceability_manager.id_assigner import IDAssigner
 
 
+# Requirement numbering: converts the selected application specification into reviewable requirements with traceability IDs.
 def generate_requirements(spec):
     """Preserve selected screens, planner descriptions and initial approval state."""
     custom_reqs = spec.get("page_requirements", {})
