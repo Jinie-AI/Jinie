@@ -1,4 +1,5 @@
 import { authHeaders } from "../../modules/shared/studioApi";
+import { apiErrorMessage } from "../../modules/shared/apiError";
 import GoogleSignIn, { type AuthSession } from "./GoogleSignIn";
 import VerificationNotice from "./VerificationNotice";
 import AuthRecovery from "./AuthRecovery";
@@ -73,7 +74,7 @@ export default function AuthModal({
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Login failed");
+      if (!res.ok) throw new Error(apiErrorMessage(data, "Login failed"));
       localStorage.setItem("jinie_asset_token", data.asset_token || "");
       onAuthSuccess(data.user, data.token);
       onClose();
@@ -112,7 +113,7 @@ export default function AuthModal({
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Registration failed");
+      if (!res.ok) throw new Error(apiErrorMessage(data, "Registration failed"));
       if (data.verification_required) { setNotice(""); setVerificationTicket(data.verification_ticket); setPassword(""); setConfirmPassword(""); return; }
       localStorage.setItem("jinie_asset_token", data.asset_token || "");
       onAuthSuccess(data.user, data.token);

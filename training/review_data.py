@@ -1,4 +1,4 @@
-"""Record a bounded dataset review; never claim human review or runtime testing."""
+"""Record a bounded dataset review"""
 import json,re,hashlib,collections,shutil
 from pathlib import Path
 root=Path(__file__).resolve().parents[1];data=root/'training/data'

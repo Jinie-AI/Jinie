@@ -1,4 +1,5 @@
 import { authHeaders } from "../../modules/shared/studioApi";
+import { apiErrorMessage } from "../../modules/shared/apiError";
 import { useEffect, useRef, useState } from "react";
 import type { AuthSession } from "./GoogleSignIn";
 import "./auth-feedback.css";
@@ -24,7 +25,7 @@ export default function VerificationNotice({ apiBase, ticket, onVerified }: {
         if (cancelled) return;
         if (!response.ok) {
           if (response.status === 401 || response.status === 403) {
-            setError(data.detail || "Sign in to check your verification.");
+            setError(apiErrorMessage(data, "Sign in to check your verification."));
             return;
           }
           throw new Error("Connection interrupted. Checking again…");

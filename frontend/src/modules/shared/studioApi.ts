@@ -29,10 +29,7 @@ export async function request<T>(
       let message: string;
       try {
         const body = await response.json();
-        message =
-          typeof body.detail === "string"
-            ? body.detail
-            : JSON.stringify(body.detail);
+        message = apiErrorMessage(body, response.statusText || "Request failed.");
       } catch {
         message = response.statusText;
       }
@@ -65,7 +62,7 @@ export async function ensureGuest(refresh = false): Promise<{ remaining: number 
   if (!guestPending) guestPending = (async () => {
     const response = await fetch(API + "/auth/guest", { method: "POST", headers: authHeaders() });
     const session = await response.json();
-    if (!response.ok) throw new Error(session.detail || "Could not start a guest session.");
+    if (!response.ok) throw new Error(apiErrorMessage(session, "Could not start a guest session."));
     localStorage.setItem("jinie_guest_token", session.guest_token);
     localStorage.setItem("jinie_guest_asset_token", session.asset_token);
     localStorage.setItem("jinie_guest_remaining", String(session.remaining));
@@ -120,3 +117,4 @@ export const tabs = [
   "Evidence",
   "Deploy",
 ];
+import { apiErrorMessage } from "./apiError";

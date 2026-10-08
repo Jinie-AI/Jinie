@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiErrorMessage } from "../../modules/shared/apiError";
 
 // Firebase sends recovery links; Jinie never creates verification codes or stores account passwords.
 export default function AuthRecovery({ apiBase, email, password, onMessage, onError, onVerification }: {
@@ -20,7 +21,7 @@ export default function AuthRecovery({ apiBase, email, password, onMessage, onEr
         body: JSON.stringify(kind === "reset-password" ? { email: email.trim() } : { email_or_username: email.trim(), password }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "Could not send the email.");
+      if (!response.ok) throw new Error(apiErrorMessage(data, "Could not send the email."));
       onMessage(data.message);
       if (data.verification_ticket) onVerification?.(data.verification_ticket);
     } catch (error) {

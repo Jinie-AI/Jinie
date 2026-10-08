@@ -1,4 +1,5 @@
 import { authHeaders } from "../../modules/shared/studioApi";
+import { apiErrorMessage } from "../../modules/shared/apiError";
 import { useState } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { browserPopupRedirectResolver, GoogleAuthProvider, initializeAuth, inMemoryPersistence, signInWithPopup, signOut } from "firebase/auth";
@@ -35,7 +36,7 @@ export default function GoogleSignIn({ apiBase, onSuccess, onError, disabled }: 
         body: JSON.stringify({ id_token: idToken }),
       });
       const session = await response.json();
-      if (!response.ok) throw new Error(session.detail || "Google sign-in failed.");
+      if (!response.ok) throw new Error(apiErrorMessage(session, "Google sign-in failed."));
       onSuccess(session);
     } catch (error) {
       const code = (error as { code?: string }).code;
