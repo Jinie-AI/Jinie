@@ -229,7 +229,7 @@ export default function AuthModal({
               required
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="e.g. Sarah Connor"
+              placeholder="e.g. Ali Sher"
               autoFocus
             /></div>
 
@@ -242,7 +242,7 @@ export default function AuthModal({
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="e.g. sconnor"
+              placeholder="e.g. asher"
             /></div>
 
 <div className="auth-field">            <label className="field-label" htmlFor="signup-email">
@@ -254,7 +254,7 @@ export default function AuthModal({
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="e.g. sarah@example.com"
+              placeholder="e.g. ali@example.com"
             /></div>
 
 <div className="auth-field">            <label className="field-label" htmlFor="signup-pass">
